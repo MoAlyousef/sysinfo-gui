@@ -92,7 +92,11 @@ fn disks() {
             t.begin();
             let mut f = frame::Frame::default()
                 .with_size(80, 60)
-                .with_label(&format!("{:?}: {}", disk.type_(), String::from_utf8(disk.file_system().to_vec()).unwrap()))
+                .with_label(&format!(
+                    "{:?}: {}",
+                    disk.type_(),
+                    String::from_utf8(disk.file_system().to_vec()).unwrap()
+                ))
                 .center_of_parent();
             f.set_label_color(Color::White);
             t.end();

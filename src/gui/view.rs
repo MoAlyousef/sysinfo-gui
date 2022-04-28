@@ -88,7 +88,9 @@ fn disks() {
     grp.set_spacing(40);
     for disk in sys.disks() {
         if disk.type_() == sysinfo::DiskType::HDD || disk.type_() == sysinfo::DiskType::SSD {
-            let t = Card::new(0, 0, 300, 60, disk.name().to_str().unwrap());
+            let mut hpack = group::Pack::new(0, 0, 600, 130, None).with_type(group::PackType::Horizontal);
+            hpack.set_spacing(50);
+            let t = Card::new(0, 0, 300, 130, disk.name().to_str().unwrap());
             t.begin();
             let mut f = frame::Frame::default()
                 .with_size(80, 60)
@@ -100,6 +102,13 @@ fn disks() {
                 .center_of_parent();
             f.set_label_color(Color::White);
             t.end();
+            let grp = group::Group::default().with_size(130, 130);
+            let mut dial = Dial::new(0, 0, 100, 100, "Space").center_of_parent();
+            dial.modifiable(false);
+            dial.set_label_color(Color::White);
+            dial.set_value(((disk.total_space() - disk.available_space()) / disk.total_space()) as _);
+            grp.end();
+            hpack.end();
         }
     }
     grp.end();

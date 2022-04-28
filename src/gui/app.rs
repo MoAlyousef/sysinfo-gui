@@ -1,7 +1,6 @@
 use crate::gui::svgs::*;
 use crate::widgets::*;
 use fltk::{enums::*, prelude::*, *};
-use std::sync::{Arc, Mutex};
 
 use super::colors::*;
 use super::message::Message;
@@ -11,7 +10,6 @@ pub struct App {
     win: window::Window,
     r: app::Receiver<Message>,
     scroll: group::Scroll,
-    curr_message: Arc<Mutex<Message>>,
 }
 
 impl App {
@@ -57,7 +55,6 @@ impl App {
             win,
             r,
             scroll,
-            curr_message: Arc::new(Mutex::new(Message::General)),
         }
     }
     pub fn run(mut self) {
@@ -79,7 +76,6 @@ impl App {
                         self.scroll.begin();
                         super::view::view(msg);
                         self.scroll.end();
-                        *self.curr_message.lock().unwrap() = msg;
                         app::redraw();
                     }
                     _ => (),

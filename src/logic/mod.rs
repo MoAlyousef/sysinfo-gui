@@ -25,21 +25,19 @@ pub fn background_thread_spawn() {
     std::thread::spawn(move || loop {
         let mut sys = SYSTEM.lock().unwrap();
         sys.refresh_all();
-        let mut i = 0;
-        for proc in sys.processors() {
+        for (i, proc) in sys.processors().iter().enumerate() {
             sender
-                .try_send(SysMsg::CpuUsage(i, proc.cpu_usage() as i32))
+                .try_send(SysMsg::CpuUsage(i as i32, proc.cpu_usage() as i32))
                 .ok();
-            i += 1;
         }
         sender
-            .try_send(SysMsg::UsedMem(
-                (sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32,
+            .try_send(SysMsg::Mem(
+                sys.used_memory(), sys.total_memory()
             ))
             .ok();
         sender
-            .try_send(SysMsg::UsedSwap(
-                (sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32,
+            .try_send(SysMsg::Swap(
+                sys.used_swap(), sys.total_swap()
             ))
             .ok();
         std::thread::sleep(std::time::Duration::from_millis(

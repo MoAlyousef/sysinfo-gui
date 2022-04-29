@@ -1,5 +1,5 @@
 use crate::{
-    gui::message::Message,
+    gui::{message::Message, view::View},
     logic::{message::SysMsg, CHAN, SLEEP},
     widgets::{Card, Dial, Toggle},
 };
@@ -7,7 +7,7 @@ use fltk::{enums::*, prelude::*, *};
 use std::sync::{atomic::Ordering, Arc, Mutex};
 use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessorExt, System, SystemExt};
 
-lazy_static::lazy_static!{
+lazy_static::lazy_static! {
     pub static ref SYSTEM: Mutex<System> = {
         let mut sys = System::new_all();
         sys.refresh_all();
@@ -15,18 +15,23 @@ lazy_static::lazy_static!{
     };
 }
 
-pub fn view(message: Message) {
-    match message {
-        Message::General => general(),
-        Message::Disks => disks(),
-        Message::Proc => proc(),
-        Message::Memory => memory(),
-        Message::Net => network(),
-        Message::Settings => settings(),
+#[derive(Default)]
+pub struct MyView;
+
+impl View for MyView {
+    fn view(&self, msg: Message) -> group::Pack {
+        match msg {
+            Message::General => general(),
+            Message::Disks => disks(),
+            Message::Proc => proc(),
+            Message::Memory => memory(),
+            Message::Net => network(),
+            Message::Settings => settings(),
+        }
     }
 }
 
-fn general() {
+fn general() -> group::Pack {
     let mut sys = SYSTEM.lock().unwrap();
     sys.refresh_all();
     frame::Frame::new(50, 50, 0, 0, None);
@@ -79,9 +84,10 @@ fn general() {
     f.set_label_color(Color::White);
     t.end();
     grp.end();
+    grp
 }
 
-fn disks() {
+fn disks() -> group::Pack {
     let mut sys = SYSTEM.lock().unwrap();
     sys.refresh_all();
     frame::Frame::new(50, 50, 0, 0, None);
@@ -117,9 +123,10 @@ fn disks() {
         }
     }
     grp.end();
+    grp
 }
 
-fn proc() {
+fn proc() -> group::Pack {
     let mut sys = SYSTEM.lock().unwrap();
     sys.refresh_all();
     frame::Frame::new(50, 50, 0, 0, None);
@@ -134,7 +141,7 @@ fn proc() {
             .with_size(600, 130)
             .with_type(group::PackType::Horizontal);
         hpack.set_spacing(50);
-        let t = Card::new(0, 0, 300, 130, &proc.name());
+        let t = Card::new(0, 0, 300, 130, proc.name());
         t.begin();
         let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
         let mut f = frame::Frame::default()
@@ -148,7 +155,7 @@ fn proc() {
         pack.end();
         t.end();
         let mut g = group::Group::default().with_size(130, 130);
-        let mut dial = Dial::new(0, 0, 100, 100, "Cpu Usage").center_of_parent();
+        let mut dial = Dial::new(0, 0, 100, 100, "Cpu Usage %").center_of_parent();
         dial.modifiable(false);
         dial.set_value(proc.cpu_usage() as i32);
         dial.set_label_color(Color::White);
@@ -166,11 +173,8 @@ fn proc() {
             while b.value() {
                 let r = &CHAN.1;
                 if let Ok(msg) = r.try_recv() {
-                    match msg {
-                        SysMsg::CpuUsage(num, val) => {
-                            dials.lock().unwrap()[num as usize].set_value(val)
-                        }
-                        _ => (),
+                    if let SysMsg::CpuUsage(num, val) = msg {
+                        dials.lock().unwrap()[num as usize].set_value(val)
                     }
                     app::awake();
                     std::thread::sleep(std::time::Duration::from_millis(
@@ -180,9 +184,10 @@ fn proc() {
             }
         });
     });
+    grp
 }
 
-fn memory() {
+fn memory() -> group::Pack {
     let mut sys = SYSTEM.lock().unwrap();
     sys.refresh_all();
     frame::Frame::new(50, 50, 0, 0, None);
@@ -203,10 +208,10 @@ fn memory() {
         .with_size(0, 60)
         .with_label(&format!("Total: {} Gb", sys.total_memory() / 1000000));
     f.set_label_color(Color::White);
-    let mut f = frame::Frame::default()
+    let mut used_mem = frame::Frame::default()
         .with_size(0, 60)
         .with_label(&format!("Used: {} Gb", sys.used_memory() / 1000000));
-    f.set_label_color(Color::White);
+    used_mem.set_label_color(Color::White);
     pack.end();
     t.end();
     let mut g = group::Group::default().with_size(130, 130);
@@ -229,10 +234,10 @@ fn memory() {
         .with_size(0, 60)
         .with_label(&format!("Total: {} Gb", sys.total_swap() / 1000000));
     f.set_label_color(Color::White);
-    let mut f = frame::Frame::default()
+    let mut used_swap = frame::Frame::default()
         .with_size(0, 60)
         .with_label(&format!("Used: {} Gb", sys.used_swap() / 1000000));
-    f.set_label_color(Color::White);
+    used_swap.set_label_color(Color::White);
     pack.end();
     t.end();
     let mut g = group::Group::default().with_size(130, 130);
@@ -248,14 +253,22 @@ fn memory() {
     let dials = Arc::new(Mutex::new(dials));
     toggle.set_callback(move |b| {
         let dials = dials.clone();
+        let mut used_mem = used_mem.clone();
+        let mut used_swap = used_swap.clone();
         let b = b.clone();
         std::thread::spawn(move || {
             while b.value() {
                 let r = &CHAN.1;
                 if let Ok(msg) = r.try_recv() {
                     match msg {
-                        SysMsg::UsedMem(v) => dials.lock().unwrap()[0].set_value(v),
-                        SysMsg::UsedSwap(v) => dials.lock().unwrap()[1].set_value(v),
+                        SysMsg::Mem(v,t) => { 
+                            dials.lock().unwrap()[0].set_value((v as f64 / t as f64 * 100.) as i32);
+                            used_mem.set_label(&format!("Used: {} Gb", v / 1000000));
+                        },
+                        SysMsg::Swap(v,t) =>{
+                            dials.lock().unwrap()[1].set_value((v as f64 / t as f64 * 100.) as i32);
+                            used_swap.set_label(&format!("Used: {} Gb", v / 1000000));
+                        },
                         _ => (),
                     }
                     app::awake();
@@ -266,16 +279,17 @@ fn memory() {
             }
         });
     });
+    grp
 }
 
-fn network() {
+fn network() -> group::Pack {
     let mut sys = SYSTEM.lock().unwrap();
     sys.refresh_all();
     frame::Frame::new(50, 50, 0, 0, None);
     let mut grp = group::Pack::new(50, 50, 600, 400, None).center_of_parent();
     grp.set_spacing(40);
     for comp in sys.networks().iter() {
-        let t = Card::new(0, 0, 300, 130, &comp.0);
+        let t = Card::new(0, 0, 300, 130, comp.0);
         t.begin();
         let p = group::Pack::default()
             .with_size(300, 130)
@@ -300,6 +314,22 @@ fn network() {
         t.end();
     }
     grp.end();
+    grp
 }
 
-fn settings() {}
+fn settings() -> group::Pack {
+    let grp = group::Pack::default().with_size(100, 400).center_of_parent();
+    let mut dial = Dial::new(0, 0, 100, 100, "Sleep duration (ms)");
+    dial.set_label_color(Color::White);
+    dial.modifiable(true);
+    dial.set_maximum(10.);
+    dial.set_value(SLEEP.load(Ordering::Relaxed) as _);
+    let mut dial_c = dial.clone();
+    dial.set_callback(move |d| {
+        let val = (d.value() * 100.0) as u64;
+        SLEEP.store(val, Ordering::Relaxed);
+        dial_c.set_value(val as i32);
+    });
+    grp.end();
+    grp
+}

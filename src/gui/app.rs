@@ -1,4 +1,4 @@
-use super::message::Message;
+use super::{message::Message, view::View};
 use crate::styles::colors::*;
 use crate::styles::svgs::*;
 use crate::widgets::*;
@@ -8,10 +8,11 @@ pub struct App {
     a: app::App,
     r: app::Receiver<Message>,
     scroll: group::Scroll,
+    view: Box<dyn View>,
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new(view: impl View + 'static) -> Self {
         let a = app::App::default();
         app::background(0x32, 0x32, 0x32);
         misc::Tooltip::set_color(Color::from_rgb(0xFF, 0xFF, 0xF0));
@@ -55,7 +56,9 @@ impl App {
         let mut scroll = group::Scroll::new(60, 50, 800 - 50, 600 - 50, None);
         scroll.set_color(win.color());
         scroll.set_scrollbar_size(-1);
-        crate::view::view(Message::General);
+
+        view.view(Message::General);
+
         scroll.end();
         win.end();
         win.show();
@@ -64,14 +67,24 @@ impl App {
                 w.hide();
             }
         });
-        Self { a, r, scroll }
+        Self {
+            a,
+            r,
+            scroll,
+            view: Box::new(view),
+        }
+    }
+    pub fn spawn(&self, cb: fn()) {
+        app::add_timeout3(0.1, move |_| cb());
     }
     pub fn run(mut self) {
         while self.a.wait() {
             if let Some(msg) = self.r.recv() {
                 self.scroll.clear();
                 self.scroll.begin();
-                crate::view::view(msg);
+
+                self.view.view(msg);
+
                 self.scroll.end();
                 app::redraw();
             }

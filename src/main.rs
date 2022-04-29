@@ -9,6 +9,7 @@ fn main() {
     std::panic::set_hook(Box::new(|_| {
         // do nothing
     }));
-    logic::background_thread_spawn();
-    gui::app::App::new().run();
+    let a = gui::app::App::new(view::MyView::default());
+    a.spawn(logic::background_thread_spawn);
+    a.run();
 }

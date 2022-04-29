@@ -28,13 +28,24 @@ impl App {
             .center_of_parent()
             .with_type(group::PackType::Vertical);
         col.set_spacing(10);
-        SvgButton::new(LIST).with_tooltip("Home").emit(s, Message::General);
-        SvgButton::new(DISKS).with_tooltip("Disks info").emit(s, Message::Disks);
-        SvgButton::new(PROC).with_tooltip("Processors info").emit(s, Message::Proc);
-        SvgButton::new(MEMORY).with_tooltip("Memory info").emit(s, Message::Memory);
-        SvgButton::new(NET).with_tooltip("Network info").emit(s, Message::Net);
-        SvgButton::new(THERM).with_tooltip("Temperature info").emit(s, Message::Therm);
-        SvgButton::new(WRENCH).with_tooltip("Settings").emit(s, Message::Settings);
+        SvgButton::new(LIST)
+            .with_tooltip("Home")
+            .emit(s, Message::General);
+        SvgButton::new(DISKS)
+            .with_tooltip("Disks info")
+            .emit(s, Message::Disks);
+        SvgButton::new(PROC)
+            .with_tooltip("Processors info")
+            .emit(s, Message::Proc);
+        SvgButton::new(MEMORY)
+            .with_tooltip("Memory info")
+            .emit(s, Message::Memory);
+        SvgButton::new(NET)
+            .with_tooltip("Network info")
+            .emit(s, Message::Net);
+        SvgButton::new(WRENCH)
+            .with_tooltip("Settings")
+            .emit(s, Message::Settings);
         col.end();
         grp.end();
         let mut grp = group::Group::new(60, 0, 800 - 50, 50, "\tSysinfo")
@@ -51,37 +62,21 @@ impl App {
         scroll.end();
         win.end();
         win.show();
-        win.emit(s, Message::Quit);
-        Self {
-            a,
-            win,
-            r,
-            scroll,
-        }
+        win.set_callback(|w| {
+            if app::event() == Event::Close {
+                w.hide();
+            }
+        });
+        Self { a, win, r, scroll }
     }
     pub fn run(mut self) {
         while self.a.wait() {
             if let Some(msg) = self.r.recv() {
-                match msg {
-                    Message::Quit => {
-                        if app::event() == Event::Close {
-                            self.win.hide();
-                        }
-                    }
-                    Message::General
-                    | Message::Disks
-                    | Message::Therm
-                    | Message::Proc
-                    | Message::Memory
-                    | Message::Net => {
-                        self.scroll.clear();
-                        self.scroll.begin();
-                        super::view::view(msg);
-                        self.scroll.end();
-                        app::redraw();
-                    }
-                    _ => (),
-                }
+                self.scroll.clear();
+                self.scroll.begin();
+                super::view::view(msg);
+                self.scroll.end();
+                app::redraw();
             }
         }
     }

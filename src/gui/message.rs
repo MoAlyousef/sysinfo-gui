@@ -5,7 +5,5 @@ pub enum Message {
     Proc,
     Memory,
     Net,
-    Therm,
     Settings,
-    Quit,
 }

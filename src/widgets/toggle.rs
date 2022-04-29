@@ -22,8 +22,9 @@ impl Toggle {
                 .with_align(Align::Left | Align::Inside);
         btn.set_frame(FrameType::FlatBox);
         btn.set_down_frame(FrameType::FlatBox);
-        btn.set_color(Color::Green);
-        btn.set_selection_color(Color::Red);
+        btn.set_color(Color::Red);
+        btn.set_selection_color(Color::Green);
+        btn.set_label_color(Color::White);
         btn.clear_visible_focus();
         btn.handle(|b, ev| match ev {
             Event::Push => {
@@ -59,6 +60,9 @@ impl Toggle {
     pub fn set_label_color(&mut self, col: Color) {
         self.frm.set_label_color(col);
     }
+    pub fn set_label_size(&mut self, sz: i32) {
+        self.frm.set_label_size(sz);
+    }
     pub fn set_toggle_color(&mut self, col: Color) {
         self.btn.set_label_color(col);
     }
@@ -67,6 +71,9 @@ impl Toggle {
     }
     pub fn set_off_color(&mut self, col: Color) {
         self.btn.set_selection_color(col);
+    }
+    pub fn value(&self) -> bool {
+        self.btn.value()
     }
 }
 

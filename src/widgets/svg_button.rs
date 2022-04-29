@@ -1,4 +1,4 @@
-use crate::gui::colors::*;
+use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
 use std::ops::{Deref, DerefMut};
 

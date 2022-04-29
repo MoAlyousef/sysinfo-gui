@@ -224,6 +224,7 @@ dependencies = [
 name = "sysinfo-gui"
 version = "0.1.0"
 dependencies = [
+ "crossbeam-channel",
  "fltk",
  "lazy_static",
  "sysinfo",

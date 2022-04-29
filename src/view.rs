@@ -1,11 +1,13 @@
-use crate::widgets::{Card, Dial, Toggle};
+use crate::{
+    gui::message::Message,
+    logic::{message::SysMsg, CHAN, SLEEP},
+    widgets::{Card, Dial, Toggle},
+};
 use fltk::{enums::*, prelude::*, *};
-use std::sync::Mutex;
-
-use super::message::Message;
+use std::sync::{atomic::Ordering, Arc, Mutex};
 use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessorExt, System, SystemExt};
 
-lazy_static::lazy_static! {
+lazy_static::lazy_static!{
     pub static ref SYSTEM: Mutex<System> = {
         let mut sys = System::new_all();
         sys.refresh_all();
@@ -13,7 +15,7 @@ lazy_static::lazy_static! {
     };
 }
 
-pub fn view(message: super::message::Message) {
+pub fn view(message: Message) {
     match message {
         Message::General => general(),
         Message::Disks => disks(),
@@ -156,19 +158,27 @@ fn proc() {
         hpack.end();
     }
     grp.end();
+    let dials = Arc::new(Mutex::new(dials));
     toggle.set_callback(move |b| {
-        while b.value() {
-            let mut i = 0;
-            sys.refresh_all();
-            for proc in sys.processors() {
-                let dial = &mut dials[i];
-                dial.set_value(proc.cpu_usage() as i32);
-                i += 1;
+        let dials = dials.clone();
+        let b = b.clone();
+        std::thread::spawn(move || {
+            while b.value() {
+                let r = &CHAN.1;
+                if let Ok(msg) = r.try_recv() {
+                    match msg {
+                        SysMsg::CpuUsage(num, val) => {
+                            dials.lock().unwrap()[num as usize].set_value(val)
+                        }
+                        _ => (),
+                    }
+                    app::awake();
+                    std::thread::sleep(std::time::Duration::from_millis(
+                        SLEEP.load(Ordering::Relaxed),
+                    ));
+                }
             }
-            app::redraw();
-            app::sleep(0.03);
-            app::wait();
-        }
+        });
     });
 }
 
@@ -202,7 +212,7 @@ fn memory() {
     let mut g = group::Group::default().with_size(130, 130);
     let mut dial = Dial::new(0, 0, 100, 100, "Memory Usage %").center_of_parent();
     dial.modifiable(false);
-    dial.set_value((sys.used_memory() as f64/ sys.total_memory() as f64 * 100.) as i32);
+    dial.set_value((sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32);
     dial.set_label_color(Color::White);
     dials.push(dial);
     g.make_resizable(false);
@@ -228,22 +238,33 @@ fn memory() {
     let mut g = group::Group::default().with_size(130, 130);
     let mut dial = Dial::new(0, 0, 100, 100, "Swap Usage %").center_of_parent();
     dial.modifiable(false);
-    dial.set_value((sys.used_swap() as f64 / sys.total_swap() as f64* 100.) as i32);
+    dial.set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);
     dial.set_label_color(Color::White);
     dials.push(dial);
     g.make_resizable(false);
     g.end();
     hpack.end();
     grp.end();
+    let dials = Arc::new(Mutex::new(dials));
     toggle.set_callback(move |b| {
-        while b.value() {
-            sys.refresh_all();
-            dials[0].set_value((sys.used_memory() as f64/ sys.total_memory() as f64 * 100.) as i32);
-            dials[1].set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);
-            app::redraw();
-            app::sleep(0.03);
-            app::wait();
-        }
+        let dials = dials.clone();
+        let b = b.clone();
+        std::thread::spawn(move || {
+            while b.value() {
+                let r = &CHAN.1;
+                if let Ok(msg) = r.try_recv() {
+                    match msg {
+                        SysMsg::UsedMem(v) => dials.lock().unwrap()[0].set_value(v),
+                        SysMsg::UsedSwap(v) => dials.lock().unwrap()[1].set_value(v),
+                        _ => (),
+                    }
+                    app::awake();
+                    std::thread::sleep(std::time::Duration::from_millis(
+                        SLEEP.load(Ordering::Relaxed),
+                    ));
+                }
+            }
+        });
     });
 }
 

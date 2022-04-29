@@ -1,14 +1,11 @@
-use crate::gui::svgs::*;
+use super::message::Message;
+use crate::styles::colors::*;
+use crate::styles::svgs::*;
 use crate::widgets::*;
 use fltk::{enums::*, prelude::*, *};
-// use std::sync::atomic::{AtomicBool, Ordering};
-
-use super::colors::*;
-use super::message::Message;
 
 pub struct App {
     a: app::App,
-    win: window::Window,
     r: app::Receiver<Message>,
     scroll: group::Scroll,
 }
@@ -58,7 +55,7 @@ impl App {
         let mut scroll = group::Scroll::new(60, 50, 800 - 50, 600 - 50, None);
         scroll.set_color(win.color());
         scroll.set_scrollbar_size(-1);
-        super::view::view(Message::General);
+        crate::view::view(Message::General);
         scroll.end();
         win.end();
         win.show();
@@ -67,14 +64,14 @@ impl App {
                 w.hide();
             }
         });
-        Self { a, win, r, scroll }
+        Self { a, r, scroll }
     }
     pub fn run(mut self) {
         while self.a.wait() {
             if let Some(msg) = self.r.recv() {
                 self.scroll.clear();
                 self.scroll.begin();
-                super::view::view(msg);
+                crate::view::view(msg);
                 self.scroll.end();
                 app::redraw();
             }

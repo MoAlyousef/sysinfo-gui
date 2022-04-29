@@ -1,8 +1,8 @@
 use fltk::{enums::*, prelude::*, *};
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::AtomicI32;
-use std::sync::atomic::Ordering;
-use std::sync::Arc;
+use std::sync::{
+    atomic::{AtomicBool, AtomicI32, Ordering},
+    Arc,
+};
 
 #[derive(Debug, Clone)]
 pub struct SvgDial {
@@ -137,7 +137,14 @@ impl Dial {
             );
             draw::set_font(Font::Helvetica, 16);
             draw::set_draw_color(w.label_color());
-            draw::draw_text2(&value_c.load(Ordering::Relaxed).to_string(), w.x(), w.y(), w.w(), w.h(), Align::Center);
+            draw::draw_text2(
+                &value_c.load(Ordering::Relaxed).to_string(),
+                w.x(),
+                w.y(),
+                w.w(),
+                w.h(),
+                Align::Center,
+            );
         });
         let modifiable = Arc::new(AtomicBool::new(true));
         let mod_c = modifiable.clone();

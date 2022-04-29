@@ -19,6 +19,11 @@ impl SvgButton {
         btn.set_image(Some(image));
         Self { btn }
     }
+
+    pub fn with_tooltip(mut self, label: &str) -> Self {
+        self.btn.set_tooltip(label);
+        self
+    }
 }
 
 impl Deref for SvgButton {

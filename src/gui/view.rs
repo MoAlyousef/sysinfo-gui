@@ -95,18 +95,19 @@ fn disks() {
             let mut f = frame::Frame::default()
                 .with_size(80, 60)
                 .with_label(&format!(
-                    "{:?}: {}",
+                    "{:?}: {} - Space: {} Gb",
                     disk.type_(),
-                    String::from_utf8(disk.file_system().to_vec()).unwrap()
+                    String::from_utf8(disk.file_system().to_vec()).unwrap(),
+                    disk.total_space() / 1000000000 
                 ))
                 .center_of_parent();
             f.set_label_color(Color::White);
             t.end();
             let grp = group::Group::default().with_size(130, 130);
-            let mut dial = Dial::new(0, 0, 100, 100, "Space").center_of_parent();
+            let mut dial = Dial::new(0, 0, 100, 100, "Used space %").center_of_parent();
             dial.modifiable(false);
             dial.set_label_color(Color::White);
-            dial.set_value(((disk.total_space() - disk.available_space()) / disk.total_space()) as _);
+            dial.set_value(((disk.total_space() - disk.available_space()) * 100/ disk.total_space()) as _);
             grp.end();
             hpack.end();
         }
@@ -125,9 +126,9 @@ fn proc() {
     let mut dials = vec![];
     for proc in sys.processors() {
         let mut hpack = group::Pack::default()
-            .with_size(600, 150)
+            .with_size(600, 130)
             .with_type(group::PackType::Horizontal);
-        hpack.set_spacing(100);
+        hpack.set_spacing(50);
         let t = Card::new(0, 0, 300, 130, &proc.name());
         t.begin();
         let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
@@ -159,9 +160,9 @@ fn proc() {
             for proc in sys.processors() {
                 let dial = &mut dials[i];
                 dial.set_value(proc.cpu_usage() as i32);
-                dial.redraw();
                 i += 1;
             }
+            app::redraw();
             app::sleep(0.03);
             app::wait();
         }
@@ -186,7 +187,7 @@ fn memory() {
     t.begin();
     let mut f = frame::Frame::default()
         .with_size(80, 60)
-        .with_label(&format!("{}Kb", sys.used_memory()))
+        .with_label(&format!("{} Kb", sys.used_memory() / 1000000))
         .center_of_parent();
     f.set_label_color(Color::White);
     t.end();

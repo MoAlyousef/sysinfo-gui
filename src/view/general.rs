@@ -1,6 +1,5 @@
-use super::SYSTEM;
+use super::{SYSTEM,SLEEP};
 use crate::{
-    logic::SLEEP,
     widgets::{Card, Dial},
 };
 use fltk::{enums::*, prelude::*, *};

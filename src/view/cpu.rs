@@ -1,6 +1,5 @@
-use super::SYSTEM;
+use super::{SYSTEM,SLEEP};
 use crate::{
-    logic::{message::SysMsg, CHAN, SLEEP},
     widgets::{Card, Dial},
 };
 use fltk::{enums::*, prelude::*, *};
@@ -43,23 +42,23 @@ pub fn proc() -> group::Pack {
         g.end();
         hpack.end();
     }
-    grp.end();
     drop(sys);
+    grp.end();
     let dials = Arc::new(Mutex::new(dials));
     std::thread::spawn({
         let grp = grp.clone();
         move || {
             while grp.visible() {
-                let r = &CHAN.1;
-                if let Ok(msg) = r.try_recv() {
-                    if let SysMsg::CpuUsage(num, val) = msg {
-                        dials.lock().unwrap()[num as usize].set_value(val)
-                    }
-                    app::awake();
-                    std::thread::sleep(std::time::Duration::from_millis(
-                        SLEEP.load(Ordering::Relaxed),
-                    ));
+                let mut sys = SYSTEM.lock().unwrap();
+                sys.refresh_all();
+                for (i, proc) in sys.processors().iter().enumerate() {
+                    dials.lock().unwrap()[i as usize].set_value(proc.cpu_usage() as i32);
                 }
+                app::awake();
+                std::thread::sleep(std::time::Duration::from_millis(
+                    SLEEP.load(Ordering::Relaxed),
+                ));
+                drop(sys);
             }
         }
     });

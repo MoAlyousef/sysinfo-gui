@@ -1,6 +1,5 @@
 use crate::{
     gui::{message::Message, View},
-    logic::{message::SysMsg, CHAN, SLEEP},
     widgets::{Card, HollowRoundToggle, RoundToggle, Toggle},
 };
 use fltk::{prelude::*, enums::*, *};

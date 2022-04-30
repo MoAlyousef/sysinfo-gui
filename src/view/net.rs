@@ -1,5 +1,5 @@
-use super::SYSTEM;
-use crate::{logic::SLEEP, widgets::Card};
+use super::{SYSTEM,SLEEP};
+use crate::widgets::Card;
 use fltk::{enums::*, prelude::*, *};
 use std::sync::{atomic::Ordering, Arc, Mutex};
 use sysinfo::NetworkExt;

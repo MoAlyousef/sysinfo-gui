@@ -78,9 +78,6 @@ impl App {
             view: Box::new(view),
         }
     }
-    pub fn spawn(&self, cb: fn()) {
-        app::add_timeout3(0.1, move |_| cb());
-    }
     pub fn run(mut self) {
         while self.a.wait() {
             if let Some(msg) = self.r.recv() {

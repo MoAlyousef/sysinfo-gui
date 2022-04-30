@@ -8,7 +8,7 @@ pub mod procs;
 
 use crate::gui::{message::Message, View};
 use fltk::group::Pack;
-use std::sync::Mutex;
+use std::sync::{Mutex, atomic::AtomicU64};
 use sysinfo::{System, SystemExt};
 
 lazy_static::lazy_static! {
@@ -17,6 +17,7 @@ lazy_static::lazy_static! {
         sys.refresh_all();
         Mutex::new(sys)
     };
+    pub static ref SLEEP: AtomicU64= AtomicU64::new(100);
 }
 
 #[derive(Default)]

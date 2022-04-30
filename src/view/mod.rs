@@ -4,6 +4,7 @@ pub mod general;
 pub mod mem;
 pub mod net;
 pub mod settings;
+pub mod procs;
 
 use crate::gui::{message::Message, View};
 use fltk::group::Pack;
@@ -28,6 +29,7 @@ impl View for MyView {
             Message::Disks => disk::disks(),
             Message::Proc => cpu::proc(),
             Message::Memory => mem::memory(),
+            Message::Procs => procs::procs(),
             Message::Net => net::network(),
             Message::Settings => settings::settings(),
         }

@@ -39,6 +39,9 @@ impl App {
         SvgButton::new(DISKS)
             .with_tooltip("Disks info")
             .emit(s, Message::Disks);
+        SvgButton::new(PROCS)
+            .with_tooltip("Processes")
+            .emit(s, Message::Procs);
         SvgButton::new(NET)
             .with_tooltip("Network info")
             .emit(s, Message::Net);

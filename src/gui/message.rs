@@ -4,6 +4,7 @@ pub enum Message {
     Disks,
     Proc,
     Memory,
+    Procs,
     Net,
     Settings,
 }

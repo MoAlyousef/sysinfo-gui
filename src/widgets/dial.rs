@@ -120,6 +120,7 @@ impl Dial {
             .with_label(label)
             .with_align(Align::Top);
         dial.set_label_size(16);
+        dial.set_label_color(Color::White);
         dial.set_frame(FrameType::NoBox);
         dial.set_color(dial.color().lighter().inactive());
         dial.set_selection_color(Color::Red);

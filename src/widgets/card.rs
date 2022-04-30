@@ -12,7 +12,7 @@ impl Card {
             .with_label(label)
             .with_align(Align::Top | Align::Left);
         grp.set_label_size(16);
-        grp.set_color(BLUE);
+        grp.set_color(SEL_BLUE);
         grp.set_label_color(Color::White);
         grp.draw(|g| {
             let col = g.color();

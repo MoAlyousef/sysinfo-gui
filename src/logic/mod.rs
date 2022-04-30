@@ -15,7 +15,7 @@ lazy_static::lazy_static! {
         Mutex::new(sys)
     };
 
-    pub static ref SLEEP: AtomicU64 = AtomicU64::new(30);
+    pub static ref SLEEP: AtomicU64 = AtomicU64::new(100);
 
     pub static ref CHAN: (Sender<SysMsg>, Receiver<SysMsg>) = unbounded();
 }
@@ -31,14 +31,10 @@ pub fn background_thread_spawn() {
                 .ok();
         }
         sender
-            .try_send(SysMsg::Mem(
-                sys.used_memory(), sys.total_memory()
-            ))
+            .try_send(SysMsg::Mem(sys.used_memory(), sys.total_memory()))
             .ok();
         sender
-            .try_send(SysMsg::Swap(
-                sys.used_swap(), sys.total_swap()
-            ))
+            .try_send(SysMsg::Swap(sys.used_swap(), sys.total_swap()))
             .ok();
         std::thread::sleep(std::time::Duration::from_millis(
             SLEEP.load(Ordering::Relaxed),

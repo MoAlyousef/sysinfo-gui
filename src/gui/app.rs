@@ -1,4 +1,4 @@
-use super::{message::Message, view::View};
+use super::{message::Message, View};
 use crate::styles::colors::*;
 use crate::styles::svgs::*;
 use crate::widgets::*;
@@ -28,16 +28,17 @@ impl App {
         col.set_spacing(10);
         SvgButton::new(LIST)
             .with_tooltip("Home")
+            .toggled(true)
             .emit(s, Message::General);
-        SvgButton::new(DISKS)
-            .with_tooltip("Disks info")
-            .emit(s, Message::Disks);
         SvgButton::new(PROC)
             .with_tooltip("Processors info")
             .emit(s, Message::Proc);
         SvgButton::new(MEMORY)
             .with_tooltip("Memory info")
             .emit(s, Message::Memory);
+        SvgButton::new(DISKS)
+            .with_tooltip("Disks info")
+            .emit(s, Message::Disks);
         SvgButton::new(NET)
             .with_tooltip("Network info")
             .emit(s, Message::Net);

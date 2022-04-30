@@ -24,6 +24,11 @@ impl SvgButton {
         self.btn.set_tooltip(label);
         self
     }
+
+    pub fn toggled(mut self, flag: bool) -> Self {
+        self.btn.toggle(flag);
+        self
+    }
 }
 
 impl Deref for SvgButton {

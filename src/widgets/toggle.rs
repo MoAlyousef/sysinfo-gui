@@ -22,8 +22,8 @@ impl Toggle {
                 .with_align(Align::Left | Align::Inside);
         btn.set_frame(FrameType::FlatBox);
         btn.set_down_frame(FrameType::FlatBox);
-        btn.set_color(Color::Red);
-        btn.set_selection_color(Color::Green);
+        btn.set_color(Color::from_hex(0xf44336));
+        btn.set_selection_color(Color::from_hex(0x00e866));
         btn.set_label_color(Color::White);
         btn.clear_visible_focus();
         btn.handle(|b, ev| match ev {
@@ -99,8 +99,8 @@ impl RoundToggle {
         let mut btn = button::ToggleButton::new(x + (w * 2 / 3), y + (h / 3), w / 3, h / 3, None);
         btn.set_frame(FrameType::NoBox);
         btn.set_down_frame(FrameType::NoBox);
-        btn.set_color(Color::Green);
-        btn.set_selection_color(Color::Red);
+        btn.set_selection_color(Color::from_hex(0x00e866));
+        btn.set_color(Color::from_hex(0xf44336));
         btn.set_label_color(Color::White);
         btn.clear_visible_focus();
         btn.draw(|b| {

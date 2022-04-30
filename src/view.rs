@@ -61,12 +61,18 @@ fn general() -> group::Pack {
     pack0.set_spacing(40);
     let mut dial = Dial::new(0, 0, 200, 200, "CPU %");
     dial.set_value(cpu_usage as i32);
+    dial.set_selection_color(Color::from_hex(0x82c74b));
+    dial.modifiable(false);
     dials.push(dial);
     let mut dial = Dial::new(0, 0, 200, 200, "Memory %");
+    dial.set_selection_color(Color::from_hex(0xf6a22f));
     dial.set_value(mem as i32);
+    dial.modifiable(false);
     dials.push(dial);
     let mut dial = Dial::new(0, 0, 200, 200, "Disk %");
+    dial.set_selection_color(Color::from_hex(0xae3361));
     dial.set_value(used_space);
+    dial.modifiable(false);
     dials.push(dial);
     pack0.end();
     let mut pack0 = group::Pack::default()
@@ -181,8 +187,8 @@ fn general() -> group::Pack {
                 dials.lock().unwrap()[0].set_value(cpu_usage as i32);
                 dials.lock().unwrap()[1].set_value(mem as i32);
                 dials.lock().unwrap()[2].set_value(used_space);
-                download.set_label(&total_recv.to_string());
-                upload.set_label(&total_transm.to_string());
+                download.set_label(&format!("{} MiB", total_recv / 1000000));
+                upload.set_label(&format!("{} Mib", total_transm / 1000000));
                 app::awake();
                 std::thread::sleep(std::time::Duration::from_millis(
                     SLEEP.load(Ordering::Relaxed),
@@ -208,7 +214,7 @@ fn disks() -> group::Pack {
         let mut f = frame::Frame::default()
             .with_size(80, 60)
             .with_label(&format!(
-                "{:?}: {} - Space: {} Gb",
+                "{:?}: {} - Space: {} GiB",
                 disk.type_(),
                 String::from_utf8(disk.file_system().to_vec()).unwrap(),
                 disk.total_space() / 1000000000
@@ -219,11 +225,11 @@ fn disks() -> group::Pack {
         let grp = group::Group::default().with_size(130, 130);
         let mut dial = Dial::new(0, 0, 100, 100, "Used space %").center_of_parent();
         dial.modifiable(false);
-        dial.set_label_color(Color::White);
         dial.set_value(
             ((disk.total_space() - disk.available_space()) as f64 * 100.
                 / disk.total_space() as f64) as i32,
         );
+        dial.set_selection_color(Color::from_hex(0xae3361));
         grp.end();
         hpack.end();
     }
@@ -263,7 +269,7 @@ fn proc() -> group::Pack {
         let mut dial = Dial::new(0, 0, 100, 100, "Cpu Usage %").center_of_parent();
         dial.modifiable(false);
         dial.set_value(proc.cpu_usage() as i32);
-        dial.set_label_color(Color::White);
+        dial.set_selection_color(Color::from_hex(0x82c74b));
         dials.push(dial);
         g.make_resizable(false);
         g.end();
@@ -311,19 +317,19 @@ fn memory() -> group::Pack {
     let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
     let mut f = frame::Frame::default()
         .with_size(0, 60)
-        .with_label(&format!("Total: {} Gb", sys.total_memory() / 1000000));
+        .with_label(&format!("Total: {} GiB", sys.total_memory() / 1000000));
     f.set_label_color(Color::White);
     let mut used_mem = frame::Frame::default()
         .with_size(0, 60)
-        .with_label(&format!("Used: {} Gb", sys.used_memory() / 1000000));
+        .with_label(&format!("Used: {} GiB", sys.used_memory() / 1000000));
     used_mem.set_label_color(Color::White);
     pack.end();
     t.end();
     let mut g = group::Group::default().with_size(130, 130);
     let mut dial = Dial::new(0, 0, 100, 100, "Memory Usage %").center_of_parent();
     dial.modifiable(false);
+    dial.set_selection_color(Color::from_hex(0xf6a22f));
     dial.set_value((sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32);
-    dial.set_label_color(Color::White);
     dials.push(dial);
     g.make_resizable(false);
     g.end();
@@ -337,19 +343,19 @@ fn memory() -> group::Pack {
     let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
     let mut f = frame::Frame::default()
         .with_size(0, 60)
-        .with_label(&format!("Total: {} Gb", sys.total_swap() / 1000000));
+        .with_label(&format!("Total: {} GiB", sys.total_swap() / 1000000));
     f.set_label_color(Color::White);
     let mut used_swap = frame::Frame::default()
         .with_size(0, 60)
-        .with_label(&format!("Used: {} Gb", sys.used_swap() / 1000000));
+        .with_label(&format!("Used: {} GiB", sys.used_swap() / 1000000));
     used_swap.set_label_color(Color::White);
     pack.end();
     t.end();
     let mut g = group::Group::default().with_size(130, 130);
     let mut dial = Dial::new(0, 0, 100, 100, "Swap Usage %").center_of_parent();
     dial.modifiable(false);
+    dial.set_selection_color(Color::from_hex(0xf6a22f));
     dial.set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);
-    dial.set_label_color(Color::White);
     dials.push(dial);
     g.make_resizable(false);
     g.end();
@@ -368,11 +374,11 @@ fn memory() -> group::Pack {
                     match msg {
                         SysMsg::Mem(v, t) => {
                             dials.lock().unwrap()[0].set_value((v as f64 / t as f64 * 100.) as i32);
-                            used_mem.set_label(&format!("Used: {} Gb", v / 1000000));
+                            used_mem.set_label(&format!("Used: {} GiB", v / 1000000));
                         }
                         SysMsg::Swap(v, t) => {
                             dials.lock().unwrap()[1].set_value((v as f64 / t as f64 * 100.) as i32);
-                            used_swap.set_label(&format!("Used: {} Gb", v / 1000000));
+                            used_swap.set_label(&format!("Used: {} GiB", v / 1000000));
                         }
                         _ => (),
                     }
@@ -405,7 +411,7 @@ fn network() -> group::Pack {
         let mut f = frame::Frame::default()
             .with_size(80, 60)
             .with_label(&format!(
-                "Received: {} - Transmitted: {}",
+                "Received: {} B - Transmitted: {} B",
                 comp.1.received(),
                 comp.1.transmitted()
             ));
@@ -413,9 +419,9 @@ fn network() -> group::Pack {
         let mut f = frame::Frame::default()
             .with_size(80, 60)
             .with_label(&format!(
-                "Total Received: {} - Total Transmitted: {}",
-                comp.1.total_received(),
-                comp.1.total_transmitted()
+                "Total Received: {} MiB - Total Transmitted: {} MiB",
+                comp.1.total_received() / 1000000,
+                comp.1.total_transmitted() / 1000000
             ));
         f.set_label_color(Color::White);
         p.end();
@@ -443,7 +449,7 @@ fn network() -> group::Pack {
                         let mut f = frame::Frame::default()
                             .with_size(80, 60)
                             .with_label(&format!(
-                                "Received: {} - Transmitted: {}",
+                                "Received: {} B - Transmitted: {} B",
                                 comp.1.received(),
                                 comp.1.transmitted()
                             ));
@@ -451,9 +457,9 @@ fn network() -> group::Pack {
                         let mut f = frame::Frame::default()
                             .with_size(80, 60)
                             .with_label(&format!(
-                                "Total Received: {} - Total Transmitted: {}",
-                                comp.1.total_received(),
-                                comp.1.total_transmitted()
+                                "Total Received: {} MiB - Total Transmitted: {} MiB",
+                                comp.1.total_received() / 1000000,
+                                comp.1.total_transmitted() / 1000000
                             ));
                         f.set_label_color(Color::White);
                         p.end();

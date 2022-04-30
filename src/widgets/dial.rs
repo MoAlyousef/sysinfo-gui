@@ -25,7 +25,7 @@ impl SvgDial {
         dial.set_label_size(16);
         dial.set_frame(FrameType::NoBox);
         dial.set_color(dial.color().lighter().inactive());
-        dial.set_selection_color(Color::Red);
+        dial.set_selection_color(Color::from_hex(0xf44336));
         let value = Arc::new(AtomicI32::new(0));
         let value_c = value.clone();
         dial.draw(move |w| {
@@ -123,7 +123,7 @@ impl Dial {
         dial.set_label_color(Color::White);
         dial.set_frame(FrameType::NoBox);
         dial.set_color(dial.color().lighter().inactive());
-        dial.set_selection_color(Color::Red);
+        dial.set_selection_color(Color::from_hex(0xf44336));
         let value = Arc::new(AtomicI32::new(0));
         let value_c = value.clone();
         dial.draw(move |w| {

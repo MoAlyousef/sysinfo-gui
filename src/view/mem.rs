@@ -90,13 +90,13 @@ pub fn memory() -> group::Pack {
                     );
                     used_mem.set_label(&format!(
                         "Used: {:.02} GiB",
-                        sys.total_memory() as f64 / 2_f64.powf(20.)
+                        sys.used_memory() as f64 / 2_f64.powf(20.)
                     ));
                     dials.lock()[1]
                         .set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);
                     used_swap.set_label(&format!(
                         "Used: {:.02} GiB",
-                        sys.total_swap() as f64 / 2_f64.powf(20.)
+                        sys.used_swap() as f64 / 2_f64.powf(20.)
                     ));
                     app::awake();
                     std::thread::sleep(std::time::Duration::from_millis(

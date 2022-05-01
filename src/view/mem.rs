@@ -1,8 +1,8 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
 use crate::widgets::{Card, Dial};
 use fltk::{enums::*, prelude::*, *};
-use std::sync::{atomic::Ordering, Arc};
 use parking_lot::Mutex;
+use std::sync::{atomic::Ordering, Arc};
 use sysinfo::SystemExt;
 
 pub fn memory() -> group::Pack {
@@ -78,7 +78,7 @@ pub fn memory() -> group::Pack {
     hpack.end();
     grp.end();
     let dials = Arc::new(Mutex::new(dials));
-    
+
     std::thread::spawn({
         let grp = grp.clone();
         move || {
@@ -92,8 +92,9 @@ pub fn memory() -> group::Pack {
                         "Used: {:.02} GiB",
                         sys.used_memory() as f64 / 2_f64.powf(20.)
                     ));
-                    dials.lock()[1]
-                        .set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);
+                    dials.lock()[1].set_value(
+                        (sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32,
+                    );
                     used_swap.set_label(&format!(
                         "Used: {:.02} GiB",
                         sys.used_swap() as f64 / 2_f64.powf(20.)

@@ -1,8 +1,8 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
 use crate::widgets::Card;
 use fltk::{enums::*, prelude::*, *};
-use std::sync::{atomic::Ordering, Arc};
 use parking_lot::Mutex;
+use std::sync::{atomic::Ordering, Arc};
 use sysinfo::NetworkExt;
 use sysinfo::NetworksExt;
 use sysinfo::SystemExt;
@@ -44,7 +44,7 @@ pub fn network() -> group::Pack {
     drop(sys);
     grp.end();
     let frames = Arc::new(Mutex::new(frames));
-    
+
     std::thread::spawn({
         let grp = grp.clone();
         move || {

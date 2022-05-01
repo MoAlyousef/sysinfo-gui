@@ -1,8 +1,8 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
 use crate::widgets::{Card, Dial};
 use fltk::{enums::*, prelude::*, *};
-use std::sync::{atomic::Ordering, Arc};
 use parking_lot::Mutex;
+use std::sync::{atomic::Ordering, Arc};
 use sysinfo::ProcessorExt;
 use sysinfo::SystemExt;
 
@@ -44,7 +44,7 @@ pub fn proc() -> group::Pack {
     drop(sys);
     grp.end();
     let dials = Arc::new(Mutex::new(dials));
-    
+
     std::thread::spawn({
         let grp = grp.clone();
         move || {

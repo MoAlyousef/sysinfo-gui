@@ -8,8 +8,8 @@ pub mod settings;
 
 use crate::gui::{message::Message, View};
 use fltk::group::Pack;
-use std::sync::{atomic::AtomicU64};
 use parking_lot::Mutex;
+use std::sync::atomic::AtomicU64;
 use sysinfo::{System, SystemExt};
 
 lazy_static::lazy_static! {

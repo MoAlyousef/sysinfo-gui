@@ -1,13 +1,14 @@
-use super::{SYSTEM,SLEEP};
+use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
 use crate::widgets::Card;
 use fltk::{enums::*, prelude::*, *};
-use std::sync::{atomic::Ordering, Arc, Mutex};
+use std::sync::{atomic::Ordering, Arc};
+use parking_lot::Mutex;
 use sysinfo::NetworkExt;
 use sysinfo::NetworksExt;
 use sysinfo::SystemExt;
 
 pub fn network() -> group::Pack {
-    let mut sys = SYSTEM.lock().unwrap();
+    let mut sys = SYSTEM.lock();
     sys.refresh_all();
     frame::Frame::new(60, 60, 0, 0, None);
     let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
@@ -31,9 +32,9 @@ pub fn network() -> group::Pack {
         let mut f = frame::Frame::default()
             .with_size(80, 60)
             .with_label(&format!(
-                "Total Received: {} MiB - Total Transmitted: {} MiB",
-                comp.1.total_received() / 1000000,
-                comp.1.total_transmitted() / 1000000
+                "Total Received: {:.02} MiB - Total Transmitted: {:.02} MiB",
+                comp.1.total_received() as f64 / 2_f64.powf(20.),
+                comp.1.total_transmitted() as f64 / 2_f64.powf(20.)
             ));
         f.set_label_color(Color::White);
         frames.push(f);
@@ -43,31 +44,33 @@ pub fn network() -> group::Pack {
     drop(sys);
     grp.end();
     let frames = Arc::new(Mutex::new(frames));
+    
     std::thread::spawn({
         let grp = grp.clone();
         move || {
             while grp.visible() {
-                let mut sys = SYSTEM.lock().unwrap();
-                sys.refresh_all();
-                let mut i = 0;
-                for comp in sys.networks() {
-                    frames.lock().unwrap()[i].set_label(&format!(
-                        "Received: {} B - Transmitted: {} B",
-                        comp.1.received(),
-                        comp.1.transmitted()
+                if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
+                    sys.refresh_all();
+                    let mut i = 0;
+                    for comp in sys.networks() {
+                        frames.lock()[i].set_label(&format!(
+                            "Received: {} B - Transmitted: {} B",
+                            comp.1.received(),
+                            comp.1.transmitted()
+                        ));
+                        frames.lock()[i + 1].set_label(&format!(
+                            "Total Received: {:.02} MiB - Total Transmitted: {:.02} MiB",
+                            comp.1.total_received() as f64 / 2_f64.powf(20.),
+                            comp.1.total_transmitted() as f64 / 2_f64.powf(20.)
+                        ));
+                        i += 2;
+                    }
+                    drop(sys);
+                    app::awake();
+                    std::thread::sleep(std::time::Duration::from_millis(
+                        SLEEP.load(Ordering::Relaxed),
                     ));
-                    frames.lock().unwrap()[i + 1].set_label(&format!(
-                        "Total Received: {} MiB - Total Transmitted: {} MiB",
-                        comp.1.total_received() / 1000000,
-                        comp.1.total_transmitted() / 1000000
-                    ));
-                    i += 2;
                 }
-                drop(sys);
-                app::awake();
-                std::thread::sleep(std::time::Duration::from_millis(
-                    SLEEP.load(Ordering::Relaxed),
-                ));
             }
         }
     });

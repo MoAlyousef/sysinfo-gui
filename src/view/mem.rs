@@ -1,13 +1,12 @@
-use super::{SYSTEM,SLEEP};
-use crate::{
-    widgets::{Card, Dial},
-};
+use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
+use crate::widgets::{Card, Dial};
 use fltk::{enums::*, prelude::*, *};
-use std::sync::{atomic::Ordering, Arc, Mutex};
+use std::sync::{atomic::Ordering, Arc};
+use parking_lot::Mutex;
 use sysinfo::SystemExt;
 
 pub fn memory() -> group::Pack {
-    let mut sys = SYSTEM.lock().unwrap();
+    let mut sys = SYSTEM.lock();
     sys.refresh_all();
     frame::Frame::new(60, 60, 0, 0, None);
     let mut dials = vec![];
@@ -22,11 +21,17 @@ pub fn memory() -> group::Pack {
     let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
     let mut f = frame::Frame::default()
         .with_size(0, 60)
-        .with_label(&format!("Total: {} GiB", sys.total_memory() / 1000000));
+        .with_label(&format!(
+            "Total: {:.02} GiB",
+            sys.total_memory() as f64 / 2_f64.powf(20.)
+        ));
     f.set_label_color(Color::White);
     let mut used_mem = frame::Frame::default()
         .with_size(0, 60)
-        .with_label(&format!("Used: {} GiB", sys.used_memory() / 1000000));
+        .with_label(&format!(
+            "Used: {:.02} GiB",
+            sys.used_memory() as f64 / 2_f64.powf(20.)
+        ));
     used_mem.set_label_color(Color::White);
     pack.end();
     t.end();
@@ -48,11 +53,17 @@ pub fn memory() -> group::Pack {
     let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
     let mut f = frame::Frame::default()
         .with_size(0, 60)
-        .with_label(&format!("Total: {} GiB", sys.total_swap() / 1000000));
+        .with_label(&format!(
+            "Total: {:.02} GiB",
+            sys.total_swap() as f64 / 2_f64.powf(20.)
+        ));
     f.set_label_color(Color::White);
     let mut used_swap = frame::Frame::default()
         .with_size(0, 60)
-        .with_label(&format!("Used: {} GiB", sys.used_swap() / 1000000));
+        .with_label(&format!(
+            "Used: {:.02} GiB",
+            sys.used_swap() as f64 / 2_f64.powf(20.)
+        ));
     used_swap.set_label_color(Color::White);
     pack.end();
     t.end();
@@ -67,24 +78,32 @@ pub fn memory() -> group::Pack {
     hpack.end();
     grp.end();
     let dials = Arc::new(Mutex::new(dials));
+    
     std::thread::spawn({
         let grp = grp.clone();
         move || {
             while grp.visible() {
-                let mut sys = SYSTEM.lock().unwrap();
-                sys.refresh_all();
-                dials.lock().unwrap()[0].set_value(
-                    (sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32,
-                );
-                used_mem.set_label(&format!("Used: {} GiB", sys.total_memory() / 1000000));
-                dials.lock().unwrap()[1]
-                    .set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);
-                used_swap.set_label(&format!("Used: {} GiB", sys.total_swap() / 1000000));
-                app::awake();
-                std::thread::sleep(std::time::Duration::from_millis(
-                    SLEEP.load(Ordering::Relaxed),
-                ));
-                drop(sys);
+                if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
+                    sys.refresh_all();
+                    dials.lock()[0].set_value(
+                        (sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32,
+                    );
+                    used_mem.set_label(&format!(
+                        "Used: {:.02} GiB",
+                        sys.total_memory() as f64 / 2_f64.powf(20.)
+                    ));
+                    dials.lock()[1]
+                        .set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);
+                    used_swap.set_label(&format!(
+                        "Used: {:.02} GiB",
+                        sys.total_swap() as f64 / 2_f64.powf(20.)
+                    ));
+                    app::awake();
+                    std::thread::sleep(std::time::Duration::from_millis(
+                        SLEEP.load(Ordering::Relaxed),
+                    ));
+                    drop(sys);
+                }
             }
         }
     });

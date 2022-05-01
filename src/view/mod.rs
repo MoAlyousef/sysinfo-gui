@@ -3,16 +3,22 @@ pub mod disk;
 pub mod general;
 pub mod mem;
 pub mod net;
-pub mod settings;
 pub mod procs;
+pub mod settings;
 
 use crate::gui::{message::Message, View};
 use fltk::group::Pack;
-use std::sync::{Mutex, atomic::AtomicU64};
+use std::sync::{atomic::AtomicU64};
+use parking_lot::Mutex;
 use sysinfo::{System, SystemExt};
 
 lazy_static::lazy_static! {
     pub static ref SYSTEM: Mutex<System> = {
+        let mut sys = System::new_all();
+        sys.refresh_all();
+        Mutex::new(sys)
+    };
+    pub static ref SYSTEM_LOOP: Mutex<System> = {
         let mut sys = System::new_all();
         sys.refresh_all();
         Mutex::new(sys)

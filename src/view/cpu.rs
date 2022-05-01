@@ -1,14 +1,13 @@
-use super::{SYSTEM,SLEEP};
-use crate::{
-    widgets::{Card, Dial},
-};
+use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
+use crate::widgets::{Card, Dial};
 use fltk::{enums::*, prelude::*, *};
-use std::sync::{atomic::Ordering, Arc, Mutex};
+use std::sync::{atomic::Ordering, Arc};
+use parking_lot::Mutex;
 use sysinfo::ProcessorExt;
 use sysinfo::SystemExt;
 
 pub fn proc() -> group::Pack {
-    let mut sys = SYSTEM.lock().unwrap();
+    let mut sys = SYSTEM.lock();
     sys.refresh_all();
     frame::Frame::new(60, 60, 0, 0, None);
     let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
@@ -45,20 +44,22 @@ pub fn proc() -> group::Pack {
     drop(sys);
     grp.end();
     let dials = Arc::new(Mutex::new(dials));
+    
     std::thread::spawn({
         let grp = grp.clone();
         move || {
             while grp.visible() {
-                let mut sys = SYSTEM.lock().unwrap();
-                sys.refresh_all();
-                for (i, proc) in sys.processors().iter().enumerate() {
-                    dials.lock().unwrap()[i as usize].set_value(proc.cpu_usage() as i32);
+                if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
+                    sys.refresh_all();
+                    for (i, proc) in sys.processors().iter().enumerate() {
+                        dials.lock()[i as usize].set_value(proc.cpu_usage() as i32);
+                    }
+                    drop(sys);
+                    app::awake();
+                    std::thread::sleep(std::time::Duration::from_millis(
+                        SLEEP.load(Ordering::Relaxed),
+                    ));
                 }
-                app::awake();
-                std::thread::sleep(std::time::Duration::from_millis(
-                    SLEEP.load(Ordering::Relaxed),
-                ));
-                drop(sys);
             }
         }
     });

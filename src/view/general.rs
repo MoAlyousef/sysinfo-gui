@@ -1,13 +1,12 @@
-use super::{SYSTEM,SLEEP};
-use crate::{
-    widgets::{Card, Dial},
-};
+use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
+use crate::widgets::{Card, Dial};
 use fltk::{enums::*, prelude::*, *};
-use std::sync::{atomic::Ordering, Arc, Mutex};
+use std::sync::{atomic::Ordering, Arc};
+use parking_lot::Mutex;
 use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessorExt, SystemExt};
 
 pub fn general() -> group::Pack {
-    let mut sys = SYSTEM.lock().unwrap();
+    let mut sys = SYSTEM.lock();
     sys.refresh_all();
     let mem = ((sys.used_memory() + sys.used_swap()) as f64
         / (sys.total_memory() + sys.total_swap()) as f64)
@@ -120,6 +119,7 @@ pub fn general() -> group::Pack {
         .with_label("0")
         .center_of_parent();
     upload.set_label_color(Color::White);
+    upload.set_align(Align::Center | Align::Wrap);
     t.end();
     vpack.end();
     pack.end();
@@ -128,46 +128,51 @@ pub fn general() -> group::Pack {
     grp.end();
     drop(sys);
     let dials = Arc::new(Mutex::new(dials));
+    
     std::thread::spawn({
         let grp = grp.clone();
         move || {
             while grp.visible() {
-                let mut sys = SYSTEM.lock().unwrap();
-                sys.refresh_all();
-                let mem = ((sys.used_memory() + sys.used_swap()) as f64
-                    / (sys.total_memory() + sys.total_swap()) as f64)
-                    * 100.;
-                let mut total_space = 0;
-                let mut avail_space = 0;
-                for disk in sys.disks() {
-                    total_space += disk.total_space();
-                    avail_space += disk.available_space();
+                if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
+                    sys.refresh_all();
+                    let mem = ((sys.used_memory() + sys.used_swap()) as f64
+                        / (sys.total_memory() + sys.total_swap()) as f64)
+                        * 100.;
+                    let mut total_space = 0;
+                    let mut avail_space = 0;
+                    for disk in sys.disks() {
+                        total_space += disk.total_space();
+                        avail_space += disk.available_space();
+                    }
+                    let used_space =
+                        ((total_space - avail_space) as f64 * 100. / total_space as f64) as i32;
+                    let mut cpu_usage = 0.;
+                    let mut count = 0;
+                    for proc in sys.processors() {
+                        cpu_usage += proc.cpu_usage();
+                        count += 1;
+                    }
+                    cpu_usage /= count as f32;
+                    let mut total_recv = 0;
+                    let mut total_transm = 0;
+                    for comp in sys.networks().iter() {
+                        total_recv += comp.1.total_received();
+                        total_transm += comp.1.total_transmitted();
+                    }
+                    drop(sys);
+                    dials.lock()[0].set_value(cpu_usage as i32);
+                    dials.lock()[1].set_value(mem as i32);
+                    dials.lock()[2].set_value(used_space);
+                    download.set_label(&format!("{:.02} MiB", total_recv as f64 / 2_f64.powf(20.)));
+                    upload.set_label(&format!(
+                        "{:.02} Mib",
+                        total_transm as f64 / 2_f64.powf(20.)
+                    ));
+                    app::awake();
+                    std::thread::sleep(std::time::Duration::from_millis(
+                        SLEEP.load(Ordering::Relaxed),
+                    ));
                 }
-                let used_space =
-                    ((total_space - avail_space) as f64 * 100. / total_space as f64) as i32;
-                let mut cpu_usage = 0.;
-                let mut count = 0;
-                for proc in sys.processors() {
-                    cpu_usage += proc.cpu_usage();
-                    count += 1;
-                }
-                cpu_usage /= count as f32;
-                let mut total_recv = 0;
-                let mut total_transm = 0;
-                for comp in sys.networks().iter() {
-                    total_recv += comp.1.total_received();
-                    total_transm += comp.1.total_transmitted();
-                }
-                drop(sys);
-                dials.lock().unwrap()[0].set_value(cpu_usage as i32);
-                dials.lock().unwrap()[1].set_value(mem as i32);
-                dials.lock().unwrap()[2].set_value(used_space);
-                download.set_label(&format!("{} MiB", total_recv / 1000000));
-                upload.set_label(&format!("{} Mib", total_transm / 1000000));
-                app::awake();
-                std::thread::sleep(std::time::Duration::from_millis(
-                    SLEEP.load(Ordering::Relaxed),
-                ));
             }
         }
     });

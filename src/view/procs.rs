@@ -80,7 +80,7 @@ pub fn procs() -> group::Pack {
     b.set_down_frame(FrameType::FlatBox);
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
-    b.set_label_size(15);
+    b.set_label_size(app::font_size() + 1);
     b.set_value(true);
     b.handle(|_, e| {
         if e == Event::Push {
@@ -104,7 +104,7 @@ pub fn procs() -> group::Pack {
     b.set_down_frame(FrameType::FlatBox);
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
-    b.set_label_size(15);
+    b.set_label_size(app::font_size() + 1);
     b.handle(|_, e| {
         if e == Event::Push {
             let mut ord = ORDERING.lock();
@@ -127,7 +127,7 @@ pub fn procs() -> group::Pack {
     b.set_down_frame(FrameType::FlatBox);
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
-    b.set_label_size(15);
+    b.set_label_size(app::font_size() + 1);
     b.handle(|_, e| {
         if e == Event::Push {
             let mut ord = ORDERING.lock();
@@ -150,7 +150,7 @@ pub fn procs() -> group::Pack {
     b.set_down_frame(FrameType::FlatBox);
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
-    b.set_label_size(15);
+    b.set_label_size(app::font_size() + 1);
     b.set_frame(FrameType::FlatBox);
     b.handle(|_, e| {
         if e == Event::Push {
@@ -173,7 +173,7 @@ pub fn procs() -> group::Pack {
     b.set_down_frame(FrameType::FlatBox);
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
-    b.set_label_size(15);
+    b.set_label_size(app::font_size() + 1);
     b.handle(|_, e| {
         if e == Event::Push {
             let mut ord = ORDERING.lock();

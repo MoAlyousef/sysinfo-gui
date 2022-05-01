@@ -30,7 +30,7 @@ pub fn proc() -> group::Pack {
         f.set_label_color(Color::White);
         let mut f = frame::Frame::default()
             .with_size(0, 60)
-            .with_label(&format!("Brand: {}", proc.brand()));
+            .with_label(&format!("{}", proc.brand()));
         f.set_label_color(Color::White);
         pack.end();
         t.end();

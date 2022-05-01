@@ -12,7 +12,7 @@ impl Card {
         let mut grp = group::Group::new(x, y, w, h, None)
             .with_label(label)
             .with_align(Align::Top | Align::Left);
-        grp.set_label_size(18);
+        grp.set_label_size(app::font_size() + 3);
         grp.set_color(GRAY.inactive());
         grp.set_label_color(Color::White);
         grp.draw(|g| {

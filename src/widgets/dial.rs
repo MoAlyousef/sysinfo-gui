@@ -23,7 +23,7 @@ impl SvgDial {
         let mut dial = valuator::FillDial::new(x, y, w, h, None)
             .with_label(label)
             .with_align(Align::Top);
-        dial.set_label_size(16);
+        dial.set_label_size(app::font_size() + 2);
         dial.set_frame(FrameType::NoBox);
         dial.set_color(dial.color().lighter().inactive());
         dial.set_selection_color(RED);
@@ -120,7 +120,7 @@ impl Dial {
         let mut dial = valuator::FillDial::new(x, y, w, h, None)
             .with_label(label)
             .with_align(Align::Top);
-        dial.set_label_size(16);
+        dial.set_label_size(app::font_size() + 2);
         dial.set_label_color(Color::White);
         dial.set_frame(FrameType::NoBox);
         dial.set_color(dial.color().lighter().inactive());
@@ -192,10 +192,10 @@ impl HalfDial {
             .with_label(label)
             .with_align(Align::Top);
         main_wid.set_label_color(Color::White);
-        main_wid.set_label_size(18);
+        main_wid.set_label_size(app::font_size() + 3);
         let mut value_frame =
             frame::Frame::new(main_wid.x(), main_wid.y() + 80, main_wid.w(), 40, "0");
-        value_frame.set_label_size(26);
+        value_frame.set_label_size(app::font_size() + 12);
         value_frame.set_label_color(Color::White);
         main_wid.end();
         let value = Arc::new(value);

@@ -13,6 +13,13 @@ pub struct App {
 
 impl App {
     pub fn new(view: impl View + 'static) -> Self {
+        std::panic::set_hook(Box::new(|info| {
+            if let Some(s) = info.payload().downcast_ref::<&str>() {
+                if !s.contains("self.was_deleted") {
+                    fltk::dialog::message_default(&format!("{}", s));
+                }
+            }
+        }));
         let a = app::App::default();
         let (r, g, b) = GRAY.to_rgb();
         app::background(r, g, b);
@@ -20,6 +27,7 @@ impl App {
         let (r, g, b) = SEL_BLUE.to_rgb();
         app::set_selection_color(r, g, b);
         misc::Tooltip::set_color(Color::from_rgb(0xFF, 0xFF, 0xF0));
+        app::set_font_size(16);
         let f = Font::load_font("Roboto-Medium.ttf").unwrap();
         Font::set_font(Font::Helvetica, &f);
         let (s, r) = app::channel();
@@ -60,7 +68,7 @@ impl App {
         let mut grp = group::Group::new(60, 0, 800 - 50, 50, "\tSysinfo")
             .with_align(Align::Left | Align::Inside);
         grp.set_label_color(Color::White);
-        grp.set_label_size(20);
+        grp.set_label_size(app::font_size() + 5);
         grp.set_frame(FrameType::FlatBox);
         grp.set_color(BLUE);
         grp.end();

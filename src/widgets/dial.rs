@@ -176,3 +176,72 @@ impl Dial {
 }
 
 fltk::widget_extends!(Dial, valuator::FillDial, dial);
+
+#[derive(Debug, Clone)]
+pub struct HalfDial {
+    main_wid: group::Group,
+    value: Arc<AtomicI32>,
+    value_frame: frame::Frame,
+}
+
+impl HalfDial {
+    pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
+        let value = AtomicI32::new(0);
+        let mut main_wid = group::Group::new(x, y, w, h, None)
+            .with_label(label)
+            .with_align(Align::Top);
+        main_wid.set_label_color(Color::White);
+        main_wid.set_label_size(18);
+        let mut value_frame =
+            frame::Frame::new(main_wid.x(), main_wid.y() + 80, main_wid.w(), 40, "0");
+        value_frame.set_label_size(26);
+        value_frame.set_label_color(Color::White);
+        main_wid.end();
+        let value = Arc::new(value);
+        let value_c = value.clone();
+        main_wid.draw(move |w| {
+            let parent = w.parent().unwrap();
+            let parent_col = parent.color();
+            draw::set_draw_color(parent_col.lighter());
+            draw::draw_pie(w.x(), w.y(), w.w(), w.h(), 0., 180.);
+            draw::set_draw_color(w.selection_color());
+            draw::draw_pie(
+                w.x(),
+                w.y(),
+                w.w(),
+                w.h(),
+                (100 - value_c.load(Ordering::Relaxed)) as f64 * 1.8,
+                180.,
+            );
+            draw::set_draw_color(parent_col);
+            draw::draw_pie(
+                w.x() - 50 + w.w() / 2,
+                w.y() - 50 + w.h() / 2,
+                100,
+                100,
+                0.,
+                360.,
+            );
+            w.draw_children();
+        });
+        Self {
+            main_wid,
+            value,
+            value_frame,
+        }
+    }
+    pub fn set_label_color(&mut self, col: Color) {
+        self.value_frame.set_label_color(col);
+        self.main_wid.set_label_color(col);
+    }
+    pub fn value(&self) -> i32 {
+        self.value.load(Ordering::Relaxed)
+    }
+    pub fn set_value(&mut self, val: i32) {
+        self.value.store(val, Ordering::Relaxed);
+        self.value_frame.set_label(&val.to_string());
+        self.main_wid.redraw();
+    }
+}
+
+widget_extends!(HalfDial, group::Group, main_wid);

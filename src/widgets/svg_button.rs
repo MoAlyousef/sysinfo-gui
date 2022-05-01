@@ -14,9 +14,10 @@ impl SvgButton {
         btn.set_color(BLUE);
         btn.set_selection_color(SEL_BLUE);
         btn.clear_visible_focus();
-        let mut image = image::SvgImage::from_data(svg).unwrap();
-        image.scale(30, 30, true, true);
-        btn.set_image(Some(image));
+        if let Ok(mut image) = image::SvgImage::from_data(svg) {
+            image.scale(30, 30, true, true);
+            btn.set_image(Some(image));
+        }
         Self { btn }
     }
 

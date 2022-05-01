@@ -3,7 +3,7 @@ use crate::widgets::{Card, HalfDial};
 use fltk::{enums::*, prelude::*, *};
 use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
-use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessExt, ProcessorExt, SystemExt};
+use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessExt, SystemExt};
 
 pub fn general() -> group::Pack {
     let mut sys = SYSTEM.lock();

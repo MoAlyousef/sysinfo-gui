@@ -1,3 +1,4 @@
+use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
 
 #[derive(Clone)]
@@ -17,8 +18,8 @@ impl Toggle {
             .with_align(Align::Left | Align::Inside);
         btn.set_frame(FrameType::FlatBox);
         btn.set_down_frame(FrameType::FlatBox);
-        btn.set_color(Color::from_hex(0xf44336));
-        btn.set_selection_color(Color::from_hex(0x00e866));
+        btn.set_color(RED);
+        btn.set_selection_color(GREEN);
         btn.set_label_color(Color::White);
         btn.clear_visible_focus();
         btn.handle(|b, ev| match ev {
@@ -55,8 +56,8 @@ impl RoundToggle {
         let mut btn = button::ToggleButton::new(x, y, w, h, None);
         btn.set_frame(FrameType::NoBox);
         btn.set_down_frame(FrameType::NoBox);
-        btn.set_selection_color(Color::from_hex(0x00e866));
-        btn.set_color(Color::from_hex(0xf44336));
+        btn.set_selection_color(GREEN);
+        btn.set_color(RED);
         btn.set_label_color(Color::White);
         btn.clear_visible_focus();
         btn.draw(|b| {
@@ -127,8 +128,8 @@ impl HollowRoundToggle {
         let mut btn = button::ToggleButton::new(x, y, w, h, None);
         btn.set_frame(FrameType::NoBox);
         btn.set_down_frame(FrameType::NoBox);
-        btn.set_selection_color(Color::from_hex(0x00e866));
-        btn.set_color(Color::from_hex(0xf44336));
+        btn.set_selection_color(GREEN);
+        btn.set_color(RED);
         btn.set_label_color(Color::White);
         btn.clear_visible_focus();
         btn.draw(|b| {
@@ -139,7 +140,7 @@ impl HollowRoundToggle {
             };
             let svg = format!(
                 "<svg viewBox='0 0 {} {}'>
-            <rect x='1%' y='1%' rx='15' width='98%' height='98%' fill='none' stroke='rgb({},{},{})'/>
+            <rect x='2%' y='2%' rx='15' width='96%' height='96%' fill='none' stroke='rgb({},{},{})'/>
             </svg>",
                 b.w(),
                 b.h(),
@@ -159,9 +160,9 @@ impl HollowRoundToggle {
             let mut image = image::SvgImage::from_data(&svg).unwrap();
             image.scale(30, 30, false, true);
             if b.value() {
-                image.draw(b.x() + b.w() - 2 - 30, b.y() + ((b.h() - 30)/2), 30, 30);
+                image.draw(b.x() + b.w() - 3 - 30, b.y() + ((b.h() - 30)/2), 30, 30);
             } else {
-                image.draw(b.x() + 2, b.y() + ((b.h() - 30)/2), 30, 30);
+                image.draw(b.x() + 3, b.y() + ((b.h() - 30)/2), 30, 30);
             }
         });
         btn.handle(|b, ev| match ev {

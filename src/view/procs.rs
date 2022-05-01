@@ -1,15 +1,13 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
 use crate::{
-    gui::{message::Message, View},
     styles::colors::*,
-    widgets::{Card, HollowRoundToggle, RoundToggle, Toggle},
 };
 use fltk::{app::MouseButton, enums::*, prelude::*, *};
+use parking_lot::Mutex;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use sysinfo::ProcessExt;
 use sysinfo::SystemExt;
-use parking_lot::Mutex;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum SortOrder {
@@ -25,7 +23,7 @@ enum SortOrder {
     RevExe,
 }
 
-lazy_static::lazy_static!{
+lazy_static::lazy_static! {
     static ref ORDERING: Mutex<SortOrder> = Mutex::new(SortOrder::Pid);
 }
 
@@ -35,10 +33,10 @@ struct Proc {
     pub virt: u64,
     pub cpu: f32,
     pub exe: String,
-    pub total_written_bytes: u64,
-    pub written_bytes: u64,
-    pub total_read_bytes: u64,
-    pub read_bytes: u64,
+    // pub total_written_bytes: u64,
+    // pub written_bytes: u64,
+    // pub total_read_bytes: u64,
+    // pub read_bytes: u64,
 }
 
 impl Proc {
@@ -49,10 +47,10 @@ impl Proc {
             virt: proc.virtual_memory(),
             cpu: proc.cpu_usage(),
             exe: format!("{}", proc.exe().display()),
-            total_written_bytes: 0,
-            written_bytes: 0,
-            total_read_bytes: 0,
-            read_bytes: 0,
+            // total_written_bytes: 0,
+            // written_bytes: 0,
+            // total_read_bytes: 0,
+            // read_bytes: 0,
         }
     }
     pub fn fmt(&self) -> String {
@@ -70,7 +68,7 @@ impl Proc {
 pub fn procs() -> group::Pack {
     let mut sys = SYSTEM.lock();
     sys.refresh_all();
-    let mut grp = group::Pack::default()
+    let grp = group::Pack::default()
         .with_size(700, 500)
         .center_of_parent();
     let hpack = group::Pack::default()
@@ -86,7 +84,7 @@ pub fn procs() -> group::Pack {
     b.clear_visible_focus();
     b.set_label_size(15);
     b.set_value(true);
-    b.handle(|b, e| {
+    b.handle(|_, e| {
         if e == Event::Push {
             let mut ord = ORDERING.lock();
             if *ord == SortOrder::Pid {
@@ -109,7 +107,7 @@ pub fn procs() -> group::Pack {
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
     b.set_label_size(15);
-    b.handle(|b, e| {
+    b.handle(|_, e| {
         if e == Event::Push {
             let mut ord = ORDERING.lock();
             if *ord == SortOrder::Mem {
@@ -132,7 +130,7 @@ pub fn procs() -> group::Pack {
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
     b.set_label_size(15);
-    b.handle(|b, e| {
+    b.handle(|_, e| {
         if e == Event::Push {
             let mut ord = ORDERING.lock();
             if *ord == SortOrder::Virt {
@@ -156,7 +154,7 @@ pub fn procs() -> group::Pack {
     b.clear_visible_focus();
     b.set_label_size(15);
     b.set_frame(FrameType::FlatBox);
-    b.handle(|b, e| {
+    b.handle(|_, e| {
         if e == Event::Push {
             let mut ord = ORDERING.lock();
             if *ord == SortOrder::Cpu {
@@ -178,7 +176,7 @@ pub fn procs() -> group::Pack {
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
     b.set_label_size(15);
-    b.handle(|b, e| {
+    b.handle(|_, e| {
         if e == Event::Push {
             let mut ord = ORDERING.lock();
             if *ord == SortOrder::Exe {
@@ -194,10 +192,11 @@ pub fn procs() -> group::Pack {
     b.set_frame(FrameType::FlatBox);
     hpack.end();
     let mut b = browser::HoldBrowser::default().with_size(0, 500 - 30);
+    b.clear_visible_focus();
     b.set_text_size(14);
     b.set_color(GRAY.darker());
     b.set_selection_color(SEL_BLUE);
-    b.set_scrollbar_size(-1);
+    b.set_scrollbar_size(5);
     b.set_frame(FrameType::GtkDownBox);
     let widths = &[70, 70, 70, 70, 70];
     b.set_column_widths(widths);
@@ -214,23 +213,24 @@ pub fn procs() -> group::Pack {
     menu.set_frame(FrameType::FlatBox);
     menu.set_color(GRAY.lighter());
     drop(sys);
-    let mut item = menu.add("End Task\t\t", Shortcut::None, menu::MenuFlag::Normal, {
+    let item = menu.add("End Task\t\t", Shortcut::None, menu::MenuFlag::Normal, {
         let b = b.clone();
-        move |m| {
+        move |_| {
             let val = b.value();
             if val != 0 {
-            if let Some(text) = b.text(val) {
-                let mut sys = SYSTEM.lock();
-                let v: Vec<&str> = text.split_ascii_whitespace().collect();
-                let pid = sysinfo::Pid::from_str(v[1]).unwrap();
-                if let Some(p) = sys.process(pid) {
-                    p.kill_with(sysinfo::Signal::Kill).unwrap();
+                if let Some(text) = b.text(val) {
+                    let sys = SYSTEM.lock();
+                    let v: Vec<&str> = text.split_ascii_whitespace().collect();
+                    let pid = sysinfo::Pid::from_str(v[1]).unwrap();
+                    if let Some(p) = sys.process(pid) {
+                        p.kill_with(sysinfo::Signal::Kill).unwrap();
+                    }
                 }
-            }   
+            }
         }
-    }});
+    });
     menu.at(item).unwrap().set_label_color(Color::White);
-    b.set_callback(move |b| {
+    b.set_callback(move |_| {
         if app::event_mouse_button() == MouseButton::Right {
             menu.popup();
         }
@@ -257,7 +257,6 @@ pub fn procs() -> group::Pack {
                         SortOrder::RevVirt => p2.virt.cmp(&p1.virt),
                         SortOrder::RevCpu => p2.cpu.partial_cmp(&p1.cpu).unwrap(),
                         SortOrder::RevExe => p2.exe.cmp(&p1.exe),
-                        _ => p1.pid.cmp(&p2.pid),
                     });
                     let mut i = 0;
                     for p in ps {

@@ -1,6 +1,5 @@
 use crate::{
-    gui::{message::Message, View},
-    widgets::{Card, HollowRoundToggle, RoundToggle, Toggle},
+    widgets::{Card, FancyHorSlider, HollowRoundToggle, RoundToggle, Toggle},
 };
 use fltk::{enums::*, prelude::*, *};
 
@@ -10,6 +9,8 @@ pub fn settings() -> group::Pack {
     RoundToggle::new(300, 300, 60, 30);
     HollowRoundToggle::new(300, 300, 60, 34);
     Toggle::new(300, 300, 60, 15);
+    let mut f = FancyHorSlider::new(200, 200, 200, 10);
+    f.set_callback(|_| println!("Works"));
     grp.end();
     grp
 }

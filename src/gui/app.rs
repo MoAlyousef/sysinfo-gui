@@ -31,6 +31,7 @@ impl App {
             .center_of_parent()
             .with_type(group::PackType::Vertical);
         col.set_spacing(10);
+        SvgButton::new("<svg></svg>");
         SvgButton::new(GENERAL)
             .with_tooltip("Home")
             .toggled(true)

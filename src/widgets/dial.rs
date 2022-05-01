@@ -1,3 +1,4 @@
+use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
 use std::sync::{
     atomic::{AtomicBool, AtomicI32, Ordering},
@@ -25,7 +26,7 @@ impl SvgDial {
         dial.set_label_size(16);
         dial.set_frame(FrameType::NoBox);
         dial.set_color(dial.color().lighter().inactive());
-        dial.set_selection_color(Color::from_hex(0xf44336));
+        dial.set_selection_color(RED);
         let value = Arc::new(AtomicI32::new(0));
         let value_c = value.clone();
         dial.draw(move |w| {
@@ -207,14 +208,7 @@ impl HalfDial {
             draw::set_draw_color(w.selection_color());
             let val = value_c.load(Ordering::Relaxed);
             let val = if val > 100 { 100 } else { val };
-            draw::draw_pie(
-                w.x(),
-                w.y(),
-                w.w(),
-                w.h(),
-                (100 - val) as f64 * 1.8,
-                180.,
-            );
+            draw::draw_pie(w.x(), w.y(), w.w(), w.h(), (100 - val) as f64 * 1.8, 180.);
             draw::set_draw_color(parent_col);
             draw::draw_pie(
                 w.x() - 50 + w.w() / 2,

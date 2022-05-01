@@ -11,7 +11,7 @@ use sysinfo::ProcessExt;
 use sysinfo::SystemExt;
 use parking_lot::Mutex;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum SortOrder {
     Pid,
     Mem,
@@ -84,9 +84,20 @@ pub fn procs() -> group::Pack {
     b.set_down_frame(FrameType::FlatBox);
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
+    b.set_label_size(15);
     b.set_value(true);
-    b.set_callback(|b| if b.value() {
-        *ORDERING.lock() = SortOrder::Pid;
+    b.handle(|b, e| {
+        if e == Event::Push {
+            let mut ord = ORDERING.lock();
+            if *ord == SortOrder::Pid {
+                *ord = SortOrder::RevPid;
+            } else {
+                *ord = SortOrder::Pid;
+            }
+            true
+        } else {
+            false
+        }
     });
     b.set_frame(FrameType::FlatBox);
     let mut b = button::RadioButton::default()
@@ -97,8 +108,19 @@ pub fn procs() -> group::Pack {
     b.set_down_frame(FrameType::FlatBox);
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
-    b.set_callback(|b| if b.value() {
-        *ORDERING.lock() = SortOrder::Mem;
+    b.set_label_size(15);
+    b.handle(|b, e| {
+        if e == Event::Push {
+            let mut ord = ORDERING.lock();
+            if *ord == SortOrder::Mem {
+                *ord = SortOrder::RevMem;
+            } else {
+                *ord = SortOrder::Mem;
+            }
+            true
+        } else {
+            false
+        }
     });
     b.set_frame(FrameType::FlatBox);
     let mut b = button::RadioButton::default()
@@ -109,8 +131,19 @@ pub fn procs() -> group::Pack {
     b.set_down_frame(FrameType::FlatBox);
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
-    b.set_callback(|b| if b.value() {
-        *ORDERING.lock() = SortOrder::Virt;
+    b.set_label_size(15);
+    b.handle(|b, e| {
+        if e == Event::Push {
+            let mut ord = ORDERING.lock();
+            if *ord == SortOrder::Virt {
+                *ord = SortOrder::RevVirt;
+            } else {
+                *ord = SortOrder::Virt;
+            }
+            true
+        } else {
+            false
+        }
     });
     b.set_frame(FrameType::FlatBox);
     let mut b = button::RadioButton::default()
@@ -121,7 +154,21 @@ pub fn procs() -> group::Pack {
     b.set_down_frame(FrameType::FlatBox);
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
+    b.set_label_size(15);
     b.set_frame(FrameType::FlatBox);
+    b.handle(|b, e| {
+        if e == Event::Push {
+            let mut ord = ORDERING.lock();
+            if *ord == SortOrder::Cpu {
+                *ord = SortOrder::RevCpu;
+            } else {
+                *ord = SortOrder::Cpu;
+            }
+            true
+        } else {
+            false
+        }
+    });
     let mut b = button::RadioButton::default()
         .with_size(700 - 280, 0)
         .with_label("exe")
@@ -130,8 +177,19 @@ pub fn procs() -> group::Pack {
     b.set_down_frame(FrameType::FlatBox);
     b.set_selection_color(b.color().lighter());
     b.clear_visible_focus();
-    b.set_callback(|b| if b.value() {
-        *ORDERING.lock() = SortOrder::Exe;
+    b.set_label_size(15);
+    b.handle(|b, e| {
+        if e == Event::Push {
+            let mut ord = ORDERING.lock();
+            if *ord == SortOrder::Exe {
+                *ord = SortOrder::RevExe;
+            } else {
+                *ord = SortOrder::Exe;
+            }
+            true
+        } else {
+            false
+        }
     });
     b.set_frame(FrameType::FlatBox);
     hpack.end();

@@ -1,6 +1,4 @@
-use crate::{
-    widgets::{Card, FancyHorSlider, HollowRoundToggle, RoundToggle, Toggle},
-};
+use crate::widgets::{Card, FancyHorSlider, HollowRoundToggle, RoundToggle, Toggle};
 use fltk::{enums::*, prelude::*, *};
 
 pub fn settings() -> group::Pack {

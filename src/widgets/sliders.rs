@@ -1,4 +1,5 @@
 // use crate::styles::colors::*;
+use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
 use std::ops::{Deref, DerefMut};
 
@@ -12,7 +13,7 @@ impl FancyHorSlider {
         let mut s = valuator::Slider::new(x, y, width, height, None);
         s.set_type(valuator::SliderType::Horizontal);
         s.set_frame(FrameType::RFlatBox);
-        s.set_color(Color::from_u32(0x868db1));
+        s.set_color(SLIDER_PURPLE);
         s.draw(|s| {
             draw::set_draw_color(Color::Blue);
             draw::draw_pie(

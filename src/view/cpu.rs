@@ -1,5 +1,8 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
-use crate::widgets::{Card, Dial};
+use crate::{
+    styles::colors::*,
+    widgets::{Card, Dial},
+};
 use fltk::{enums::*, prelude::*, *};
 use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
@@ -35,7 +38,7 @@ pub fn proc() -> group::Pack {
         let mut dial = Dial::new(0, 0, 100, 100, "Cpu Usage %").center_of_parent();
         dial.modifiable(false);
         dial.set_value(proc.cpu_usage() as i32);
-        dial.set_selection_color(Color::from_hex(0x82c74b));
+        dial.set_selection_color(CPU_GREEN);
         dials.push(dial);
         g.make_resizable(false);
         g.end();

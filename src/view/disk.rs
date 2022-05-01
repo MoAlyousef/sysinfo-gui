@@ -1,5 +1,8 @@
 use super::SYSTEM;
-use crate::widgets::{Card, Dial};
+use crate::{
+    styles::colors::*,
+    widgets::{Card, Dial},
+};
 use fltk::{enums::*, prelude::*, *};
 use sysinfo::DiskExt;
 use sysinfo::SystemExt;
@@ -34,7 +37,7 @@ pub fn disks() -> group::Pack {
             ((disk.total_space() - disk.available_space()) as f64 * 100.
                 / disk.total_space() as f64) as i32,
         );
-        dial.set_selection_color(Color::from_hex(0xae3361));
+        dial.set_selection_color(DISK_PURPLE);
         grp.end();
         hpack.end();
     }

@@ -14,7 +14,8 @@ pub struct App {
 impl App {
     pub fn new(view: impl View + 'static) -> Self {
         let a = app::App::default();
-        app::background(0x32, 0x32, 0x32);
+        let (r, g, b) = GRAY.to_rgb();
+        app::background(r, g, b);
         app::set_frame_type2(FrameType::UpBox, FrameType::FlatBox);
         let (r, g, b) = SEL_BLUE.to_rgb();
         app::set_selection_color(r, g, b);

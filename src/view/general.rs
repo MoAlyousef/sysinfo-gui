@@ -1,5 +1,8 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
-use crate::widgets::{Card, HalfDial};
+use crate::{
+    styles::colors::*,
+    widgets::{Card, HalfDial},
+};
 use fltk::{enums::*, prelude::*, *};
 use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
@@ -30,14 +33,14 @@ pub fn general() -> group::Pack {
     pack0.set_spacing(40);
     let mut dial = HalfDial::new(0, 0, 200, 200, "CPU %");
     dial.set_value(cpu_usage as i32);
-    dial.set_selection_color(Color::from_hex(0x82c74b));
+    dial.set_selection_color(CPU_GREEN);
     dials.push(dial);
     let mut dial = HalfDial::new(0, 0, 200, 200, "Memory %");
-    dial.set_selection_color(Color::from_hex(0xf6a22f));
+    dial.set_selection_color(MEM_YELLOW);
     dial.set_value(mem as i32);
     dials.push(dial);
     let mut dial = HalfDial::new(0, 0, 200, 200, "Disk %");
-    dial.set_selection_color(Color::from_hex(0xae3361));
+    dial.set_selection_color(DISK_PURPLE);
     dial.set_value(used_space);
     dials.push(dial);
     pack0.end();

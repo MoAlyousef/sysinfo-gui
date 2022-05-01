@@ -1,7 +1,5 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
-use crate::{
-    styles::colors::*,
-};
+use crate::styles::colors::*;
 use fltk::{app::MouseButton, enums::*, prelude::*, *};
 use parking_lot::Mutex;
 use std::str::FromStr;

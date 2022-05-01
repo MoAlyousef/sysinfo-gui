@@ -1,5 +1,8 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
-use crate::widgets::{Card, Dial};
+use crate::{
+    styles::colors::MEM_YELLOW,
+    widgets::{Card, Dial},
+};
 use fltk::{enums::*, prelude::*, *};
 use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
@@ -38,7 +41,7 @@ pub fn memory() -> group::Pack {
     let mut g = group::Group::default().with_size(130, 130);
     let mut dial = Dial::new(0, 0, 100, 100, "Memory Usage %").center_of_parent();
     dial.modifiable(false);
-    dial.set_selection_color(Color::from_hex(0xf6a22f));
+    dial.set_selection_color(MEM_YELLOW);
     dial.set_value((sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32);
     dials.push(dial);
     g.make_resizable(false);
@@ -70,7 +73,7 @@ pub fn memory() -> group::Pack {
     let mut g = group::Group::default().with_size(130, 130);
     let mut dial = Dial::new(0, 0, 100, 100, "Swap Usage %").center_of_parent();
     dial.modifiable(false);
-    dial.set_selection_color(Color::from_hex(0xf6a22f));
+    dial.set_selection_color(MEM_YELLOW);
     dial.set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);
     dials.push(dial);
     g.make_resizable(false);

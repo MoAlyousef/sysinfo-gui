@@ -1,16 +1,14 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
-use crate::widgets::{Card, HalfDial as Dial};
+use crate::widgets::{Card, HalfDial};
 use fltk::{enums::*, prelude::*, *};
 use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
-use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessorExt, SystemExt};
+use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessExt, ProcessorExt, SystemExt};
 
 pub fn general() -> group::Pack {
     let mut sys = SYSTEM.lock();
     sys.refresh_all();
-    let mem = ((sys.used_memory() + sys.used_swap()) as f64
-        / (sys.total_memory() + sys.total_swap()) as f64)
-        * 100.;
+    let mem = (sys.used_memory() as f64 / sys.total_memory() as f64) * 100.;
     let mut total_space = 0;
     let mut avail_space = 0;
     for disk in sys.disks() {
@@ -19,12 +17,9 @@ pub fn general() -> group::Pack {
     }
     let used_space = ((total_space - avail_space) as f64 * 100. / total_space as f64) as i32;
     let mut cpu_usage = 0.;
-    let mut count = 0;
-    for proc in sys.processors() {
-        cpu_usage += proc.cpu_usage();
-        count += 1;
+    for (_, process) in sys.processes() {
+        cpu_usage += process.cpu_usage();
     }
-    cpu_usage /= count as f32;
     let mut dials = vec![];
     frame::Frame::new(60, 60, 0, 0, None);
     let mut grp = group::Pack::new(60, 60, 700, 450, None).center_of_parent();
@@ -33,20 +28,17 @@ pub fn general() -> group::Pack {
         .with_size(450, 200)
         .with_type(group::PackType::Horizontal);
     pack0.set_spacing(40);
-    let mut dial = Dial::new(0, 0, 200, 200, "CPU %");
+    let mut dial = HalfDial::new(0, 0, 200, 200, "CPU %");
     dial.set_value(cpu_usage as i32);
     dial.set_selection_color(Color::from_hex(0x82c74b));
-    // dial.modifiable(false);
     dials.push(dial);
-    let mut dial = Dial::new(0, 0, 200, 200, "Memory %");
+    let mut dial = HalfDial::new(0, 0, 200, 200, "Memory %");
     dial.set_selection_color(Color::from_hex(0xf6a22f));
     dial.set_value(mem as i32);
-    // dial.modifiable(false);
     dials.push(dial);
-    let mut dial = Dial::new(0, 0, 200, 200, "Disk %");
+    let mut dial = HalfDial::new(0, 0, 200, 200, "Disk %");
     dial.set_selection_color(Color::from_hex(0xae3361));
     dial.set_value(used_space);
-    // dial.modifiable(false);
     dials.push(dial);
     pack0.end();
     let mut pack0 = group::Pack::default()
@@ -135,9 +127,7 @@ pub fn general() -> group::Pack {
             while grp.visible() {
                 if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
                     sys.refresh_all();
-                    let mem = ((sys.used_memory() + sys.used_swap()) as f64
-                        / (sys.total_memory() + sys.total_swap()) as f64)
-                        * 100.;
+                    let mem = (sys.used_memory() as f64 / sys.total_memory() as f64) * 100.;
                     let mut total_space = 0;
                     let mut avail_space = 0;
                     for disk in sys.disks() {
@@ -147,12 +137,9 @@ pub fn general() -> group::Pack {
                     let used_space =
                         ((total_space - avail_space) as f64 * 100. / total_space as f64) as i32;
                     let mut cpu_usage = 0.;
-                    let mut count = 0;
-                    for proc in sys.processors() {
-                        cpu_usage += proc.cpu_usage();
-                        count += 1;
+                    for (_, process) in sys.processes() {
+                        cpu_usage += process.cpu_usage();
                     }
-                    cpu_usage /= count as f32;
                     let mut total_recv = 0;
                     let mut total_transm = 0;
                     for comp in sys.networks().iter() {

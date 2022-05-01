@@ -9,6 +9,63 @@ use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use sysinfo::ProcessExt;
 use sysinfo::SystemExt;
+use parking_lot::Mutex;
+
+#[derive(Debug, Clone, Copy)]
+enum SortOrder {
+    Pid,
+    Mem,
+    Virt,
+    Cpu,
+    Exe,
+    RevPid,
+    RevMem,
+    RevVirt,
+    RevCpu,
+    RevExe,
+}
+
+lazy_static::lazy_static!{
+    static ref ORDERING: Mutex<SortOrder> = Mutex::new(SortOrder::Pid);
+}
+
+struct Proc {
+    pub pid: sysinfo::Pid,
+    pub memory: u64,
+    pub virt: u64,
+    pub cpu: f32,
+    pub exe: String,
+    pub total_written_bytes: u64,
+    pub written_bytes: u64,
+    pub total_read_bytes: u64,
+    pub read_bytes: u64,
+}
+
+impl Proc {
+    pub fn new(pid: &sysinfo::Pid, proc: &sysinfo::Process) -> Self {
+        Self {
+            pid: *pid,
+            memory: proc.memory(),
+            virt: proc.virtual_memory(),
+            cpu: proc.cpu_usage(),
+            exe: format!("{}", proc.exe().display()),
+            total_written_bytes: 0,
+            written_bytes: 0,
+            total_read_bytes: 0,
+            read_bytes: 0,
+        }
+    }
+    pub fn fmt(&self) -> String {
+        format!(
+            "@C255 {}\t@C255 {:.02}\t@C255 {:.02}\t@C255 {:.02}\t@C255{}",
+            self.pid,
+            self.memory as f64 / 2_f64.powf(20.),
+            self.virt as f64 / 2_f64.powf(20.),
+            self.cpu,
+            self.exe
+        )
+    }
+}
 
 pub fn procs() -> group::Pack {
     let mut sys = SYSTEM.lock();
@@ -19,40 +76,63 @@ pub fn procs() -> group::Pack {
     let hpack = group::Pack::default()
         .with_size(0, 30)
         .with_type(group::PackType::Horizontal);
-    let mut b = button::Button::default()
+    let mut b = button::RadioButton::default()
         .with_size(70, 0)
         .with_label("pid")
         .with_align(Align::Left | Align::Inside);
     b.set_label_color(Color::White);
     b.set_down_frame(FrameType::FlatBox);
+    b.set_selection_color(b.color().lighter());
+    b.clear_visible_focus();
+    b.set_value(true);
+    b.set_callback(|b| if b.value() {
+        *ORDERING.lock() = SortOrder::Pid;
+    });
     b.set_frame(FrameType::FlatBox);
-    let mut b = button::Button::default()
+    let mut b = button::RadioButton::default()
         .with_size(70, 0)
         .with_label("mem")
         .with_align(Align::Left | Align::Inside);
     b.set_label_color(Color::White);
     b.set_down_frame(FrameType::FlatBox);
+    b.set_selection_color(b.color().lighter());
+    b.clear_visible_focus();
+    b.set_callback(|b| if b.value() {
+        *ORDERING.lock() = SortOrder::Mem;
+    });
     b.set_frame(FrameType::FlatBox);
-    let mut b = button::Button::default()
+    let mut b = button::RadioButton::default()
         .with_size(70, 0)
         .with_label("virt")
         .with_align(Align::Left | Align::Inside);
     b.set_label_color(Color::White);
     b.set_down_frame(FrameType::FlatBox);
+    b.set_selection_color(b.color().lighter());
+    b.clear_visible_focus();
+    b.set_callback(|b| if b.value() {
+        *ORDERING.lock() = SortOrder::Virt;
+    });
     b.set_frame(FrameType::FlatBox);
-    let mut b = button::Button::default()
+    let mut b = button::RadioButton::default()
         .with_size(70, 0)
         .with_label("cpu")
         .with_align(Align::Left | Align::Inside);
     b.set_label_color(Color::White);
     b.set_down_frame(FrameType::FlatBox);
+    b.set_selection_color(b.color().lighter());
+    b.clear_visible_focus();
     b.set_frame(FrameType::FlatBox);
-    let mut b = button::Button::default()
+    let mut b = button::RadioButton::default()
         .with_size(700 - 280, 0)
         .with_label("exe")
         .with_align(Align::Left | Align::Inside);
     b.set_label_color(Color::White);
     b.set_down_frame(FrameType::FlatBox);
+    b.set_selection_color(b.color().lighter());
+    b.clear_visible_focus();
+    b.set_callback(|b| if b.value() {
+        *ORDERING.lock() = SortOrder::Exe;
+    });
     b.set_frame(FrameType::FlatBox);
     hpack.end();
     let mut b = browser::HoldBrowser::default().with_size(0, 500 - 30);
@@ -64,44 +144,37 @@ pub fn procs() -> group::Pack {
     let widths = &[70, 70, 70, 70, 70];
     b.set_column_widths(widths);
     b.set_column_char('\t');
+    let mut ps = vec![];
     for (pid, process) in sys.processes() {
-        // let sysinfo::DiskUsage {
-        //     total_written_bytes,
-        //     written_bytes,
-        //     total_read_bytes,
-        //     read_bytes,
-        // } = process.disk_usage();
-        b.add(&format!(
-            "@C255 {}\t@C255 {:.02}\t@C255 {:.02}\t@C255 {:.02}\t@C255{:?}",
-            pid,
-            process.memory() as f64 / 2_f64.powf(20.),
-            process.virtual_memory() as f64 / 2_f64.powf(20.),
-            process.cpu_usage(),
-            process.exe()
-        ));
+        ps.push(Proc::new(pid, process));
     }
-    let mut menu = menu::MenuItem::new(&["End Task\t\t"]);
-    menu.set_label_color(Color::White);
-    // drop(sys);
+    ps.sort_by(|p1, p2| p1.pid.cmp(&p2.pid));
+    for p in ps {
+        b.add(&p.fmt());
+    }
+    let mut menu = menu::MenuButton::default().with_type(menu::MenuButtonType::Popup3);
+    menu.set_frame(FrameType::FlatBox);
+    menu.set_color(GRAY.lighter());
+    drop(sys);
+    let mut item = menu.add("End Task\t\t", Shortcut::None, menu::MenuFlag::Normal, {
+        let b = b.clone();
+        move |m| {
+            let val = b.value();
+            if val != 0 {
+            if let Some(text) = b.text(val) {
+                let mut sys = SYSTEM.lock();
+                let v: Vec<&str> = text.split_ascii_whitespace().collect();
+                let pid = sysinfo::Pid::from_str(v[1]).unwrap();
+                if let Some(p) = sys.process(pid) {
+                    p.kill_with(sysinfo::Signal::Kill).unwrap();
+                }
+            }   
+        }
+    }});
+    menu.at(item).unwrap().set_label_color(Color::White);
     b.set_callback(move |b| {
         if app::event_mouse_button() == MouseButton::Right {
-            let coords = app::event_coords();
-            if let Some(val) = menu.popup(coords.0, coords.1) {
-                if let Some(val) = val.label() {
-                    if val == "End Task\t\t" {
-                        let val = b.value();
-                        if val != 0 {
-                            if let Some(text) = b.text(val) {
-                                let v: Vec<&str> = text.split_ascii_whitespace().collect();
-                                let pid = sysinfo::Pid::from_str(v[1]).unwrap();
-                                if let Some(p) = sys.process(pid) {
-                                    p.kill_with(sysinfo::Signal::Kill).unwrap();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            menu.popup();
         }
     });
 
@@ -111,25 +184,26 @@ pub fn procs() -> group::Pack {
             while grp.visible() {
                 if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
                     sys.refresh_all();
-                    let mut i = 0;
+                    let mut ps = vec![];
                     for (pid, process) in sys.processes() {
-                        // let sysinfo::DiskUsage {
-                        //     total_written_bytes,
-                        //     written_bytes,
-                        //     total_read_bytes,
-                        //     read_bytes,
-                        // } = process.disk_usage();
-                        b.set_text(
-                            i + 1,
-                            &format!(
-                                "@C255 {}\t@C255 {:.02}\t@C255 {:.02}\t@C255 {:.02}\t@C255{:?}",
-                                pid,
-                                process.memory() as f64 / 2_f64.powf(20.),
-                                process.virtual_memory() as f64 / 2_f64.powf(20.),
-                                process.cpu_usage(),
-                                process.exe()
-                            ),
-                        );
+                        ps.push(Proc::new(pid, process));
+                    }
+                    ps.sort_by(|p1, p2| match *ORDERING.lock() {
+                        SortOrder::Pid => p1.pid.cmp(&p2.pid),
+                        SortOrder::Mem => p1.memory.cmp(&p2.memory),
+                        SortOrder::Virt => p1.virt.cmp(&p2.virt),
+                        SortOrder::Cpu => p1.cpu.partial_cmp(&p2.cpu).unwrap(),
+                        SortOrder::Exe => p1.exe.cmp(&p2.exe),
+                        SortOrder::RevPid => p2.pid.cmp(&p1.pid),
+                        SortOrder::RevMem => p2.memory.cmp(&p1.memory),
+                        SortOrder::RevVirt => p2.virt.cmp(&p1.virt),
+                        SortOrder::RevCpu => p2.cpu.partial_cmp(&p1.cpu).unwrap(),
+                        SortOrder::RevExe => p2.exe.cmp(&p1.exe),
+                        _ => p1.pid.cmp(&p2.pid),
+                    });
+                    let mut i = 0;
+                    for p in ps {
+                        b.set_text(i + 1, &p.fmt());
                         i += 1;
                     }
                     app::awake();

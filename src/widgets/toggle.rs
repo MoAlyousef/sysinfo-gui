@@ -159,9 +159,9 @@ impl HollowRoundToggle {
             let mut image = image::SvgImage::from_data(&svg).unwrap();
             image.scale(30, 30, false, true);
             if b.value() {
-                image.draw(b.x() + b.w() + 5 - 30, b.y() + ((b.h() - 30)/2), 30, 30);
+                image.draw(b.x() + b.w() - 2 - 30, b.y() + ((b.h() - 30)/2), 30, 30);
             } else {
-                image.draw(b.x() - 5, b.y() + ((b.h() - 30)/2), 30, 30);
+                image.draw(b.x() + 2, b.y() + ((b.h() - 30)/2), 30, 30);
             }
         });
         btn.handle(|b, ev| match ev {

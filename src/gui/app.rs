@@ -29,8 +29,9 @@ impl App {
         app::set_selection_color(r, g, b);
         misc::Tooltip::set_color(Color::from_rgb(0xFF, 0xFF, 0xF0));
         app::set_font_size(16);
-        let f = Font::load_font("Roboto-Medium.ttf").unwrap();
-        Font::set_font(Font::Helvetica, &f);
+        if let Ok(f) = Font::load_font("Roboto-Medium.ttf") {
+            Font::set_font(Font::Helvetica, &f);
+        }
         let (s, r) = app::channel();
         let mut win = window::Window::default()
             .with_size(800, 600)

@@ -1,11 +1,11 @@
 use super::SLEEP;
-use crate::widgets::{Card, FancyHorSlider, HollowRoundToggle, RoundToggle, Toggle};
+use crate::widgets::{FancyHorSlider, HollowRoundToggle, RoundToggle, Toggle};
 use fltk::{enums::*, prelude::*, *};
 use std::sync::atomic::Ordering;
 
 pub fn settings() -> group::Pack {
     let mut grp = group::Pack::default()
-        .with_size(160, 400)
+        .with_size(160, 100)
         .center_of_parent();
     grp.set_spacing(0);
     RoundToggle::new(300, 300, 60, 30);

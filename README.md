@@ -1,6 +1,12 @@
 # Sysinfo-gui
 
-A cross-platform system-monitoring gui application based on sysinfo and fltk. The UI design is inspired by [stacer](https://github.com/oguzhaninan/Stacer).
+A cross-platform system-monitoring gui application based on [sysinfo](https://github.com/GuillaumeGomez/sysinfo) and [fltk](https://github.com/fltk-rs/fltk-rs).
+
+The UI design is inspired by [stacer](https://github.com/oguzhaninan/Stacer).
+
+The svg icons are taken from:
+
+- https://icons.getbootstrap.com/.
 
 - Dashboard
 ![image](https://user-images.githubusercontent.com/37966791/166341488-1ccf1a98-d490-4988-a200-ab7a7cab3968.png)

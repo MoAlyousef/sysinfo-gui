@@ -18,9 +18,9 @@ impl Toggle {
             .with_align(Align::Left | Align::Inside);
         btn.set_frame(FrameType::FlatBox);
         btn.set_down_frame(FrameType::FlatBox);
+        btn.set_label_color(Color::White);
         btn.set_color(RED);
         btn.set_selection_color(GREEN);
-        btn.set_label_color(Color::White);
         btn.clear_visible_focus();
         btn.handle(|b, ev| match ev {
             Event::Push => {
@@ -35,6 +35,15 @@ impl Toggle {
             _ => false,
         });
         Self { btn }
+    }
+    pub fn set_value(&mut self, val: bool) {
+        self.btn.set_value(val);
+        if self.btn.value() {
+            self.btn.set_align(Align::Right | Align::Inside);
+        } else {
+            self.btn.set_align(Align::Left | Align::Inside);
+        }
+        app::redraw();
     }
 }
 
@@ -58,7 +67,6 @@ impl RoundToggle {
         btn.set_down_frame(FrameType::NoBox);
         btn.set_selection_color(GREEN);
         btn.set_color(RED);
-        btn.set_label_color(Color::White);
         btn.clear_visible_focus();
         btn.draw(|b| {
             let col = if b.value() {
@@ -130,7 +138,6 @@ impl HollowRoundToggle {
         btn.set_down_frame(FrameType::NoBox);
         btn.set_selection_color(GREEN);
         btn.set_color(RED);
-        btn.set_label_color(Color::White);
         btn.clear_visible_focus();
         btn.draw(|b| {
             let col = if b.value() {

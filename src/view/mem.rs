@@ -3,7 +3,7 @@ use crate::{
     styles::colors::MEM_YELLOW,
     widgets::{Card, Dial},
 };
-use fltk::{enums::*, prelude::*, *};
+use fltk::{prelude::*, *};
 use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
 use sysinfo::SystemExt;
@@ -22,20 +22,18 @@ pub fn memory() -> group::Pack {
     let t = Card::new(0, 0, 300, 60, "Memory");
     t.begin();
     let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
-    let mut f = frame::Frame::default()
+    frame::Frame::default()
         .with_size(0, 60)
         .with_label(&format!(
             "Total: {:.02} GiB",
             sys.total_memory() as f64 / 2_f64.powf(20.)
         ));
-    f.set_label_color(Color::White);
     let mut used_mem = frame::Frame::default()
         .with_size(0, 60)
         .with_label(&format!(
             "Used: {:.02} GiB",
             sys.used_memory() as f64 / 2_f64.powf(20.)
         ));
-    used_mem.set_label_color(Color::White);
     pack.end();
     t.end();
     let mut g = group::Group::default().with_size(130, 130);
@@ -54,20 +52,18 @@ pub fn memory() -> group::Pack {
     let t = Card::new(0, 0, 300, 60, "Swap");
     t.begin();
     let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
-    let mut f = frame::Frame::default()
+    frame::Frame::default()
         .with_size(0, 60)
         .with_label(&format!(
             "Total: {:.02} GiB",
             sys.total_swap() as f64 / 2_f64.powf(20.)
         ));
-    f.set_label_color(Color::White);
     let mut used_swap = frame::Frame::default()
         .with_size(0, 60)
         .with_label(&format!(
             "Used: {:.02} GiB",
             sys.used_swap() as f64 / 2_f64.powf(20.)
         ));
-    used_swap.set_label_color(Color::White);
     pack.end();
     t.end();
     let mut g = group::Group::default().with_size(130, 130);

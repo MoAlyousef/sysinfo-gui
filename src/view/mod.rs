@@ -9,7 +9,7 @@ pub mod settings;
 use crate::gui::{message::Message, View};
 use fltk::group::Pack;
 use parking_lot::Mutex;
-use std::sync::atomic::AtomicU64;
+use std::sync::atomic::{AtomicBool, AtomicU64};
 use sysinfo::{System, SystemExt};
 
 lazy_static::lazy_static! {
@@ -24,6 +24,7 @@ lazy_static::lazy_static! {
         Mutex::new(sys)
     };
     pub static ref SLEEP: AtomicU64= AtomicU64::new(100);
+    pub static ref LIGHT_MODE: AtomicBool = AtomicBool::new(false);
 }
 
 #[derive(Default)]

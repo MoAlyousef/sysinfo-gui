@@ -1,6 +1,6 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
 use crate::widgets::Card;
-use fltk::{enums::*, prelude::*, *};
+use fltk::{prelude::*, *};
 use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
 use sysinfo::NetworkExt;
@@ -20,23 +20,21 @@ pub fn network() -> group::Pack {
         let p = group::Pack::default()
             .with_size(300, 130)
             .center_of_parent();
-        let mut f = frame::Frame::default()
+        let f = frame::Frame::default()
             .with_size(80, 60)
             .with_label(&format!(
                 "Received: {} B - Transmitted: {} B",
                 comp.1.received(),
                 comp.1.transmitted()
             ));
-        f.set_label_color(Color::White);
         frames.push(f);
-        let mut f = frame::Frame::default()
+        let f = frame::Frame::default()
             .with_size(80, 60)
             .with_label(&format!(
                 "Total Received: {:.02} MiB - Total Transmitted: {:.02} MiB",
                 comp.1.total_received() as f64 / 2_f64.powf(20.),
                 comp.1.total_transmitted() as f64 / 2_f64.powf(20.)
             ));
-        f.set_label_color(Color::White);
         frames.push(f);
         p.end();
         t.end();

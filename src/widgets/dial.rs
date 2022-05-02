@@ -25,7 +25,7 @@ impl SvgDial {
             .with_align(Align::Top);
         dial.set_label_size(app::font_size() + 2);
         dial.set_frame(FrameType::NoBox);
-        dial.set_color(dial.color().lighter().inactive());
+        dial.set_color(Color::color_average(dial.color(), Color::Foreground, 0.9));
         dial.set_selection_color(RED);
         let value = Arc::new(AtomicI32::new(0));
         let value_c = value.clone();
@@ -121,9 +121,8 @@ impl Dial {
             .with_label(label)
             .with_align(Align::Top);
         dial.set_label_size(app::font_size() + 2);
-        dial.set_label_color(Color::White);
         dial.set_frame(FrameType::NoBox);
-        dial.set_color(dial.color().lighter().inactive());
+        dial.set_color(Color::color_average(dial.color(), Color::Foreground, 0.9));
         dial.set_selection_color(RED);
         let value = Arc::new(AtomicI32::new(0));
         let value_c = value.clone();
@@ -191,19 +190,17 @@ impl HalfDial {
         let mut main_wid = group::Group::new(x, y, w, h, None)
             .with_label(label)
             .with_align(Align::Top);
-        main_wid.set_label_color(Color::White);
         main_wid.set_label_size(app::font_size() + 3);
         let mut value_frame =
             frame::Frame::new(main_wid.x(), main_wid.y() + 80, main_wid.w(), 40, "0");
         value_frame.set_label_size(app::font_size() + 12);
-        value_frame.set_label_color(Color::White);
         main_wid.end();
         let value = Arc::new(value);
         let value_c = value.clone();
         main_wid.draw(move |w| {
             let parent = w.parent().unwrap();
             let parent_col = parent.color();
-            draw::set_draw_color(parent_col.lighter());
+            draw::set_draw_color(Color::color_average(parent_col, Color::Foreground, 0.9));
             draw::draw_pie(w.x(), w.y(), w.w(), w.h(), 0., 180.);
             draw::set_draw_color(w.selection_color());
             let val = value_c.load(Ordering::Relaxed);

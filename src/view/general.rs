@@ -52,15 +52,14 @@ pub fn general() -> group::Pack {
     t.begin();
     let mut pack = group::Pack::default().with_size(450, 300);
     pack.set_spacing(-15);
-    let mut f = frame::Frame::default()
+    frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_size(80, 60)
         .with_label(&format!(
             "System name: {}",
             &sys.name().unwrap_or_else(|| "<unknown>".to_owned())
         ));
-    f.set_label_color(Color::White);
-    let mut f = frame::Frame::default()
+    frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_size(80, 60)
         .with_label(&format!(
@@ -68,16 +67,14 @@ pub fn general() -> group::Pack {
             &sys.kernel_version()
                 .unwrap_or_else(|| "<unknown>".to_owned()),
         ));
-    f.set_label_color(Color::White);
-    let mut f = frame::Frame::default()
+    frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_size(80, 60)
         .with_label(&format!(
             "OS version: {}",
             &sys.os_version().unwrap_or_else(|| "<unknown>".to_owned())
         ));
-    f.set_label_color(Color::White);
-    let mut f = frame::Frame::default()
+    frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_size(80, 60)
         .with_label(&format!(
@@ -85,15 +82,13 @@ pub fn general() -> group::Pack {
             &sys.long_os_version()
                 .unwrap_or_else(|| "<unknown>".to_owned())
         ));
-    f.set_label_color(Color::White);
-    let mut f = frame::Frame::default()
+    frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_size(80, 60)
         .with_label(&format!(
             "Host name: {}",
             &sys.host_name().unwrap_or_else(|| "<unknown>".to_owned())
         ));
-    f.set_label_color(Color::White);
     t.end();
     let mut vpack = group::Pack::default().with_size(230, 100);
     vpack.set_spacing(45);
@@ -104,7 +99,6 @@ pub fn general() -> group::Pack {
         .with_size(80, 60)
         .with_label("0")
         .center_of_parent();
-    download.set_label_color(Color::White);
     t.end();
     let t = Card::new(0, 0, 200, 100, "Upload");
     t.begin();
@@ -113,7 +107,6 @@ pub fn general() -> group::Pack {
         .with_size(80, 60)
         .with_label("0")
         .center_of_parent();
-    upload.set_label_color(Color::White);
     upload.set_align(Align::Center | Align::Wrap);
     t.end();
     vpack.end();

@@ -1,4 +1,3 @@
-use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
 use std::ops::{Deref, DerefMut};
 
@@ -13,8 +12,7 @@ impl Card {
             .with_label(label)
             .with_align(Align::Top | Align::Left);
         grp.set_label_size(app::font_size() + 3);
-        grp.set_color(GRAY.inactive());
-        grp.set_label_color(Color::White);
+        grp.set_color(Color::Background.inactive());
         grp.draw(|g| {
             let col = g.color();
             let (r1, g1, b1) = col.to_rgb();

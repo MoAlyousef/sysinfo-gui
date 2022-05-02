@@ -1,8 +1,6 @@
 use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
-use crate::{
-    widgets::{Card}, styles::colors::GRAY,
-};
-use fltk::{enums::*, prelude::*, *, draw::draw_rect_fill};
+use crate::widgets::Card;
+use fltk::{draw::draw_rect_fill, enums::*, prelude::*, *};
 use parking_lot::Mutex;
 use std::collections::VecDeque;
 use std::sync::{atomic::Ordering, Arc};
@@ -19,12 +17,11 @@ pub fn proc() -> group::Pack {
     let t = Card::new(0, 0, 300, 80, &first.brand());
     t.begin();
     let mut f = frame::Frame::default().with_size(80, 30).center_of_parent();
-    f.set_label_color(Color::White);
     t.end();
     let g = group::Group::default().with_size(400, 300);
     let mut num_cpus = 0;
     let mut c = misc::Chart::default_fill();
-    c.set_color(GRAY.darker());
+    c.set_color(Color::color_average(c.color(), Color::Foreground, 0.9));
     c.set_bounds(0., 100.);
     c.set_type(misc::ChartType::Line);
     let mut charts = vec![];
@@ -35,10 +32,23 @@ pub fn proc() -> group::Pack {
         c.set_frame(FrameType::NoBox);
         let name = proc.name().to_string();
         c.draw(move |c| {
-            draw_rect_fill((50 * num_cpus) + c.x() + 5, c.y() + 5, 10, 10, Color::by_index(num_cpus as u8 + 2));
+            draw_rect_fill(
+                (50 * num_cpus) + c.x() + 5,
+                c.y() + 5,
+                10,
+                10,
+                Color::by_index(num_cpus as u8 + 2),
+            );
             draw::set_font(Font::Helvetica, 10);
-            draw::set_draw_color(Color::White);
-            draw::draw_text2(&name, (50 * num_cpus) + c.x() + 15, c.y() + 5, 10, 10, Align::Left|Align::Inside);
+            draw::set_draw_color(Color::Foreground);
+            draw::draw_text2(
+                &name,
+                (50 * num_cpus) + c.x() + 15,
+                c.y() + 5,
+                10,
+                10,
+                Align::Left | Align::Inside,
+            );
         });
         charts.push(c);
         num_cpus += 1;

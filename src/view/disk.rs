@@ -3,7 +3,7 @@ use crate::{
     styles::colors::*,
     widgets::{Card, Dial},
 };
-use fltk::{enums::*, prelude::*, *};
+use fltk::{prelude::*, *};
 use sysinfo::DiskExt;
 use sysinfo::SystemExt;
 
@@ -19,7 +19,7 @@ pub fn disks() -> group::Pack {
         hpack.set_spacing(50);
         let t = Card::new(0, 0, 300, 130, disk.name().to_str().unwrap());
         t.begin();
-        let mut f = frame::Frame::default()
+        frame::Frame::default()
             .with_size(80, 60)
             .with_label(&format!(
                 "{:?}: {} - Space: {:.02} GiB",
@@ -28,7 +28,6 @@ pub fn disks() -> group::Pack {
                 disk.total_space() as f64 / 2_f64.powf(30.)
             ))
             .center_of_parent();
-        f.set_label_color(Color::White);
         t.end();
         let grp = group::Group::default().with_size(130, 130);
         let mut dial = Dial::new(0, 0, 100, 100, "Used space %").center_of_parent();

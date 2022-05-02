@@ -1,4 +1,4 @@
-use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
+use super::{LIGHT_MODE, SLEEP, SYSTEM, SYSTEM_LOOP};
 use crate::styles::colors::*;
 use fltk::{app::MouseButton, enums::*, prelude::*, *};
 use parking_lot::Mutex;
@@ -52,14 +52,25 @@ impl Proc {
         }
     }
     pub fn fmt(&self) -> String {
-        format!(
-            "@C255 {}\t@C255 {:.02}\t@C255 {:.02}\t@C255 {:.02}\t@C255{}",
-            self.pid,
-            self.memory as f64 / 2_f64.powf(20.),
-            self.virt as f64 / 2_f64.powf(20.),
-            self.cpu,
-            self.exe
-        )
+        if !LIGHT_MODE.load(Ordering::Relaxed) {
+            format!(
+                "@C255 {}\t@C255 {:.02}\t@C255 {:.02}\t@C255 {:.02}\t@C255{}",
+                self.pid,
+                self.memory as f64 / 2_f64.powf(20.),
+                self.virt as f64 / 2_f64.powf(20.),
+                self.cpu,
+                self.exe
+            )
+        } else {
+            format!(
+                " {}\t {:.02}\t {:.02}\t {:.02}\t{}",
+                self.pid,
+                self.memory as f64 / 2_f64.powf(20.),
+                self.virt as f64 / 2_f64.powf(20.),
+                self.cpu,
+                self.exe
+            )
+        }
     }
 }
 
@@ -76,9 +87,8 @@ pub fn procs() -> group::Pack {
         .with_size(70, 0)
         .with_label("pid")
         .with_align(Align::Left | Align::Inside);
-    b.set_label_color(Color::White);
     b.set_down_frame(FrameType::FlatBox);
-    b.set_selection_color(b.color().lighter());
+    b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
     b.clear_visible_focus();
     b.set_label_size(app::font_size() + 1);
     b.set_value(true);
@@ -100,9 +110,8 @@ pub fn procs() -> group::Pack {
         .with_size(70, 0)
         .with_label("mem")
         .with_align(Align::Left | Align::Inside);
-    b.set_label_color(Color::White);
     b.set_down_frame(FrameType::FlatBox);
-    b.set_selection_color(b.color().lighter());
+    b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
     b.clear_visible_focus();
     b.set_label_size(app::font_size() + 1);
     b.handle(|_, e| {
@@ -123,9 +132,8 @@ pub fn procs() -> group::Pack {
         .with_size(70, 0)
         .with_label("virt")
         .with_align(Align::Left | Align::Inside);
-    b.set_label_color(Color::White);
     b.set_down_frame(FrameType::FlatBox);
-    b.set_selection_color(b.color().lighter());
+    b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
     b.clear_visible_focus();
     b.set_label_size(app::font_size() + 1);
     b.handle(|_, e| {
@@ -146,9 +154,8 @@ pub fn procs() -> group::Pack {
         .with_size(70, 0)
         .with_label("cpu")
         .with_align(Align::Left | Align::Inside);
-    b.set_label_color(Color::White);
     b.set_down_frame(FrameType::FlatBox);
-    b.set_selection_color(b.color().lighter());
+    b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
     b.clear_visible_focus();
     b.set_label_size(app::font_size() + 1);
     b.set_frame(FrameType::FlatBox);
@@ -169,9 +176,8 @@ pub fn procs() -> group::Pack {
         .with_size(700 - 280, 0)
         .with_label("exe")
         .with_align(Align::Left | Align::Inside);
-    b.set_label_color(Color::White);
     b.set_down_frame(FrameType::FlatBox);
-    b.set_selection_color(b.color().lighter());
+    b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
     b.clear_visible_focus();
     b.set_label_size(app::font_size() + 1);
     b.handle(|_, e| {
@@ -192,9 +198,13 @@ pub fn procs() -> group::Pack {
     let mut b = browser::HoldBrowser::default().with_size(0, 500 - 30);
     b.clear_visible_focus();
     b.set_text_size(14);
-    b.set_color(GRAY.darker());
+    b.set_color(Color::color_average(b.color(), Color::Background, 0.1));
     b.set_selection_color(SEL_BLUE);
     b.set_scrollbar_size(5);
+    b.scrollbar()
+        .set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
+    b.hscrollbar()
+        .set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
     b.set_frame(FrameType::GtkDownBox);
     let widths = &[70, 70, 70, 70, 70];
     b.set_column_widths(widths);
@@ -209,9 +219,9 @@ pub fn procs() -> group::Pack {
     }
     let mut menu = menu::MenuButton::default().with_type(menu::MenuButtonType::Popup3);
     menu.set_frame(FrameType::FlatBox);
-    menu.set_color(GRAY.lighter());
+    menu.set_color(Color::color_average(menu.color(), Color::Background, 0.9));
     drop(sys);
-    let item = menu.add("End Task\t\t", Shortcut::None, menu::MenuFlag::Normal, {
+    menu.add("End Task\t\t", Shortcut::None, menu::MenuFlag::Normal, {
         let b = b.clone();
         move |_| {
             let val = b.value();
@@ -227,7 +237,6 @@ pub fn procs() -> group::Pack {
             }
         }
     });
-    menu.at(item).unwrap().set_label_color(Color::White);
     b.set_callback(move |_| {
         if app::event_mouse_button() == MouseButton::Right {
             menu.popup();

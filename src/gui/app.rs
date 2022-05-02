@@ -23,6 +23,7 @@ impl App {
         let a = app::App::default();
         let (r, g, b) = GRAY.to_rgb();
         app::background(r, g, b);
+        app::foreground(255, 255, 255);
         app::set_frame_type2(FrameType::UpBox, FrameType::FlatBox);
         let (r, g, b) = SEL_BLUE.to_rgb();
         app::set_selection_color(r, g, b);
@@ -31,7 +32,10 @@ impl App {
         let f = Font::load_font("Roboto-Medium.ttf").unwrap();
         Font::set_font(Font::Helvetica, &f);
         let (s, r) = app::channel();
-        let mut win = window::Window::default().with_size(800, 600);
+        let mut win = window::Window::default()
+            .with_size(800, 600)
+            .with_label("sysinfo-gui");
+        win.set_xclass("sysinfo");
         let mut grp = group::Group::new(0, 0, 60, 600, None);
         grp.set_frame(FrameType::FlatBox);
         grp.set_color(BLUE);

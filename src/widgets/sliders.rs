@@ -1,7 +1,5 @@
-// use crate::styles::colors::*;
 use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
-use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, Clone)]
 pub struct FancyHorSlider {
@@ -15,7 +13,7 @@ impl FancyHorSlider {
         s.set_frame(FrameType::RFlatBox);
         s.set_color(SLIDER_PURPLE);
         s.draw(|s| {
-            draw::set_draw_color(Color::Blue);
+            draw::set_draw_color(SEL_BLUE);
             draw::draw_pie(
                 s.x() - 10 + (s.w() as f64 * s.value()) as i32,
                 s.y() - 10,
@@ -38,16 +36,4 @@ impl FancyHorSlider {
     }
 }
 
-impl Deref for FancyHorSlider {
-    type Target = valuator::Slider;
-
-    fn deref(&self) -> &Self::Target {
-        &self.s
-    }
-}
-
-impl DerefMut for FancyHorSlider {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.s
-    }
-}
+fltk::widget_extends!(FancyHorSlider, valuator::Slider, s);

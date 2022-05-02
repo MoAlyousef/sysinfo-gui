@@ -2,7 +2,7 @@ use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
 use crate::{
     widgets::{Card}, styles::colors::GRAY,
 };
-use fltk::{enums::*, prelude::*, *};
+use fltk::{enums::*, prelude::*, *, draw::draw_rect_fill};
 use parking_lot::Mutex;
 use std::collections::VecDeque;
 use std::sync::{atomic::Ordering, Arc};
@@ -13,6 +13,7 @@ pub fn proc() -> group::Pack {
     let mut sys = SYSTEM.lock();
     sys.refresh_all();
     let first = sys.processors().first().unwrap();
+    let vendor_id = first.vendor_id().to_string();
     let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
     grp.set_spacing(40);
     let t = Card::new(0, 0, 300, 80, &first.brand());
@@ -27,15 +28,22 @@ pub fn proc() -> group::Pack {
     c.set_bounds(0., 100.);
     c.set_type(misc::ChartType::Line);
     let mut charts = vec![];
-    for _proc in sys.processors() {
+    for proc in sys.processors() {
         let mut c = misc::Chart::default_fill();
         c.set_bounds(0., 100.);
         c.set_type(misc::ChartType::Line);
         c.set_frame(FrameType::NoBox);
+        let name = proc.name().to_string();
+        c.draw(move |c| {
+            draw_rect_fill((50 * num_cpus) + c.x() + 5, c.y() + 5, 10, 10, Color::by_index(num_cpus as u8 + 2));
+            draw::set_font(Font::Helvetica, 10);
+            draw::set_draw_color(Color::White);
+            draw::draw_text2(&name, (50 * num_cpus) + c.x() + 15, c.y() + 5, 10, 10, Align::Left|Align::Inside);
+        });
         charts.push(c);
         num_cpus += 1;
     }
-    f.set_label(&format!("Cores: {}", num_cpus));
+    f.set_label(&format!("Vendor ID: {}\nCores: {}", vendor_id, num_cpus));
     drop(sys);
     for c in &mut charts {
         for _ in 0..18 {

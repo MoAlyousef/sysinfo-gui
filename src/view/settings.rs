@@ -35,7 +35,7 @@ pub fn settings() -> group::Pack {
     let opacity = win.opacity();
     let mut f = frame::Frame::default()
         .with_size(0, 40)
-        .with_label(&(opacity * 100.).to_string());
+        .with_label(&((opacity * 100.) as i32).to_string());
     f.set_label_color(Color::White);
     slider.set_value(opacity);
     slider.set_callback(move |s| {

@@ -4,9 +4,10 @@ A cross-platform system-monitoring gui application based on [sysinfo](https://gi
 
 The UI design is inspired by [stacer](https://github.com/oguzhaninan/Stacer).
 
-The svg icons are taken from:
+The svg icons are taken from: https://icons.getbootstrap.com/.
+The font is Roboto Medium.
 
-- https://icons.getbootstrap.com/.
+## Screenshots
 
 - Dashboard
 ![image](https://user-images.githubusercontent.com/37966791/166341488-1ccf1a98-d490-4988-a200-ab7a7cab3968.png)
@@ -29,5 +30,10 @@ The svg icons are taken from:
 - Settings
 ![image](https://user-images.githubusercontent.com/37966791/166341827-cbbedc72-7138-4b63-aaa1-e07d0d103bdc.png)
 
-- TODO:
+## Prebuilt releases:
+
+These are built using github actions, and can be found here:
+https://github.com/MoAlyousef/sysinfo-gui/releases
+
+## TODO:
     - The codebase needs some refactoring.

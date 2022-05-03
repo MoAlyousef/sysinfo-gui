@@ -18,7 +18,7 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: sysinfo-gui-windows.exe
+        name: sysinfo-gui-windows
         path: target/release/sysinfo-gui.exe
   mac-and-ubuntu:
     runs-on: ${{ matrix.os }}

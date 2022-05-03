@@ -7,12 +7,24 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-
+  windows:
+    name: run on windows
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      shell: bash
+      run: cargo build --release --features=fltk/fltk-bundled
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: sysinfo-gui-windows.exe
+        path: target/release/sysinfo-gui.exe
+  mac-and-ubuntu:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-10.15, ubuntu-18.04]
+        os: [macos-10.15, ubuntu-18.04]
     
     steps:
     - name: Download deps
@@ -28,5 +40,7 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: sysinfo-gui
+        name: sysinfo-gui-${{ matrix.os }}
         path: target/release/sysinfo-gui
+
+

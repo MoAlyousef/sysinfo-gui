@@ -15,6 +15,12 @@ jobs:
         os: [windows-latest, macos-10.15, ubuntu-18.04]
     
     steps:
+    - name: Download deps
+      run: |
+         if [ "$RUNNER_OS" == "Linux" ]; then
+          sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libx11 libxext libxft libxinerama libxcursor libxrender libxfixes
+         fi
+      shell: bash
     - uses: actions/checkout@v2
     - name: Build
       shell: bash

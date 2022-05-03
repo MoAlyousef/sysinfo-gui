@@ -1,6 +1,6 @@
 # Sysinfo-gui
 
-A cross-platform system-monitoring gui application based on [sysinfo](https://github.com/GuillaumeGomez/sysinfo) and [fltk](https://github.com/fltk-rs/fltk-rs).
+A lightweight cross-platform system-monitoring [fltk](https://github.com/fltk-rs/fltk-rs) gui application based on [sysinfo](https://github.com/GuillaumeGomez/sysinfo).
 
 The UI design is inspired by [stacer](https://github.com/oguzhaninan/Stacer).
 
@@ -30,10 +30,19 @@ The font is Roboto Medium.
 - Settings
 ![image](https://user-images.githubusercontent.com/37966791/166341827-cbbedc72-7138-4b63-aaa1-e07d0d103bdc.png)
 
-## Prebuilt releases:
+## Features
+- Both dark and light modes.
+- Supports window transparency.
+- Realtime monitoring.
+- End processes by sending a kill signal in the processes view.
+
+## Prebuilt standalone releases:
 
 These are built using github actions, and can be found here:
 https://github.com/MoAlyousef/sysinfo-gui/releases
 
-## TODO:
-    - The codebase needs some refactoring.
+## TODO
+- The codebase needs some refactoring, maybe the View struct can hold data instead of using lazy_statics.
+- Support more things in the right click popup menu in the processes view.
+- Add downloand and upload speed.
+- Add more setting tweaks.

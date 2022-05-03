@@ -75,6 +75,9 @@ impl Proc {
 }
 
 pub fn procs() -> group::Pack {
+    let mut ord = ORDERING.lock();
+    *ord = SortOrder::Pid;
+    drop(ord);
     let mut sys = SYSTEM.lock();
     sys.refresh_processes();
     let grp = group::Pack::default()

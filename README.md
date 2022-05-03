@@ -45,4 +45,5 @@ https://github.com/MoAlyousef/sysinfo-gui/releases
 - The codebase needs some refactoring, maybe the View struct can hold data instead of using lazy_statics.
 - Support more things in the right click popup menu in the processes view.
 - Add downloand and upload speed.
+- Use better colors for the cpus. 
 - Add more setting tweaks.

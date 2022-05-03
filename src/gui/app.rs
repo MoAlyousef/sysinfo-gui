@@ -18,6 +18,12 @@ impl App {
                 if !s.contains("self.was_deleted") {
                     fltk::dialog::message_default(&format!("{}", s));
                 }
+            } else if let Some(s) = info.payload().downcast_ref::<String>() {
+                if !s.contains("self.was_deleted") {
+                    fltk::dialog::message_default(&format!("{}", s));
+                }
+            } else {
+                fltk::dialog::message_default(&format!("{:?}", info));
             }
         }));
         let a = app::App::default();
@@ -29,7 +35,12 @@ impl App {
         app::set_selection_color(r, g, b);
         misc::Tooltip::set_color(Color::from_rgb(0xFF, 0xFF, 0xF0));
         app::set_font_size(16);
-        if let Ok(f) = Font::load_font("Roboto-Medium.ttf") {
+        let temp = std::env::temp_dir().join("Roboto-Medium.ttf");
+        if !temp.exists() {
+            let bytes = include_bytes!("../../Roboto-Medium.ttf");
+            std::fs::write(&temp, bytes).ok();
+        }
+        if let Ok(f) = Font::load_font(temp) {
             Font::set_font(Font::Helvetica, &f);
         }
         let (s, r) = app::channel();

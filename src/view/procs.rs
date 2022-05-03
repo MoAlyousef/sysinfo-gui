@@ -76,7 +76,7 @@ impl Proc {
 
 pub fn procs() -> group::Pack {
     let mut sys = SYSTEM.lock();
-    sys.refresh_all();
+    sys.refresh_processes();
     let grp = group::Pack::default()
         .with_size(700, 500)
         .center_of_parent();
@@ -248,7 +248,7 @@ pub fn procs() -> group::Pack {
         move || {
             while grp.visible() {
                 if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
-                    sys.refresh_all();
+                    sys.refresh_processes();
                     let mut ps = vec![];
                     for (pid, process) in sys.processes() {
                         ps.push(Proc::new(pid, process));

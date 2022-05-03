@@ -9,7 +9,7 @@ use sysinfo::SystemExt;
 
 pub fn disks() -> group::Pack {
     let mut sys = SYSTEM.lock();
-    sys.refresh_all();
+    sys.refresh_disks();
     frame::Frame::new(60, 60, 0, 0, None);
     let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
     grp.set_spacing(40);

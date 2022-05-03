@@ -9,7 +9,7 @@ use sysinfo::SystemExt;
 
 pub fn proc() -> group::Pack {
     let mut sys = SYSTEM.lock();
-    sys.refresh_all();
+    sys.refresh_cpu();
     let first = sys.processors().first().unwrap();
     let vendor_id = first.vendor_id().to_string();
     let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
@@ -78,7 +78,7 @@ pub fn proc() -> group::Pack {
 
             while grp.visible() {
                 if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
-                    sys.refresh_all();
+                    sys.refresh_cpu();
                     for (i, proc) in sys.processors().iter().enumerate() {
                         v[i].push_back(proc.cpu_usage() as f64);
                         v[i].pop_front();

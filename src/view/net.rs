@@ -9,7 +9,7 @@ use sysinfo::SystemExt;
 
 pub fn network() -> group::Pack {
     let mut sys = SYSTEM.lock();
-    sys.refresh_all();
+    sys.refresh_networks();
     frame::Frame::new(60, 60, 0, 0, None);
     let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
     grp.set_spacing(40);
@@ -48,7 +48,7 @@ pub fn network() -> group::Pack {
         move || {
             while grp.visible() {
                 if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
-                    sys.refresh_all();
+                    sys.refresh_networks();
                     let mut i = 0;
                     for comp in sys.networks() {
                         frames.lock()[i].set_label(&format!(

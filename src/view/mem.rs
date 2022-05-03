@@ -10,7 +10,7 @@ use sysinfo::SystemExt;
 
 pub fn memory() -> group::Pack {
     let mut sys = SYSTEM.lock();
-    sys.refresh_all();
+    sys.refresh_memory();
     frame::Frame::new(60, 60, 0, 0, None);
     let mut dials = vec![];
     let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
@@ -83,7 +83,7 @@ pub fn memory() -> group::Pack {
         move || {
             while grp.visible() {
                 if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
-                    sys.refresh_all();
+                    sys.refresh_memory();
                     dials.lock()[0].set_value(
                         (sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32,
                     );

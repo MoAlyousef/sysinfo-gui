@@ -78,34 +78,31 @@ pub fn memory(view: &MyView) -> group::Pack {
     grp.end();
     let dials = Arc::new(Mutex::new(dials));
     drop(sys);
-    let sys = view.system.clone();
+    let sys = view.system2.clone();
+
     let sleep = view.sleep.clone();
     std::thread::spawn({
-        let grp = grp.clone();
-        move || {
-            while grp.visible() {
-                if let Some(mut sys) = sys.try_lock() {
-                    sys.refresh_memory();
-                    dials.lock()[0].set_value(
-                        (sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32,
-                    );
-                    used_mem.set_label(&format!(
-                        "Used: {:.02} GiB",
-                        sys.used_memory() as f64 / 2_f64.powf(20.)
-                    ));
-                    dials.lock()[1].set_value(
-                        (sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32,
-                    );
-                    used_swap.set_label(&format!(
-                        "Used: {:.02} GiB",
-                        sys.used_swap() as f64 / 2_f64.powf(20.)
-                    ));
-                    app::awake();
-                    std::thread::sleep(std::time::Duration::from_millis(
-                        sleep.load(Ordering::Relaxed),
-                    ));
-                    drop(sys);
-                }
+        move || loop {
+            if let Some(mut sys) = sys.try_lock() {
+                sys.refresh_memory();
+                dials.lock()[0].set_value(
+                    (sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32,
+                );
+                used_mem.set_label(&format!(
+                    "Used: {:.02} GiB",
+                    sys.used_memory() as f64 / 2_f64.powf(20.)
+                ));
+                dials.lock()[1]
+                    .set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);
+                used_swap.set_label(&format!(
+                    "Used: {:.02} GiB",
+                    sys.used_swap() as f64 / 2_f64.powf(20.)
+                ));
+                app::awake();
+                std::thread::sleep(std::time::Duration::from_millis(
+                    sleep.load(Ordering::Relaxed),
+                ));
+                drop(sys);
             }
         }
     });

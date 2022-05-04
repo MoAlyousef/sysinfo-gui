@@ -13,7 +13,6 @@ use std::sync::atomic::{AtomicBool, AtomicU64};
 use std::sync::Arc;
 use sysinfo::{System, SystemExt};
 
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum SortOrder {
     Pid,
@@ -30,6 +29,7 @@ enum SortOrder {
 
 pub struct MyView {
     system: Arc<Mutex<System>>,
+    system2: Arc<Mutex<System>>,
     sleep: Arc<AtomicU64>,
     light_mode: Arc<AtomicBool>,
     ordering: Arc<Mutex<SortOrder>>,
@@ -40,8 +40,12 @@ impl Default for MyView {
         let mut sys = System::new_all();
         sys.refresh_all();
         let system = Arc::new(Mutex::new(sys));
+        let mut sys2 = System::new_all();
+        sys2.refresh_all();
+        let system2 = Arc::new(Mutex::new(sys2));
         Self {
             system,
+            system2,
             sleep: Arc::new(AtomicU64::from(100)),
             light_mode: Arc::new(AtomicBool::from(false)),
             ordering: Arc::new(Mutex::new(SortOrder::Pid)),

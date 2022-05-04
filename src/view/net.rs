@@ -42,34 +42,32 @@ pub fn network(view: &MyView) -> group::Pack {
     drop(sys);
     grp.end();
     let frames = Arc::new(Mutex::new(frames));
-    let sys = view.system.clone();
+    let sys = view.system2.clone();
+
     let sleep = view.sleep.clone();
     std::thread::spawn({
-        let grp = grp.clone();
-        move || {
-            while grp.visible() {
-                if let Some(mut sys) = sys.try_lock() {
-                    sys.refresh_networks();
-                    let mut i = 0;
-                    for comp in sys.networks() {
-                        frames.lock()[i].set_label(&format!(
-                            "Received: {} B - Transmitted: {} B",
-                            comp.1.received(),
-                            comp.1.transmitted()
-                        ));
-                        frames.lock()[i + 1].set_label(&format!(
-                            "Total Received: {:.02} MiB - Total Transmitted: {:.02} MiB",
-                            comp.1.total_received() as f64 / 2_f64.powf(20.),
-                            comp.1.total_transmitted() as f64 / 2_f64.powf(20.)
-                        ));
-                        i += 2;
-                    }
-                    drop(sys);
-                    app::awake();
-                    std::thread::sleep(std::time::Duration::from_millis(
-                        sleep.load(Ordering::Relaxed),
+        move || loop {
+            if let Some(mut sys) = sys.try_lock() {
+                sys.refresh_networks();
+                let mut i = 0;
+                for comp in sys.networks() {
+                    frames.lock()[i].set_label(&format!(
+                        "Received: {} B - Transmitted: {} B",
+                        comp.1.received(),
+                        comp.1.transmitted()
                     ));
+                    frames.lock()[i + 1].set_label(&format!(
+                        "Total Received: {:.02} MiB - Total Transmitted: {:.02} MiB",
+                        comp.1.total_received() as f64 / 2_f64.powf(20.),
+                        comp.1.total_transmitted() as f64 / 2_f64.powf(20.)
+                    ));
+                    i += 2;
                 }
+                drop(sys);
+                app::awake();
+                std::thread::sleep(std::time::Duration::from_millis(
+                    sleep.load(Ordering::Relaxed),
+                ));
             }
         }
     });

@@ -63,10 +63,10 @@ pub fn proc(view: &MyView) -> group::Pack {
     g.end();
     grp.end();
     let charts = Arc::new(Mutex::new(charts));
-    let sys = view.system.clone();
+    let sys = view.system2.clone();
+
     let sleep = view.sleep.clone();
     std::thread::spawn({
-        let grp = grp.clone();
         let charts = charts;
         move || {
             let mut v = vec![];
@@ -78,7 +78,7 @@ pub fn proc(view: &MyView) -> group::Pack {
                 v.push(d);
             }
 
-            while grp.visible() {
+            loop {
                 if let Some(mut sys) = sys.try_lock() {
                     sys.refresh_cpu();
                     for (i, proc) in sys.processors().iter().enumerate() {

@@ -131,13 +131,13 @@ pub struct HollowRoundToggle {
 
 impl Default for HollowRoundToggle {
     fn default() -> Self {
-        HollowRoundToggle::new(0, 0, 0, 0)
+        HollowRoundToggle::new(0, 0, 0, 0, "")
     }
 }
 
 impl HollowRoundToggle {
-    pub fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
-        let mut btn = button::ToggleButton::new(x, y, w, h, None);
+    pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
+        let mut btn = button::ToggleButton::new(x, y, w, h, None).with_label(label).with_align(Align::Left);
         btn.set_frame(FrameType::NoBox);
         btn.set_down_frame(FrameType::NoBox);
         btn.set_selection_color(GREEN);

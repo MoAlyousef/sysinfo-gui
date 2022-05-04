@@ -1,4 +1,4 @@
-use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
+use super::MyView;
 use crate::widgets::Card;
 use fltk::{prelude::*, *};
 use parking_lot::Mutex;
@@ -7,8 +7,8 @@ use sysinfo::NetworkExt;
 use sysinfo::NetworksExt;
 use sysinfo::SystemExt;
 
-pub fn network() -> group::Pack {
-    let mut sys = SYSTEM.lock();
+pub fn network(view: &MyView) -> group::Pack {
+    let mut sys = view.system.lock();
     sys.refresh_networks();
     frame::Frame::new(60, 60, 0, 0, None);
     let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
@@ -42,12 +42,13 @@ pub fn network() -> group::Pack {
     drop(sys);
     grp.end();
     let frames = Arc::new(Mutex::new(frames));
-
+    let sys = view.system.clone();
+    let sleep = view.sleep.clone();
     std::thread::spawn({
         let grp = grp.clone();
         move || {
             while grp.visible() {
-                if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
+                if let Some(mut sys) = sys.try_lock() {
                     sys.refresh_networks();
                     let mut i = 0;
                     for comp in sys.networks() {
@@ -66,7 +67,7 @@ pub fn network() -> group::Pack {
                     drop(sys);
                     app::awake();
                     std::thread::sleep(std::time::Duration::from_millis(
-                        SLEEP.load(Ordering::Relaxed),
+                        sleep.load(Ordering::Relaxed),
                     ));
                 }
             }

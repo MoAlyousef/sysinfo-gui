@@ -1,29 +1,10 @@
-use super::{LIGHT_MODE, SLEEP, SYSTEM, SYSTEM_LOOP};
+use super::{MyView, SortOrder};
 use crate::styles::colors::*;
 use fltk::{app::MouseButton, enums::*, prelude::*, *};
-use parking_lot::Mutex;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use sysinfo::ProcessExt;
 use sysinfo::SystemExt;
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-enum SortOrder {
-    Pid,
-    Mem,
-    Virt,
-    Cpu,
-    Exe,
-    RevPid,
-    RevMem,
-    RevVirt,
-    RevCpu,
-    RevExe,
-}
-
-lazy_static::lazy_static! {
-    static ref ORDERING: Mutex<SortOrder> = Mutex::new(SortOrder::Pid);
-}
 
 struct Proc {
     pub pid: sysinfo::Pid,
@@ -51,8 +32,8 @@ impl Proc {
             // read_bytes: 0,
         }
     }
-    pub fn fmt(&self) -> String {
-        if !LIGHT_MODE.load(Ordering::Relaxed) {
+    pub fn fmt(&self, light: bool) -> String {
+        if !light {
             format!(
                 "@C255 {}\t@C255 {:.02}\t@C255 {:.02}\t@C255 {:.02}\t@C255{}",
                 self.pid,
@@ -74,11 +55,11 @@ impl Proc {
     }
 }
 
-pub fn procs() -> group::Pack {
-    let mut ord = ORDERING.lock();
+pub fn procs(view: &MyView) -> group::Pack {
+    let mut ord = view.ordering.lock();
     *ord = SortOrder::Pid;
     drop(ord);
-    let mut sys = SYSTEM.lock();
+    let mut sys = view.system.lock();
     sys.refresh_processes();
     let grp = group::Pack::default()
         .with_size(700, 500)
@@ -95,9 +76,10 @@ pub fn procs() -> group::Pack {
     b.clear_visible_focus();
     b.set_label_size(app::font_size() + 1);
     b.set_value(true);
-    b.handle(|_, e| {
+    let ord = view.ordering.clone();
+    b.handle(move |_, e| {
         if e == Event::Push {
-            let mut ord = ORDERING.lock();
+            let mut ord = ord.lock();
             if *ord == SortOrder::Pid {
                 *ord = SortOrder::RevPid;
             } else {
@@ -117,9 +99,10 @@ pub fn procs() -> group::Pack {
     b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
     b.clear_visible_focus();
     b.set_label_size(app::font_size() + 1);
-    b.handle(|_, e| {
+    let ord = view.ordering.clone();
+    b.handle(move |_, e| {
         if e == Event::Push {
-            let mut ord = ORDERING.lock();
+            let mut ord = ord.lock();
             if *ord == SortOrder::Mem {
                 *ord = SortOrder::RevMem;
             } else {
@@ -139,9 +122,10 @@ pub fn procs() -> group::Pack {
     b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
     b.clear_visible_focus();
     b.set_label_size(app::font_size() + 1);
-    b.handle(|_, e| {
+    let ord = view.ordering.clone();
+    b.handle(move |_, e| {
         if e == Event::Push {
-            let mut ord = ORDERING.lock();
+            let mut ord = ord.lock();
             if *ord == SortOrder::Virt {
                 *ord = SortOrder::RevVirt;
             } else {
@@ -162,9 +146,10 @@ pub fn procs() -> group::Pack {
     b.clear_visible_focus();
     b.set_label_size(app::font_size() + 1);
     b.set_frame(FrameType::FlatBox);
-    b.handle(|_, e| {
+    let ord = view.ordering.clone();
+    b.handle(move |_, e| {
         if e == Event::Push {
-            let mut ord = ORDERING.lock();
+            let mut ord = ord.lock();
             if *ord == SortOrder::Cpu {
                 *ord = SortOrder::RevCpu;
             } else {
@@ -183,9 +168,10 @@ pub fn procs() -> group::Pack {
     b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
     b.clear_visible_focus();
     b.set_label_size(app::font_size() + 1);
-    b.handle(|_, e| {
+    let ord = view.ordering.clone();
+    b.handle(move |_, e| {
         if e == Event::Push {
-            let mut ord = ORDERING.lock();
+            let mut ord = ord.lock();
             if *ord == SortOrder::Exe {
                 *ord = SortOrder::RevExe;
             } else {
@@ -217,25 +203,28 @@ pub fn procs() -> group::Pack {
         ps.push(Proc::new(pid, process));
     }
     ps.sort_by(|p1, p2| p1.pid.cmp(&p2.pid));
+    let light_mode = view.light_mode.load(Ordering::Relaxed);
     for p in ps {
-        b.add(&p.fmt());
+        b.add(&p.fmt(light_mode));
     }
     let mut menu = menu::MenuButton::default().with_type(menu::MenuButtonType::Popup3);
     menu.set_frame(FrameType::FlatBox);
     menu.set_color(Color::color_average(menu.color(), Color::Background, 0.9));
     drop(sys);
+    let sys = view.system.clone();
     menu.add("End Task\t\t", Shortcut::None, menu::MenuFlag::Normal, {
         let b = b.clone();
         move |_| {
             let val = b.value();
             if val != 0 {
                 if let Some(text) = b.text(val) {
-                    let sys = SYSTEM.lock();
+                    let sys = sys.lock();
                     let v: Vec<&str> = text.split_ascii_whitespace().collect();
                     let pid = sysinfo::Pid::from_str(v[1]).unwrap();
                     if let Some(p) = sys.process(pid) {
                         p.kill_with(sysinfo::Signal::Kill).unwrap();
                     }
+                    drop(sys);
                 }
             }
         }
@@ -245,18 +234,21 @@ pub fn procs() -> group::Pack {
             menu.popup();
         }
     });
-
+    let sys = view.system.clone();
+    let sleep = view.sleep.clone();
+    let light_mode = view.light_mode.clone();
+    let ord = view.ordering.clone();
     std::thread::spawn({
         let grp = grp.clone();
         move || {
             while grp.visible() {
-                if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
+                if let Some(mut sys) = sys.try_lock() {
                     sys.refresh_processes();
                     let mut ps = vec![];
                     for (pid, process) in sys.processes() {
                         ps.push(Proc::new(pid, process));
                     }
-                    ps.sort_by(|p1, p2| match *ORDERING.lock() {
+                    ps.sort_by(|p1, p2| match *ord.lock() {
                         SortOrder::Pid => p1.pid.cmp(&p2.pid),
                         SortOrder::Mem => p1.memory.cmp(&p2.memory),
                         SortOrder::Virt => p1.virt.cmp(&p2.virt),
@@ -268,14 +260,13 @@ pub fn procs() -> group::Pack {
                         SortOrder::RevCpu => p2.cpu.partial_cmp(&p1.cpu).unwrap(),
                         SortOrder::RevExe => p2.exe.cmp(&p1.exe),
                     });
-                    let mut i = 0;
-                    for p in ps {
-                        b.set_text(i + 1, &p.fmt());
-                        i += 1;
+                    let light_mode = light_mode.load(Ordering::Relaxed);
+                    for (i, p) in ps.iter().enumerate() {
+                        b.set_text(i as i32 + 1, &p.fmt(light_mode));
                     }
                     app::awake();
                     std::thread::sleep(std::time::Duration::from_millis(
-                        SLEEP.load(Ordering::Relaxed),
+                        sleep.load(Ordering::Relaxed),
                     ));
                     drop(sys);
                 }

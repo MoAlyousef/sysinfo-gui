@@ -42,7 +42,7 @@ These are built using github actions, and can be found here:
 https://github.com/MoAlyousef/sysinfo-gui/releases
 
 ## TODO
-- The codebase needs some refactoring, maybe the View struct can hold data instead of using lazy_statics.
+- The codebase needs some refactoring.
 - Support more things in the right click popup menu in the processes view.
 - Add downloand and upload speed.
 - Use better colors for the cpus. 

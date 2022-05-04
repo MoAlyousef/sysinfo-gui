@@ -1,4 +1,4 @@
-use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
+use super::MyView;
 use crate::{
     styles::colors::MEM_YELLOW,
     widgets::{Card, Dial},
@@ -8,8 +8,8 @@ use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
 use sysinfo::SystemExt;
 
-pub fn memory() -> group::Pack {
-    let mut sys = SYSTEM.lock();
+pub fn memory(view: &MyView) -> group::Pack {
+    let mut sys = view.system.lock();
     sys.refresh_memory();
     frame::Frame::new(60, 60, 0, 0, None);
     let mut dials = vec![];
@@ -77,12 +77,14 @@ pub fn memory() -> group::Pack {
     hpack.end();
     grp.end();
     let dials = Arc::new(Mutex::new(dials));
-
+    drop(sys);
+    let sys = view.system.clone();
+    let sleep = view.sleep.clone();
     std::thread::spawn({
         let grp = grp.clone();
         move || {
             while grp.visible() {
-                if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
+                if let Some(mut sys) = sys.try_lock() {
                     sys.refresh_memory();
                     dials.lock()[0].set_value(
                         (sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32,
@@ -100,7 +102,7 @@ pub fn memory() -> group::Pack {
                     ));
                     app::awake();
                     std::thread::sleep(std::time::Duration::from_millis(
-                        SLEEP.load(Ordering::Relaxed),
+                        sleep.load(Ordering::Relaxed),
                     ));
                     drop(sys);
                 }

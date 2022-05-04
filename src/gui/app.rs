@@ -16,11 +16,11 @@ impl App {
         std::panic::set_hook(Box::new(|info| {
             if let Some(s) = info.payload().downcast_ref::<&str>() {
                 if !s.contains("self.was_deleted") {
-                    fltk::dialog::message_default(&format!("{}", s));
+                    fltk::dialog::message_default(s);
                 }
             } else if let Some(s) = info.payload().downcast_ref::<String>() {
                 if !s.contains("self.was_deleted") {
-                    fltk::dialog::message_default(&format!("{}", s));
+                    fltk::dialog::message_default(s);
                 }
             } else {
                 fltk::dialog::message_default(&format!("{:?}", info));

@@ -1,4 +1,4 @@
-use super::SYSTEM;
+use super::MyView;
 use crate::{
     styles::colors::*,
     widgets::{Card, Dial},
@@ -7,8 +7,8 @@ use fltk::{prelude::*, *};
 use sysinfo::DiskExt;
 use sysinfo::SystemExt;
 
-pub fn disks() -> group::Pack {
-    let mut sys = SYSTEM.lock();
+pub fn disks(view: &MyView) -> group::Pack {
+    let mut sys = view.system.lock();
     sys.refresh_disks();
     frame::Frame::new(60, 60, 0, 0, None);
     let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();

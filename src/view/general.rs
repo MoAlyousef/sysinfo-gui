@@ -1,4 +1,4 @@
-use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
+use super::MyView;
 use crate::{
     styles::colors::*,
     widgets::{Card, HalfDial},
@@ -8,8 +8,8 @@ use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
 use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessExt, SystemExt};
 
-pub fn general() -> group::Pack {
-    let mut sys = SYSTEM.lock();
+pub fn general(view: &MyView) -> group::Pack {
+    let mut sys = view.system.lock();
     sys.refresh_all();
     let mem = (sys.used_memory() as f64 / sys.total_memory() as f64) * 100.;
     let mut total_space = 0;
@@ -20,7 +20,7 @@ pub fn general() -> group::Pack {
     }
     let used_space = ((total_space - avail_space) as f64 * 100. / total_space as f64) as i32;
     let mut cpu_usage = 0.;
-    for (_, process) in sys.processes() {
+    for process in sys.processes().values() {
         cpu_usage += process.cpu_usage();
     }
     let mut dials = vec![];
@@ -116,12 +116,13 @@ pub fn general() -> group::Pack {
     grp.end();
     drop(sys);
     let dials = Arc::new(Mutex::new(dials));
-
+    let sys = view.system.clone();
+    let sleep = view.sleep.clone();
     std::thread::spawn({
         let grp = grp.clone();
         move || {
             while grp.visible() {
-                if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
+                if let Some(mut sys) = sys.try_lock() {
                     sys.refresh_all();
                     let mem = (sys.used_memory() as f64 / sys.total_memory() as f64) * 100.;
                     let mut total_space = 0;
@@ -133,7 +134,7 @@ pub fn general() -> group::Pack {
                     let used_space =
                         ((total_space - avail_space) as f64 * 100. / total_space as f64) as i32;
                     let mut cpu_usage = 0.;
-                    for (_, process) in sys.processes() {
+                    for process in sys.processes().values() {
                         cpu_usage += process.cpu_usage();
                     }
                     let mut total_recv = 0;
@@ -153,7 +154,7 @@ pub fn general() -> group::Pack {
                     ));
                     app::awake();
                     std::thread::sleep(std::time::Duration::from_millis(
-                        SLEEP.load(Ordering::Relaxed),
+                        sleep.load(Ordering::Relaxed),
                     ));
                 }
             }

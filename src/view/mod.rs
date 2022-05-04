@@ -10,36 +10,79 @@ use crate::gui::{message::Message, View};
 use fltk::group::Pack;
 use parking_lot::Mutex;
 use std::sync::atomic::{AtomicBool, AtomicU64};
+use std::sync::Arc;
 use sysinfo::{System, SystemExt};
 
-lazy_static::lazy_static! {
-    pub static ref SYSTEM: Mutex<System> = {
-        let mut sys = System::new_all();
-        sys.refresh_all();
-        Mutex::new(sys)
-    };
-    pub static ref SYSTEM_LOOP: Mutex<System> = {
-        let mut sys = System::new_all();
-        sys.refresh_all();
-        Mutex::new(sys)
-    };
-    pub static ref SLEEP: AtomicU64= AtomicU64::new(100);
-    pub static ref LIGHT_MODE: AtomicBool = AtomicBool::new(false);
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum SortOrder {
+    Pid,
+    Mem,
+    Virt,
+    Cpu,
+    Exe,
+    RevPid,
+    RevMem,
+    RevVirt,
+    RevCpu,
+    RevExe,
 }
 
-#[derive(Default)]
-pub struct MyView;
+pub struct MyView {
+    system: Arc<Mutex<System>>,
+    sleep: Arc<AtomicU64>,
+    light_mode: Arc<AtomicBool>,
+    ordering: Arc<Mutex<SortOrder>>,
+}
+
+impl Default for MyView {
+    fn default() -> Self {
+        let mut sys = System::new_all();
+        sys.refresh_all();
+        let system = Arc::new(Mutex::new(sys));
+        Self {
+            system,
+            sleep: Arc::new(AtomicU64::from(100)),
+            light_mode: Arc::new(AtomicBool::from(false)),
+            ordering: Arc::new(Mutex::new(SortOrder::Pid)),
+        }
+    }
+}
 
 impl View for MyView {
     fn view(&self, msg: Message) -> Pack {
         match msg {
-            Message::General => general::general(),
-            Message::Disks => disk::disks(),
-            Message::Proc => cpu::proc(),
-            Message::Memory => mem::memory(),
-            Message::Procs => procs::procs(),
-            Message::Net => net::network(),
-            Message::Settings => settings::settings(),
+            Message::General => self.general(),
+            Message::Disks => self.disks(),
+            Message::Proc => self.cpu(),
+            Message::Memory => self.memory(),
+            Message::Procs => self.procs(),
+            Message::Net => self.network(),
+            Message::Settings => self.settings(),
         }
+    }
+}
+
+impl MyView {
+    pub fn general(&self) -> Pack {
+        general::general(self)
+    }
+    pub fn memory(&self) -> Pack {
+        mem::memory(self)
+    }
+    pub fn settings(&self) -> Pack {
+        settings::settings(self)
+    }
+    pub fn network(&self) -> Pack {
+        net::network(self)
+    }
+    pub fn cpu(&self) -> Pack {
+        cpu::proc(self)
+    }
+    pub fn disks(&self) -> Pack {
+        disk::disks(self)
+    }
+    pub fn procs(&self) -> Pack {
+        procs::procs(self)
     }
 }

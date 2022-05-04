@@ -1,28 +1,29 @@
-use super::{LIGHT_MODE, SLEEP};
 use crate::styles::colors::*;
+use crate::view::MyView;
 use crate::widgets::{FancyHorSlider, Toggle};
 use fltk::{enums::*, prelude::*, *};
 use fltk_grid::Grid;
 use std::sync::atomic::Ordering;
 
-fn fill_grid(grid: &mut Grid) {
+fn fill_grid(grid: &mut Grid, view: &MyView) {
     let mut f = frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_label("Light mode:");
     grid.insert_ext(&mut f, 3, 2, 3, 1);
     let mut g = group::Group::default().with_size(60, 30);
     let mut t = Toggle::new(0, 0, 60, 15).center_of_parent();
-    t.set_value(LIGHT_MODE.load(Ordering::Relaxed));
-    t.set_callback(|t| {
+    t.set_value(view.light_mode.load(Ordering::Relaxed));
+    let light_mode = view.light_mode.clone();
+    t.set_callback(move |t| {
         if t.value() {
             app::foreground(0, 0, 0);
             app::background(255, 255, 255);
-            LIGHT_MODE.store(true, Ordering::Relaxed);
+            light_mode.store(true, Ordering::Relaxed);
         } else {
             app::foreground(255, 255, 255);
             let (r, g, b) = GRAY.to_rgb();
             app::background(r, g, b);
-            LIGHT_MODE.store(false, Ordering::Relaxed);
+            light_mode.store(false, Ordering::Relaxed);
         }
         app::redraw();
     });
@@ -36,16 +37,17 @@ fn fill_grid(grid: &mut Grid) {
     let mut slider = FancyHorSlider::new(0, 0, 40, 10).center_of_parent();
     g.end();
     grid.insert_ext(&mut g, 6, 14, 4, 1);
-    let val = SLEEP.load(Ordering::Relaxed);
+    let val = view.sleep.load(Ordering::Relaxed);
     let mut f = frame::Frame::default()
         .with_size(0, 40)
         .with_label(&val.to_string());
     grid.insert_ext(&mut f, 7, 15, 2, 1);
     slider.set_value((val as f64 - 100.) / 1000.);
+    let sleep = view.sleep.clone();
     slider.set_callback(move |s| {
         let val = (s.value() * 1000.) as u64 + 100;
         f.set_label(&val.to_string());
-        SLEEP.store(val, Ordering::Relaxed);
+        sleep.store(val, Ordering::Relaxed);
     });
     let mut f = frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
@@ -73,13 +75,13 @@ fn fill_grid(grid: &mut Grid) {
     grid.insert_ext(&mut g, 9, 14, 4, 1);
 }
 
-pub fn settings() -> group::Pack {
+pub fn settings(view: &MyView) -> group::Pack {
     let mut grp = group::Pack::default_fill().center_of_parent();
     grp.set_spacing(0);
     let mut grid = Grid::default_fill();
     grid.set_layout(20, 20);
     grid.debug(false);
     grp.end();
-    fill_grid(&mut grid);
+    fill_grid(&mut grid, view);
     grp
 }

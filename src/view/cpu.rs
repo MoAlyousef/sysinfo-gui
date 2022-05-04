@@ -1,4 +1,4 @@
-use super::{SLEEP, SYSTEM, SYSTEM_LOOP};
+use super::MyView;
 use crate::widgets::Card;
 use fltk::{draw::draw_rect_fill, enums::*, prelude::*, *};
 use parking_lot::Mutex;
@@ -7,14 +7,14 @@ use std::sync::{atomic::Ordering, Arc};
 use sysinfo::ProcessorExt;
 use sysinfo::SystemExt;
 
-pub fn proc() -> group::Pack {
-    let mut sys = SYSTEM.lock();
+pub fn proc(view: &MyView) -> group::Pack {
+    let mut sys = view.system.lock();
     sys.refresh_cpu();
     let first = sys.processors().first().unwrap();
     let vendor_id = first.vendor_id().to_string();
     let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
     grp.set_spacing(40);
-    let t = Card::new(0, 0, 300, 80, &first.brand());
+    let t = Card::new(0, 0, 300, 80, first.brand());
     t.begin();
     let mut f = frame::Frame::default().with_size(80, 30).center_of_parent();
     t.end();
@@ -63,9 +63,11 @@ pub fn proc() -> group::Pack {
     g.end();
     grp.end();
     let charts = Arc::new(Mutex::new(charts));
+    let sys = view.system.clone();
+    let sleep = view.sleep.clone();
     std::thread::spawn({
         let grp = grp.clone();
-        let charts = charts.clone();
+        let charts = charts;
         move || {
             let mut v = vec![];
             for _ in 0..num_cpus {
@@ -77,14 +79,13 @@ pub fn proc() -> group::Pack {
             }
 
             while grp.visible() {
-                if let Some(mut sys) = SYSTEM_LOOP.try_lock() {
+                if let Some(mut sys) = sys.try_lock() {
                     sys.refresh_cpu();
                     for (i, proc) in sys.processors().iter().enumerate() {
                         v[i].push_back(proc.cpu_usage() as f64);
                         v[i].pop_front();
                     }
-                    let mut count = 0;
-                    for c in &mut *charts.lock() {
+                    for (count, c) in (*charts.lock()).iter_mut().enumerate() {
                         for i in 1..20 {
                             let last = if let Some(val) = v[count].get(i) {
                                 *val
@@ -93,13 +94,12 @@ pub fn proc() -> group::Pack {
                             };
                             c.replace((i - 1) as i32, last, "", Color::by_index((count + 2) as _));
                         }
-                        count += 1;
                     }
                     drop(sys);
                     app::awake();
                     app::redraw();
                     std::thread::sleep(std::time::Duration::from_millis(
-                        SLEEP.load(Ordering::Relaxed),
+                        sleep.load(Ordering::Relaxed),
                     ));
                 }
             }

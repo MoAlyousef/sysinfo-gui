@@ -1,7 +1,7 @@
+use super::styles::colors::*;
+use super::styles::svgs::*;
+use super::widgets::*;
 use super::{message::Message, View};
-use crate::styles::colors::*;
-use crate::styles::svgs::*;
-use crate::widgets::*;
 use fltk::{enums::*, prelude::*, *};
 
 pub struct App {
@@ -48,7 +48,7 @@ impl App {
             .with_size(800, 600)
             .with_label("sysinfo-gui");
         win.set_xclass("sysinfo");
-        let mut grp = group::Group::new(0, 0, 60, 600, None);
+        let mut grp = group::Group::default().with_size(60, 600);
         grp.set_frame(FrameType::FlatBox);
         grp.set_color(BLUE);
         let mut col = group::Pack::default()

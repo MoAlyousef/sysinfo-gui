@@ -2,9 +2,7 @@
 #![doc = include_str!("../README.md")]
 
 mod gui;
-mod styles;
 mod view;
-mod widgets;
 
 fn main() {
     let a = gui::app::App::new(view::MyView::default());

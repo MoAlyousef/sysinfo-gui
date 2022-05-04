@@ -1,5 +1,5 @@
 use super::{MyView, SortOrder};
-use crate::styles::colors::*;
+use crate::gui::styles::colors::*;
 use fltk::{app::MouseButton, enums::*, prelude::*, *};
 use std::str::FromStr;
 use std::sync::atomic::Ordering;

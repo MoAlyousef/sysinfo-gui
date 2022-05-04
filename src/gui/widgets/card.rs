@@ -1,9 +1,14 @@
 use fltk::{enums::*, prelude::*, *};
-use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, Clone)]
 pub struct Card {
     grp: group::Group,
+}
+
+impl Default for Card {
+    fn default() -> Self {
+        Card::new(0, 0, 0, 0, "")
+    }
 }
 
 impl Card {
@@ -46,16 +51,4 @@ impl Card {
     }
 }
 
-impl Deref for Card {
-    type Target = group::Group;
-
-    fn deref(&self) -> &Self::Target {
-        &self.grp
-    }
-}
-
-impl DerefMut for Card {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.grp
-    }
-}
+fltk::widget_extends!(Card, group::Group, grp);

@@ -1,6 +1,6 @@
-use crate::styles::colors::*;
+use crate::gui::styles::colors::*;
+use crate::gui::widgets::{FancyHorSlider, Toggle};
 use crate::view::MyView;
-use crate::widgets::{FancyHorSlider, Toggle};
 use fltk::{enums::*, prelude::*, *};
 use fltk_grid::Grid;
 use std::sync::atomic::Ordering;
@@ -10,8 +10,7 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
         .with_align(Align::Left | Align::Inside)
         .with_label("Light mode:");
     grid.insert_ext(&mut f, 3, 2, 3, 1);
-    let mut g = group::Group::default().with_size(60, 30);
-    let mut t = Toggle::new(0, 0, 60, 15).center_of_parent();
+    let mut t = Toggle::default();
     t.set_value(view.light_mode.load(Ordering::Relaxed));
     let light_mode = view.light_mode.clone();
     t.set_callback(move |t| {
@@ -27,16 +26,15 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
         }
         app::redraw();
     });
-    g.end();
-    grid.insert_ext(&mut g, 3, 15, 2, 1);
+    grid.insert_ext(&mut *t, 3, 15, 2, 1);
     let mut f = frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_label("Sleep duration (millis):");
     grid.insert_ext(&mut f, 6, 2, 3, 1);
-    let mut g = group::Group::default().with_size(40, 30);
-    let mut slider = FancyHorSlider::new(0, 0, 40, 10).center_of_parent();
-    g.end();
-    grid.insert_ext(&mut g, 6, 14, 4, 1);
+    let mut slider = FancyHorSlider::default()
+        .with_size(40, 10)
+        .center_of_parent();
+    grid.insert_ext(&mut *slider, 6, 14, 4, 1);
     let val = view.sleep.load(Ordering::Relaxed);
     let mut f = frame::Frame::default()
         .with_size(0, 40)
@@ -53,9 +51,9 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
         .with_align(Align::Left | Align::Inside)
         .with_label("Window Transparency (%):");
     grid.insert_ext(&mut f, 9, 2, 3, 1);
-    let mut g = group::Group::default().with_size(40, 30);
-    let mut slider = FancyHorSlider::new(0, 0, 40, 10).center_of_parent();
-    g.end();
+    let mut slider = FancyHorSlider::default()
+        .with_size(40, 20)
+        .center_of_parent();
     let mut win = unsafe {
         let mut win = window::Window::from_widget_ptr(app::first_window().unwrap().as_widget_ptr());
         win.assume_derived();
@@ -72,7 +70,7 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
         f.set_label(&((val * 100.) as i32).to_string());
         win.set_opacity(val);
     });
-    grid.insert_ext(&mut g, 9, 14, 4, 1);
+    grid.insert_ext(&mut *slider, 9, 14, 4, 1);
 }
 
 pub fn settings(view: &MyView) -> group::Pack {
@@ -80,7 +78,7 @@ pub fn settings(view: &MyView) -> group::Pack {
     grp.set_spacing(0);
     let mut grid = Grid::default_fill();
     grid.set_layout(20, 20);
-    grid.debug(false);
+    // grid.debug(true);
     grp.end();
     fill_grid(&mut grid, view);
     grp

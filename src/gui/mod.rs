@@ -1,5 +1,7 @@
 pub mod app;
 pub mod message;
+pub mod styles;
+pub mod widgets;
 
 use fltk::group::Pack;
 

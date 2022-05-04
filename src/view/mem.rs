@@ -1,7 +1,7 @@
 use super::MyView;
 use crate::{
-    styles::colors::MEM_YELLOW,
-    widgets::{Card, Dial},
+    gui::styles::colors::MEM_YELLOW,
+    gui::widgets::{Card, Dial},
 };
 use fltk::{prelude::*, *};
 use parking_lot::Mutex;
@@ -13,13 +13,15 @@ pub fn memory(view: &MyView) -> group::Pack {
     sys.refresh_memory();
     frame::Frame::new(60, 60, 0, 0, None);
     let mut dials = vec![];
-    let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
+    let mut grp = group::Pack::default()
+        .with_size(600, 400)
+        .center_of_parent();
     grp.set_spacing(40);
     let mut hpack = group::Pack::default()
         .with_size(600, 130)
         .with_type(group::PackType::Horizontal);
     hpack.set_spacing(50);
-    let t = Card::new(0, 0, 300, 60, "Memory");
+    let t = Card::default().with_size(300, 60).with_label("Memory");
     t.begin();
     let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
     frame::Frame::default()
@@ -37,7 +39,10 @@ pub fn memory(view: &MyView) -> group::Pack {
     pack.end();
     t.end();
     let mut g = group::Group::default().with_size(130, 130);
-    let mut dial = Dial::new(0, 0, 100, 100, "Memory Usage %").center_of_parent();
+    let mut dial = Dial::default()
+        .with_size(100, 100)
+        .with_label("Memory Usage %")
+        .center_of_parent();
     dial.modifiable(false);
     dial.set_selection_color(MEM_YELLOW);
     dial.set_value((sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32);
@@ -49,7 +54,7 @@ pub fn memory(view: &MyView) -> group::Pack {
         .with_size(600, 130)
         .with_type(group::PackType::Horizontal);
     hpack.set_spacing(50);
-    let t = Card::new(0, 0, 300, 60, "Swap");
+    let t = Card::default().with_size(300, 60).with_label("Swap");
     t.begin();
     let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
     frame::Frame::default()
@@ -67,7 +72,10 @@ pub fn memory(view: &MyView) -> group::Pack {
     pack.end();
     t.end();
     let mut g = group::Group::default().with_size(130, 130);
-    let mut dial = Dial::new(0, 0, 100, 100, "Swap Usage %").center_of_parent();
+    let mut dial = Dial::default()
+        .with_size(100, 100)
+        .with_label("Swap Usage %")
+        .center_of_parent();
     dial.modifiable(false);
     dial.set_selection_color(MEM_YELLOW);
     dial.set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);

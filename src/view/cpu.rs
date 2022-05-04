@@ -1,6 +1,6 @@
 use super::MyView;
-use crate::widgets::Card;
-use fltk::{draw::draw_rect_fill, enums::*, prelude::*, *};
+use crate::gui::widgets::Card;
+use fltk::{enums::*, prelude::*, *};
 use parking_lot::Mutex;
 use std::collections::VecDeque;
 use std::sync::{atomic::Ordering, Arc};
@@ -12,9 +12,11 @@ pub fn proc(view: &MyView) -> group::Pack {
     sys.refresh_cpu();
     let first = sys.processors().first().unwrap();
     let vendor_id = first.vendor_id().to_string();
-    let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
+    let mut grp = group::Pack::default()
+        .with_size(600, 400)
+        .center_of_parent();
     grp.set_spacing(40);
-    let t = Card::new(0, 0, 300, 80, first.brand());
+    let t = Card::default().with_size(300, 80).with_label(first.brand());
     t.begin();
     let mut f = frame::Frame::default().with_size(80, 30).center_of_parent();
     t.end();
@@ -32,7 +34,7 @@ pub fn proc(view: &MyView) -> group::Pack {
         c.set_frame(FrameType::NoBox);
         let name = proc.name().to_string();
         c.draw(move |c| {
-            draw_rect_fill(
+            draw::draw_rect_fill(
                 (50 * num_cpus) + c.x() + 5,
                 c.y() + 5,
                 10,

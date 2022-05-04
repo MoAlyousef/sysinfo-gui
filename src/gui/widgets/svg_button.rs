@@ -1,6 +1,5 @@
-use crate::styles::colors::*;
+use crate::gui::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
-use std::ops::{Deref, DerefMut};
 
 pub struct SvgButton {
     btn: button::RadioButton,
@@ -32,16 +31,4 @@ impl SvgButton {
     }
 }
 
-impl Deref for SvgButton {
-    type Target = button::RadioButton;
-
-    fn deref(&self) -> &Self::Target {
-        &self.btn
-    }
-}
-
-impl DerefMut for SvgButton {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.btn
-    }
-}
+fltk::widget_extends!(SvgButton, button::RadioButton, btn);

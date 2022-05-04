@@ -1,4 +1,4 @@
-use crate::styles::colors::*;
+use crate::gui::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
 use std::sync::{
     atomic::{AtomicBool, AtomicI32, Ordering},
@@ -184,6 +184,12 @@ pub struct HalfDial {
     value_frame: frame::Frame,
 }
 
+impl Default for HalfDial {
+    fn default() -> Self {
+        HalfDial::new(0, 0, 0, 0, "")
+    }
+}
+
 impl HalfDial {
     pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
         let value = AtomicI32::new(0);
@@ -216,6 +222,12 @@ impl HalfDial {
                 360.,
             );
             w.draw_children();
+        });
+        main_wid.resize_callback({
+            let mut value_frame = value_frame.clone();
+            move |_, x, y, w, _h| {
+                value_frame.resize(x, y + 80, w, 40);
+            }
         });
         Self {
             main_wid,

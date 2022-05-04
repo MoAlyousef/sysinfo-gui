@@ -1,5 +1,5 @@
 use super::MyView;
-use crate::widgets::Card;
+use crate::gui::widgets::Card;
 use fltk::{prelude::*, *};
 use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
@@ -11,11 +11,13 @@ pub fn network(view: &MyView) -> group::Pack {
     let mut sys = view.system.lock();
     sys.refresh_networks();
     frame::Frame::new(60, 60, 0, 0, None);
-    let mut grp = group::Pack::new(60, 60, 600, 400, None).center_of_parent();
+    let mut grp = group::Pack::default()
+        .with_size(600, 400)
+        .center_of_parent();
     grp.set_spacing(40);
     let mut frames = vec![];
     for comp in sys.networks().iter() {
-        let t = Card::new(0, 0, 300, 130, comp.0);
+        let t = Card::default().with_size(300, 130).with_label(comp.0);
         t.begin();
         let p = group::Pack::default()
             .with_size(300, 130)

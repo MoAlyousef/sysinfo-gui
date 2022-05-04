@@ -28,7 +28,7 @@ pub fn general(view: &MyView) -> group::Pack {
     let mut grp = group::Pack::default()
         .with_size(700, 450)
         .center_of_parent();
-    grp.set_spacing(40);
+    grp.set_spacing(30);
     let mut pack0 = group::Pack::default()
         .with_size(450, 200)
         .with_type(group::PackType::Horizontal);

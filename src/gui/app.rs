@@ -34,7 +34,7 @@ impl App {
         let (r, g, b) = SEL_BLUE.to_rgb();
         app::set_selection_color(r, g, b);
         misc::Tooltip::set_color(Color::from_rgb(0xFF, 0xFF, 0xF0));
-        app::set_font_size(16);
+        app::set_font_size(18);
         let temp = std::env::temp_dir().join("Roboto-Medium.ttf");
         if !temp.exists() {
             let bytes = include_bytes!("../../Roboto-Medium.ttf");

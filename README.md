@@ -4,7 +4,8 @@ A lightweight cross-platform system-monitoring [fltk](https://github.com/fltk-rs
 
 The UI design is inspired by [stacer](https://github.com/oguzhaninan/Stacer).
 
-The svg icons are taken from: https://icons.getbootstrap.com/.
+The svg icons are taken from: https://icons.getbootstrap.com/. The ascending and descending icons from https://www.svgrepo.com/.
+
 The font is Roboto Medium.
 
 ## Screenshots

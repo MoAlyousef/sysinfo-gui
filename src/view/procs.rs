@@ -1,10 +1,45 @@
 use super::{MyView, SortOrder};
+use crate::gui::styles;
 use crate::gui::styles::colors::*;
 use fltk::{app::MouseButton, enums::*, prelude::*, *};
+use parking_lot::Mutex;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
+use std::sync::Arc;
 use sysinfo::ProcessExt;
 use sysinfo::SystemExt;
+
+struct ProcToggle {
+    b: button::RadioButton,
+}
+
+impl ProcToggle {
+    pub fn new(label: &str, ord: Arc<Mutex<SortOrder>>) -> Self {
+        let mut b = button::RadioButton::default()
+            .with_size(70, 0)
+            .with_label(label)
+            .with_align(Align::Left | Align::Inside);
+        b.set_down_frame(FrameType::FlatBox);
+        b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
+        b.clear_visible_focus();
+        b.set_label_size(app::font_size() + 1);
+        b.draw(move |b| {
+            if b.value() {
+                let mut image = if (*ord.lock() as i32) < 5 {
+                    image::SvgImage::from_data(styles::svgs::DESC).unwrap()
+                } else {
+                    image::SvgImage::from_data(styles::svgs::ASC).unwrap()
+                };
+                image.scale(15, 15, true, true);
+                image.draw(b.x() + (b.w() * 2 / 3) + 5, b.y() + 10, b.w() / 3, b.h());
+            }
+        });
+        b.set_frame(FrameType::FlatBox);
+        Self { b }
+    }
+}
+
+fltk::widget_extends!(ProcToggle, button::RadioButton, b);
 
 struct Proc {
     pub pid: sysinfo::Pid,
@@ -67,122 +102,88 @@ pub fn procs(view: &MyView) -> group::Pack {
     let hpack = group::Pack::default()
         .with_size(0, 30)
         .with_type(group::PackType::Horizontal);
-    let mut b = button::RadioButton::default()
-        .with_size(70, 0)
-        .with_label("pid")
-        .with_align(Align::Left | Align::Inside);
-    b.set_down_frame(FrameType::FlatBox);
-    b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
-    b.clear_visible_focus();
-    b.set_label_size(app::font_size() + 1);
+    let mut b = ProcToggle::new("pid", view.ordering.clone());
     b.set_value(true);
-    let ord = view.ordering.clone();
-    b.handle(move |_, e| {
-        if e == Event::Push {
-            let mut ord = ord.lock();
-            if *ord == SortOrder::Pid {
-                *ord = SortOrder::RevPid;
+    b.handle({
+        let ord = view.ordering.clone();
+        move |_, e| {
+            if e == Event::Push {
+                let mut ord = ord.lock();
+                if *ord == SortOrder::Pid {
+                    *ord = SortOrder::RevPid;
+                } else {
+                    *ord = SortOrder::Pid;
+                }
+                true
             } else {
-                *ord = SortOrder::Pid;
+                false
             }
-            true
-        } else {
-            false
         }
     });
-    b.set_frame(FrameType::FlatBox);
-    let mut b = button::RadioButton::default()
-        .with_size(70, 0)
-        .with_label("mem")
-        .with_align(Align::Left | Align::Inside);
-    b.set_down_frame(FrameType::FlatBox);
-    b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
-    b.clear_visible_focus();
-    b.set_label_size(app::font_size() + 1);
-    let ord = view.ordering.clone();
-    b.handle(move |_, e| {
-        if e == Event::Push {
-            let mut ord = ord.lock();
-            if *ord == SortOrder::Mem {
-                *ord = SortOrder::RevMem;
+    ProcToggle::new("mem", view.ordering.clone()).handle({
+        let ord = view.ordering.clone();
+        move |_, e| {
+            if e == Event::Push {
+                let mut ord = ord.lock();
+                if *ord == SortOrder::Mem {
+                    *ord = SortOrder::RevMem;
+                } else {
+                    *ord = SortOrder::Mem;
+                }
+                true
             } else {
-                *ord = SortOrder::Mem;
+                false
             }
-            true
-        } else {
-            false
         }
     });
-    b.set_frame(FrameType::FlatBox);
-    let mut b = button::RadioButton::default()
-        .with_size(70, 0)
-        .with_label("virt")
-        .with_align(Align::Left | Align::Inside);
-    b.set_down_frame(FrameType::FlatBox);
-    b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
-    b.clear_visible_focus();
-    b.set_label_size(app::font_size() + 1);
-    let ord = view.ordering.clone();
-    b.handle(move |_, e| {
-        if e == Event::Push {
-            let mut ord = ord.lock();
-            if *ord == SortOrder::Virt {
-                *ord = SortOrder::RevVirt;
+    ProcToggle::new("virt", view.ordering.clone()).handle({
+        let ord = view.ordering.clone();
+        move |_, e| {
+            if e == Event::Push {
+                let mut ord = ord.lock();
+                if *ord == SortOrder::Virt {
+                    *ord = SortOrder::RevVirt;
+                } else {
+                    *ord = SortOrder::Virt;
+                }
+                true
             } else {
-                *ord = SortOrder::Virt;
+                false
             }
-            true
-        } else {
-            false
         }
     });
-    b.set_frame(FrameType::FlatBox);
-    let mut b = button::RadioButton::default()
-        .with_size(70, 0)
-        .with_label("cpu")
-        .with_align(Align::Left | Align::Inside);
-    b.set_down_frame(FrameType::FlatBox);
-    b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
-    b.clear_visible_focus();
-    b.set_label_size(app::font_size() + 1);
-    b.set_frame(FrameType::FlatBox);
-    let ord = view.ordering.clone();
-    b.handle(move |_, e| {
-        if e == Event::Push {
-            let mut ord = ord.lock();
-            if *ord == SortOrder::Cpu {
-                *ord = SortOrder::RevCpu;
+    ProcToggle::new("cpu", view.ordering.clone()).handle({
+        let ord = view.ordering.clone();
+        move |_, e| {
+            if e == Event::Push {
+                let mut ord = ord.lock();
+                if *ord == SortOrder::Cpu {
+                    *ord = SortOrder::RevCpu;
+                } else {
+                    *ord = SortOrder::Cpu;
+                }
+                true
             } else {
-                *ord = SortOrder::Cpu;
+                false
             }
-            true
-        } else {
-            false
         }
     });
-    let mut b = button::RadioButton::default()
-        .with_size(700 - 280, 0)
-        .with_label("exe")
-        .with_align(Align::Left | Align::Inside);
-    b.set_down_frame(FrameType::FlatBox);
-    b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
-    b.clear_visible_focus();
-    b.set_label_size(app::font_size() + 1);
-    let ord = view.ordering.clone();
-    b.handle(move |_, e| {
-        if e == Event::Push {
-            let mut ord = ord.lock();
-            if *ord == SortOrder::Exe {
-                *ord = SortOrder::RevExe;
+    ProcToggle::new("exe", view.ordering.clone()).handle({
+        let ord = view.ordering.clone();
+        move |_, e| {
+            if e == Event::Push {
+                let mut ord = ord.lock();
+                if *ord == SortOrder::Exe {
+                    *ord = SortOrder::RevExe;
+                } else {
+                    *ord = SortOrder::Exe;
+                }
+                true
             } else {
-                *ord = SortOrder::Exe;
+                false
             }
-            true
-        } else {
-            false
         }
     });
-    b.set_frame(FrameType::FlatBox);
     hpack.end();
     let mut b = browser::HoldBrowser::default().with_size(0, 500 - 30);
     b.clear_visible_focus();

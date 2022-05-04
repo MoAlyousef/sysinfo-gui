@@ -13,6 +13,7 @@ use std::sync::atomic::{AtomicBool, AtomicU64};
 use std::sync::Arc;
 use sysinfo::{System, SystemExt};
 
+#[repr(i32)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum SortOrder {
     Pid,

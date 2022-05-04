@@ -15,7 +15,9 @@ impl Default for Toggle {
 
 impl Toggle {
     pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
-        let p = group::Pack::new(x, y, w, h, None).with_label(label).with_align(Align::Left);
+        let p = group::Pack::new(x, y, w, h, None)
+            .with_label(label)
+            .with_align(Align::Left);
         frame::Frame::default().with_size(w, 7);
         let mut btn = button::ToggleButton::new(x, y, w, 14, "@+6square")
             .with_align(Align::Left | Align::Inside);
@@ -77,7 +79,9 @@ impl Default for RoundToggle {
 
 impl RoundToggle {
     pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
-        let p = group::Pack::new(x, y, w, h, None).with_label(label).with_align(Align::Left);
+        let p = group::Pack::new(x, y, w, h, None)
+            .with_label(label)
+            .with_align(Align::Left);
         let mut btn = button::ToggleButton::new(x, y, w, 30, "@+6circle")
             .with_align(Align::Left | Align::Inside);
         btn.set_frame(FrameType::RFlatBox);
@@ -137,7 +141,9 @@ impl Default for HollowRoundToggle {
 
 impl HollowRoundToggle {
     pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
-        let mut btn = button::ToggleButton::new(x, y, w, h, None).with_label(label).with_align(Align::Left);
+        let mut btn = button::ToggleButton::new(x, y, w, h, None)
+            .with_label(label)
+            .with_align(Align::Left);
         btn.set_frame(FrameType::NoBox);
         btn.set_down_frame(FrameType::NoBox);
         btn.set_selection_color(GREEN);

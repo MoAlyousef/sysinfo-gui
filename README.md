@@ -14,7 +14,7 @@ The font is Roboto Medium.
 ![image](https://user-images.githubusercontent.com/37966791/166832794-6d56d40a-f07d-446f-833b-e60fba3c0c6f.png)
 
 - Processes
-![image](https://user-images.githubusercontent.com/37966791/166832866-0b533faf-6833-4b3d-831c-20c21bee2487.png)
+![image](https://user-images.githubusercontent.com/37966791/167034442-e261f5b6-d268-4e85-bab0-96eb3ad37040.png)
 
 - Cpu
 ![image](https://user-images.githubusercontent.com/37966791/166832912-5dabfa08-2491-4bd8-bc15-ffa3a49ba11f.png)

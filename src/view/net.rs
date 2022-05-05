@@ -42,11 +42,9 @@ pub fn network(view: &MyView) -> group::Pack {
         p.end();
         t.end();
     }
-    drop(sys);
     grp.end();
     let frames = Arc::new(Mutex::new(frames));
     let sys = Arc::new(Mutex::new(System::new_all()));
-
     let sleep = view.sleep.clone();
     std::thread::spawn({
         move || loop {
@@ -66,12 +64,11 @@ pub fn network(view: &MyView) -> group::Pack {
                     ));
                     i += 2;
                 }
-                drop(sys);
                 app::awake();
-                std::thread::sleep(std::time::Duration::from_millis(
-                    sleep.load(Ordering::Relaxed),
-                ));
             }
+            std::thread::sleep(std::time::Duration::from_millis(
+                sleep.load(Ordering::Relaxed),
+            ));
         }
     });
     grp

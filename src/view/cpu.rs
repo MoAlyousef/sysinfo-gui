@@ -85,9 +85,11 @@ pub fn proc(view: &MyView) -> group::Pack {
     c.set_color(Color::color_average(c.color(), Color::Foreground, 0.9));
     c.set_bounds(0., 100.);
     c.set_type(misc::ChartType::Line);
-    for _ in 0..20 {
+    c.add(50.0, "50%", Color::Foreground);
+    for _ in 1..20 {
         c.add(50.0, "", Color::Foreground);
     }
+    c.set_text_color(Color::Foreground);
     let mut charts = vec![];
     for proc in sys.processors() {
         let mut c = misc::Chart::default_fill();
@@ -120,7 +122,6 @@ pub fn proc(view: &MyView) -> group::Pack {
         num_cpus += 1;
     }
     f.set_label(&format!("Vendor ID: {}\nCores: {}", vendor_id, num_cpus));
-    drop(sys);
     for c in &mut charts {
         for _ in 0..18 {
             c.add(0., "", Color::Red);
@@ -161,13 +162,12 @@ pub fn proc(view: &MyView) -> group::Pack {
                             c.replace((i - 1) as i32, last, "", cpu_color::by_index(count as u8));
                         }
                     }
-                    drop(sys);
                     app::awake();
                     app::redraw();
-                    std::thread::sleep(std::time::Duration::from_millis(
-                        sleep.load(Ordering::Relaxed),
-                    ));
                 }
+                std::thread::sleep(std::time::Duration::from_millis(
+                    sleep.load(Ordering::Relaxed),
+                ));
             }
         }
     });

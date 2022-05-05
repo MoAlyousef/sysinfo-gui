@@ -15,7 +15,7 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
     let light_mode = view.light_mode.clone();
     t.set_callback(move |t| {
         if t.value() {
-            app::foreground(0, 0, 0);
+            app::foreground(50, 50, 50);
             app::background(255, 255, 255);
             light_mode.store(true, Ordering::Relaxed);
         } else {

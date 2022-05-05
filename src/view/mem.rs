@@ -86,9 +86,7 @@ pub fn memory(view: &MyView) -> group::Pack {
     hpack.end();
     grp.end();
     let dials = Arc::new(Mutex::new(dials));
-    drop(sys);
     let sys = Arc::new(Mutex::new(System::new_all()));
-
     let sleep = view.sleep.clone();
     std::thread::spawn({
         move || loop {
@@ -108,11 +106,10 @@ pub fn memory(view: &MyView) -> group::Pack {
                     sys.used_swap() as f64 / 2_f64.powf(20.)
                 ));
                 app::awake();
-                std::thread::sleep(std::time::Duration::from_millis(
-                    sleep.load(Ordering::Relaxed),
-                ));
-                drop(sys);
             }
+            std::thread::sleep(std::time::Duration::from_millis(
+                sleep.load(Ordering::Relaxed),
+            ));
         }
     });
     grp

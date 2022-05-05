@@ -52,6 +52,7 @@ https://github.com/MoAlyousef/sysinfo-gui/releases
 
 You can clone the repo and build using:
 `cargo build --release`
+
 If you would like to use the bundled version of fltk-rs (for supported platforms (x86_64 windows, macos and linux)):
 `cargo build --features=fltk/fltk-bundled --release`
 

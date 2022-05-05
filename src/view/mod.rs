@@ -42,7 +42,7 @@ impl Default for MyView {
         let system = Arc::new(Mutex::new(sys));
         Self {
             system,
-            sleep: Arc::new(AtomicU64::from(100)),
+            sleep: Arc::new(AtomicU64::from(200)),
             light_mode: Arc::new(AtomicBool::from(false)),
             ordering: Arc::new(Mutex::new(SortOrder::Pid)),
         }

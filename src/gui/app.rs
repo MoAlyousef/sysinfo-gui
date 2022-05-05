@@ -15,6 +15,7 @@ impl App {
     pub fn new(view: impl View + 'static) -> Self {
         std::panic::set_hook(Box::new(|info| {
             if let Some(s) = info.payload().downcast_ref::<&str>() {
+                // we shamefully use those to end spawned threads
                 if !s.contains("self.was_deleted") {
                     fltk::dialog::message_default(s);
                 }

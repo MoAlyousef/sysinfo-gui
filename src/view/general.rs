@@ -148,7 +148,6 @@ pub fn general(view: &MyView) -> group::Pack {
                     total_recv += comp.1.total_received();
                     total_transm += comp.1.total_transmitted();
                 }
-                drop(sys);
                 dials.lock()[0].set_value(cpu_usage as i32);
                 dials.lock()[1].set_value(mem as i32);
                 dials.lock()[2].set_value(used_space);
@@ -158,10 +157,10 @@ pub fn general(view: &MyView) -> group::Pack {
                     total_transm as f64 / 2_f64.powf(20.)
                 ));
                 app::awake();
-                std::thread::sleep(std::time::Duration::from_millis(
-                    sleep.load(Ordering::Relaxed),
-                ));
             }
+            std::thread::sleep(std::time::Duration::from_millis(
+                sleep.load(Ordering::Relaxed),
+            ));
         }
     });
     grp

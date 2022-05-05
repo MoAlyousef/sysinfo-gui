@@ -49,6 +49,5 @@ pub fn disks(view: &MyView) -> group::Pack {
         hpack.end();
     }
     grp.end();
-    drop(sys);
     grp
 }

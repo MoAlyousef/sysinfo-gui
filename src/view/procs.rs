@@ -23,7 +23,7 @@ impl ProcToggle {
         b.set_down_frame(FrameType::FlatBox);
         b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
         b.clear_visible_focus();
-        b.set_label_size(app::font_size() + 1);
+        b.set_label_size(app::font_size() - 3);
         b.draw(move |b| {
             if b.value() {
                 let mut image = if (*ord.lock() as i32) < 5 {
@@ -71,7 +71,7 @@ impl Proc {
     pub fn fmt(&self, light: bool) -> String {
         if !light {
             format!(
-                "@C255 {}\t@C255 {:.02}\t@C255 {:.02}\t@C255 {:.02}\t@C255{}",
+                "@C255 {}\t@C255 {:.01}\t@C255 {:.01}\t@C255 {:.01}\t@C255{}",
                 self.pid,
                 self.memory as f64 / 2_f64.powf(20.),
                 self.virt as f64 / 2_f64.powf(20.),
@@ -80,7 +80,7 @@ impl Proc {
             )
         } else {
             format!(
-                " {}\t {:.02}\t {:.02}\t {:.02}\t{}",
+                " {}\t {:.01}\t {:.01}\t {:.01}\t{}",
                 self.pid,
                 self.memory as f64 / 2_f64.powf(20.),
                 self.virt as f64 / 2_f64.powf(20.),
@@ -121,7 +121,7 @@ pub fn procs(view: &MyView) -> group::Pack {
             }
         }
     });
-    ProcToggle::new("mem", view.ordering.clone()).handle({
+    ProcToggle::new("mem%", view.ordering.clone()).handle({
         let ord = view.ordering.clone();
         move |_, e| {
             if e == Event::Push {
@@ -153,7 +153,7 @@ pub fn procs(view: &MyView) -> group::Pack {
             }
         }
     });
-    ProcToggle::new("cpu", view.ordering.clone()).handle({
+    ProcToggle::new("cpu%", view.ordering.clone()).handle({
         let ord = view.ordering.clone();
         move |_, e| {
             if e == Event::Push {
@@ -213,8 +213,8 @@ pub fn procs(view: &MyView) -> group::Pack {
     menu.set_frame(FrameType::FlatBox);
     menu.set_color(Color::color_average(menu.color(), Color::Background, 0.9));
     drop(sys);
-    let sys = view.system.clone();
     menu.add("End Task\t\t", Shortcut::None, menu::MenuFlag::Normal, {
+        let sys = view.system.clone();
         let b = b.clone();
         move |_| {
             let val = b.value();
@@ -237,7 +237,6 @@ pub fn procs(view: &MyView) -> group::Pack {
         }
     });
     let sys = Arc::new(Mutex::new(System::new_all()));
-
     let sleep = view.sleep.clone();
     let light_mode = view.light_mode.clone();
     let ord = view.ordering.clone();
@@ -266,11 +265,10 @@ pub fn procs(view: &MyView) -> group::Pack {
                     b.set_text(i as i32 + 1, &p.fmt(light_mode));
                 }
                 app::awake();
-                std::thread::sleep(std::time::Duration::from_millis(
-                    sleep.load(Ordering::Relaxed),
-                ));
-                drop(sys);
             }
+            std::thread::sleep(std::time::Duration::from_millis(
+                sleep.load(Ordering::Relaxed),
+            ));
         }
     });
     grp

@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+    branches: [ release ]
+  pull_request:
+    branches: [ release ]
+
+jobs:
+  windows:
+    name: run on windows
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      shell: bash
+      run: cargo build --release --features=fltk/fltk-bundled
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: sysinfo-gui-windows
+        path: target/release/sysinfo-gui.exe
+  mac-and-ubuntu:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-10.15, ubuntu-18.04]
+    
+    steps:
+    - name: Download deps
+      run: |
+         if [ "$RUNNER_OS" == "Linux" ]; then
+          sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev
+         fi
+      shell: bash
+    - uses: actions/checkout@v2
+    - name: Build
+      shell: bash
+      run: cargo build --release --features=fltk/fltk-bundled
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: sysinfo-gui-${{ matrix.os }}
+        path: target/release/sysinfo-gui

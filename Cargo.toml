@@ -7,7 +7,7 @@ keywords = ["cross-platform", "monitoring", "gui"]
 license = "MIT"
 categories = ["visualization"]
 description = "A cross-platform system-monitoring gui application based on sysinfo and fltk"
-documentation = "https://doc.rs/sysinfo-gui"
+documentation = "https://docs.rs/sysinfo-gui"
 readme = "README.md"
 
 [dependencies]

@@ -157,7 +157,7 @@ impl HollowRoundToggle {
             };
             let svg = format!(
                 "<svg viewBox='0 0 {} {}'>
-            <rect x='1%' y='1%' rx='15' width='98%' height='98%' fill='none' stroke='rgb({},{},{})'/>
+            <rect x='1%' y='1%' rx='15' width='95%' height='95%' fill='none' stroke='rgb({},{},{})'/>
             </svg>",
                 b.w(),
                 b.h(),

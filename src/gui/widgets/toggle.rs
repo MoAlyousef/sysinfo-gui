@@ -182,18 +182,6 @@ impl HollowRoundToggle {
                 image.draw(b.x() + 3, b.y() + ((b.h() - 18)/2), 18, 18);
             }
         });
-        btn.handle(|b, ev| match ev {
-            Event::Push => {
-                if b.value() {
-                    b.set_align(Align::Left | Align::Inside);
-                } else {
-                    b.set_align(Align::Right | Align::Inside);
-                }
-                app::redraw();
-                true
-            }
-            _ => false,
-        });
         Self { btn }
     }
 }

@@ -14,10 +14,10 @@ The font is Roboto Medium.
 ![image](https://user-images.githubusercontent.com/37966791/166832794-6d56d40a-f07d-446f-833b-e60fba3c0c6f.png)
 
 - Processes
-![image](https://user-images.githubusercontent.com/37966791/167034442-e261f5b6-d268-4e85-bab0-96eb3ad37040.png)
+![image](https://user-images.githubusercontent.com/37966791/167034654-acf8c86f-b9cf-403f-a0ed-c18138660a18.png)
 
 - Cpu
-![image](https://user-images.githubusercontent.com/37966791/166832912-5dabfa08-2491-4bd8-bc15-ffa3a49ba11f.png)
+![image](https://user-images.githubusercontent.com/37966791/167034442-e261f5b6-d268-4e85-bab0-96eb3ad37040.png)
 
 - Memory
 ![image](https://user-images.githubusercontent.com/37966791/166832991-65bd3782-b5ed-40f7-800c-b0d3f3a5e611.png)

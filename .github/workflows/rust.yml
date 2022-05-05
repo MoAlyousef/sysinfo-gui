@@ -36,11 +36,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build
       shell: bash
-      run: cargo build --release --features=fltk/fltk-bundled
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: sysinfo-gui-${{ matrix.os }}
-        path: target/release/sysinfo-gui
+      run: cargo check --features=fltk/fltk-bundled
 
 

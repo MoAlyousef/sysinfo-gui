@@ -6,6 +6,7 @@ use crate::{
 use fltk::{prelude::*, *};
 use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
+use sysinfo::System;
 use sysinfo::SystemExt;
 
 pub fn memory(view: &MyView) -> group::Pack {
@@ -86,7 +87,7 @@ pub fn memory(view: &MyView) -> group::Pack {
     grp.end();
     let dials = Arc::new(Mutex::new(dials));
     drop(sys);
-    let sys = view.system2.clone();
+    let sys = Arc::new(Mutex::new(System::new_all()));
 
     let sleep = view.sleep.clone();
     std::thread::spawn({

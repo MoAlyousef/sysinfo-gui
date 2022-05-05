@@ -29,7 +29,7 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
     grid.insert_ext(&mut *t, 3, 15, 2, 1);
     let mut f = frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
-        .with_label("Sleep duration (millis):");
+        .with_label("Sleep duration:");
     grid.insert_ext(&mut f, 6, 2, 3, 1);
     let mut slider = FancyHorSlider::default()
         .with_size(40, 10)
@@ -38,18 +38,18 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
     let val = view.sleep.load(Ordering::Relaxed);
     let mut f = frame::Frame::default()
         .with_size(0, 40)
-        .with_label(&val.to_string());
+        .with_label(&format!("{} ms", val));
     grid.insert_ext(&mut f, 7, 15, 2, 1);
     slider.set_value((val as f64 - 100.) / 1000.);
     let sleep = view.sleep.clone();
     slider.set_callback(move |s| {
         let val = (s.value() * 1000.) as u64 + 100;
-        f.set_label(&val.to_string());
+        f.set_label(&format!("{} ms", val));
         sleep.store(val, Ordering::Relaxed);
     });
     let mut f = frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
-        .with_label("Window Transparency (%):");
+        .with_label("Window Opacity:");
     grid.insert_ext(&mut f, 9, 2, 3, 1);
     let mut slider = FancyHorSlider::default()
         .with_size(40, 20)
@@ -62,12 +62,12 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
     let opacity = win.opacity();
     let mut f = frame::Frame::default()
         .with_size(0, 40)
-        .with_label(&((opacity * 100.) as i32).to_string());
+        .with_label(&format!("{}%", ((opacity * 100.) as i32)));
     grid.insert_ext(&mut f, 10, 15, 2, 1);
     slider.set_value(opacity);
     slider.set_callback(move |s| {
         let val = s.value();
-        f.set_label(&((val * 100.) as i32).to_string());
+        f.set_label(&format!("{}%", ((val * 100.) as i32)));
         win.set_opacity(val);
     });
     grid.insert_ext(&mut *slider, 9, 14, 4, 1);

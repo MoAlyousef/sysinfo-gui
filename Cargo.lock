@@ -195,7 +195,7 @@ dependencies = [
 
 [[package]]
 name = "sysinfo-gui"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "fltk",
  "fltk-grid",

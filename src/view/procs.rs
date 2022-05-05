@@ -7,6 +7,7 @@ use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use sysinfo::ProcessExt;
+use sysinfo::System;
 use sysinfo::SystemExt;
 
 struct ProcToggle {
@@ -235,7 +236,7 @@ pub fn procs(view: &MyView) -> group::Pack {
             menu.popup();
         }
     });
-    let sys = view.system2.clone();
+    let sys = Arc::new(Mutex::new(System::new_all()));
 
     let sleep = view.sleep.clone();
     let light_mode = view.light_mode.clone();

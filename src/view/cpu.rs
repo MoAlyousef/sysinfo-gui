@@ -5,6 +5,7 @@ use parking_lot::Mutex;
 use std::collections::VecDeque;
 use std::sync::{atomic::Ordering, Arc};
 use sysinfo::ProcessorExt;
+use sysinfo::System;
 use sysinfo::SystemExt;
 
 mod cpu_color {
@@ -84,6 +85,9 @@ pub fn proc(view: &MyView) -> group::Pack {
     c.set_color(Color::color_average(c.color(), Color::Foreground, 0.9));
     c.set_bounds(0., 100.);
     c.set_type(misc::ChartType::Line);
+    for _ in 0..20 {
+        c.add(50.0, "", Color::Foreground);
+    }
     let mut charts = vec![];
     for proc in sys.processors() {
         let mut c = misc::Chart::default_fill();
@@ -125,7 +129,7 @@ pub fn proc(view: &MyView) -> group::Pack {
     g.end();
     grp.end();
     let charts = Arc::new(Mutex::new(charts));
-    let sys = view.system2.clone();
+    let sys = Arc::new(Mutex::new(System::new_all()));
 
     let sleep = view.sleep.clone();
     std::thread::spawn({

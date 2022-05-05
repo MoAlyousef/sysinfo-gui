@@ -5,6 +5,7 @@ use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
 use sysinfo::NetworkExt;
 use sysinfo::NetworksExt;
+use sysinfo::System;
 use sysinfo::SystemExt;
 
 pub fn network(view: &MyView) -> group::Pack {
@@ -44,7 +45,7 @@ pub fn network(view: &MyView) -> group::Pack {
     drop(sys);
     grp.end();
     let frames = Arc::new(Mutex::new(frames));
-    let sys = view.system2.clone();
+    let sys = Arc::new(Mutex::new(System::new_all()));
 
     let sleep = view.sleep.clone();
     std::thread::spawn({

@@ -1,6 +1,6 @@
 [package]
 name = "sysinfo-gui"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2021"
 repository = "https://github.com/MoAlyousef/sysinfo-gui"
 keywords = ["cross-platform", "monitoring", "gui"]

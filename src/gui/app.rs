@@ -92,6 +92,16 @@ impl App {
         let mut scroll = group::Scroll::new(60, 50, 800 - 50, 600 - 50, None);
         scroll.set_color(win.color());
         scroll.set_scrollbar_size(-1);
+        let mut scrollbar = scroll.scrollbar();
+        scrollbar.set_callback({
+            let mut old_cb = scrollbar.callback();
+            move |s| {
+                if let Some(cb) = old_cb.as_mut() {
+                    (*cb)();
+                }
+                s.parent().unwrap().redraw();
+            }
+        });
 
         view.view(Message::General);
 

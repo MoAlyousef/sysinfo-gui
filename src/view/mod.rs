@@ -7,10 +7,8 @@ pub mod procs;
 pub mod settings;
 
 use crate::gui::{message::Message, View};
-use fltk::group::Pack;
 use parking_lot::Mutex;
-use std::sync::atomic::{AtomicBool, AtomicU64};
-use std::sync::Arc;
+use std::sync::{atomic::{Ordering, AtomicBool, AtomicU64}, Arc};
 use sysinfo::{System, SystemExt};
 
 #[repr(i32)]
@@ -50,7 +48,7 @@ impl Default for MyView {
 }
 
 impl View for MyView {
-    fn view(&self, msg: Message) -> Pack {
+    fn view(&self, msg: Message) -> Option<Box<dyn FnMut() + Send>> {
         match msg {
             Message::General => self.general(),
             Message::Disks => self.disks(),
@@ -61,28 +59,31 @@ impl View for MyView {
             Message::Settings => self.settings(),
         }
     }
+    fn sleep_duration(&self) -> u64 {
+        self.sleep.load(Ordering::Relaxed)
+    }
 }
 
 impl MyView {
-    pub fn general(&self) -> Pack {
+    pub fn general(&self) -> Option<Box<dyn FnMut() + Send>> {
         general::general(self)
     }
-    pub fn memory(&self) -> Pack {
+    pub fn memory(&self) -> Option<Box<dyn FnMut() + Send>> {
         mem::memory(self)
     }
-    pub fn settings(&self) -> Pack {
+    pub fn settings(&self) -> Option<Box<dyn FnMut() + Send>> {
         settings::settings(self)
     }
-    pub fn network(&self) -> Pack {
+    pub fn network(&self) -> Option<Box<dyn FnMut() + Send>> {
         net::network(self)
     }
-    pub fn cpu(&self) -> Pack {
+    pub fn cpu(&self) -> Option<Box<dyn FnMut() + Send>> {
         cpu::proc(self)
     }
-    pub fn disks(&self) -> Pack {
+    pub fn disks(&self) -> Option<Box<dyn FnMut() + Send>> {
         disk::disks(self)
     }
-    pub fn procs(&self) -> Pack {
+    pub fn procs(&self) -> Option<Box<dyn FnMut() + Send>> {
         procs::procs(self)
     }
 }

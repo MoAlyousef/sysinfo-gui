@@ -91,7 +91,7 @@ impl Proc {
     }
 }
 
-pub fn procs(view: &MyView) -> group::Pack {
+pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut ord = view.ordering.lock();
     *ord = SortOrder::Pid;
     drop(ord);
@@ -237,39 +237,33 @@ pub fn procs(view: &MyView) -> group::Pack {
         }
     });
     let sys = Arc::new(Mutex::new(System::new_all()));
-    let sleep = view.sleep.clone();
     let light_mode = view.light_mode.clone();
     let ord = view.ordering.clone();
-    std::thread::spawn({
-        move || loop {
-            if let Some(mut sys) = sys.try_lock() {
-                sys.refresh_processes();
-                let mut ps = vec![];
-                for (pid, process) in sys.processes() {
-                    ps.push(Proc::new(pid, process));
-                }
-                ps.sort_by(|p1, p2| match *ord.lock() {
-                    SortOrder::Pid => p1.pid.cmp(&p2.pid),
-                    SortOrder::Mem => p1.memory.cmp(&p2.memory),
-                    SortOrder::Virt => p1.virt.cmp(&p2.virt),
-                    SortOrder::Cpu => p1.cpu.partial_cmp(&p2.cpu).unwrap(),
-                    SortOrder::Exe => p1.exe.cmp(&p2.exe),
-                    SortOrder::RevPid => p2.pid.cmp(&p1.pid),
-                    SortOrder::RevMem => p2.memory.cmp(&p1.memory),
-                    SortOrder::RevVirt => p2.virt.cmp(&p1.virt),
-                    SortOrder::RevCpu => p2.cpu.partial_cmp(&p1.cpu).unwrap(),
-                    SortOrder::RevExe => p2.exe.cmp(&p1.exe),
-                });
-                let light_mode = light_mode.load(Ordering::Relaxed);
-                for (i, p) in ps.iter().enumerate() {
-                    b.set_text(i as i32 + 1, &p.fmt(light_mode));
-                }
-                app::awake();
+    let cb = move || {
+        if let Some(mut sys) = sys.try_lock() {
+            sys.refresh_processes();
+            let mut ps = vec![];
+            for (pid, process) in sys.processes() {
+                ps.push(Proc::new(pid, process));
             }
-            std::thread::sleep(std::time::Duration::from_millis(
-                sleep.load(Ordering::Relaxed),
-            ));
+            ps.sort_by(|p1, p2| match *ord.lock() {
+                SortOrder::Pid => p1.pid.cmp(&p2.pid),
+                SortOrder::Mem => p1.memory.cmp(&p2.memory),
+                SortOrder::Virt => p1.virt.cmp(&p2.virt),
+                SortOrder::Cpu => p1.cpu.partial_cmp(&p2.cpu).unwrap(),
+                SortOrder::Exe => p1.exe.cmp(&p2.exe),
+                SortOrder::RevPid => p2.pid.cmp(&p1.pid),
+                SortOrder::RevMem => p2.memory.cmp(&p1.memory),
+                SortOrder::RevVirt => p2.virt.cmp(&p1.virt),
+                SortOrder::RevCpu => p2.cpu.partial_cmp(&p1.cpu).unwrap(),
+                SortOrder::RevExe => p2.exe.cmp(&p1.exe),
+            });
+            let light_mode = light_mode.load(Ordering::Relaxed);
+            for (i, p) in ps.iter().enumerate() {
+                b.set_text(i as i32 + 1, &p.fmt(light_mode));
+            }
         }
-    });
-    grp
+    };
+    grp.end();
+    Some(Box::new(cb))
 }

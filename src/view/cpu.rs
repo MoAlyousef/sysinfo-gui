@@ -3,7 +3,7 @@ use crate::gui::widgets::Card;
 use fltk::{enums::*, prelude::*, *};
 use parking_lot::Mutex;
 use std::collections::VecDeque;
-use std::sync::{atomic::Ordering, Arc};
+use std::sync::Arc;
 use sysinfo::ProcessorExt;
 use sysinfo::System;
 use sysinfo::SystemExt;
@@ -66,7 +66,7 @@ mod cpu_color {
     }
 }
 
-pub fn proc(view: &MyView) -> group::Pack {
+pub fn proc(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut sys = view.system.lock();
     sys.refresh_cpu();
     let first = sys.processors().first().unwrap();
@@ -131,45 +131,34 @@ pub fn proc(view: &MyView) -> group::Pack {
     grp.end();
     let charts = Arc::new(Mutex::new(charts));
     let sys = Arc::new(Mutex::new(System::new_all()));
-
-    let sleep = view.sleep.clone();
-    std::thread::spawn({
-        let charts = charts;
-        move || {
-            let mut v = vec![];
-            for _ in 0..num_cpus {
-                let mut d = VecDeque::new();
-                for _ in 0..20 {
-                    d.push_back(0.);
-                }
-                v.push(d);
-            }
-
-            loop {
-                if let Some(mut sys) = sys.try_lock() {
-                    sys.refresh_cpu();
-                    for (i, proc) in sys.processors().iter().enumerate() {
-                        v[i].push_back(proc.cpu_usage() as f64);
-                        v[i].pop_front();
-                    }
-                    for (count, c) in (*charts.lock()).iter_mut().enumerate() {
-                        for i in 1..20 {
-                            let last = if let Some(val) = v[count].get(i) {
-                                *val
-                            } else {
-                                0.
-                            };
-                            c.replace((i - 1) as i32, last, "", cpu_color::by_index(count as u8));
-                        }
-                    }
-                    app::awake();
-                    app::redraw();
-                }
-                std::thread::sleep(std::time::Duration::from_millis(
-                    sleep.load(Ordering::Relaxed),
-                ));
-            }
+    let mut v = vec![];
+    for _ in 0..num_cpus {
+        let mut d = VecDeque::new();
+        for _ in 0..20 {
+            d.push_back(0.);
         }
-    });
-    grp
+        v.push(d);
+    }
+    let cb = move || {
+        if let Some(mut sys) = sys.try_lock() {
+            sys.refresh_cpu();
+            for (i, proc) in sys.processors().iter().enumerate() {
+                v[i].push_back(proc.cpu_usage() as f64);
+                v[i].pop_front();
+            }
+            for (count, c) in (*charts.lock()).iter_mut().enumerate() {
+                for i in 1..20 {
+                    let last = if let Some(val) = v[count].get(i) {
+                        *val
+                    } else {
+                        0.
+                    };
+                    c.replace((i - 1) as i32, last, "", cpu_color::by_index(count as u8));
+                }
+            }
+            app::awake();
+            app::redraw();
+        }
+    };
+    Some(Box::new(cb))
 }

@@ -103,7 +103,7 @@ impl App {
             }
         });
 
-        view.view(Message::General);
+        let cb = view.view(Message::General);
 
         scroll.end();
         win.end();
@@ -113,6 +113,7 @@ impl App {
                 w.hide();
             }
         });
+        Self::dispatch(cb, view.sleep_duration());
         Self {
             a,
             r,
@@ -125,12 +126,21 @@ impl App {
             if let Some(msg) = self.r.recv() {
                 self.scroll.clear();
                 self.scroll.begin();
-
-                self.view.view(msg);
-
+                let cb = self.view.view(msg);
+                Self::dispatch(cb, self.view.sleep_duration());
                 self.scroll.end();
                 app::redraw();
             }
+        }
+    }
+    fn dispatch(cb: Option<Box<dyn FnMut() + Send>>, sleep: u64) {
+        if let Some(mut cb) = cb {
+            std::thread::spawn({
+                move || loop {
+                    cb();
+                    std::thread::sleep(std::time::Duration::from_millis(sleep));
+                }
+            });
         }
     }
 }

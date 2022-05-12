@@ -262,6 +262,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             for (i, p) in ps.iter().enumerate() {
                 b.set_text(i as i32 + 1, &p.fmt(light_mode));
             }
+            app::awake();
         }
     };
     grp.end();

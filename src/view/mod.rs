@@ -8,7 +8,10 @@ pub mod settings;
 
 use crate::gui::{message::Message, View};
 use parking_lot::Mutex;
-use std::sync::{atomic::{Ordering, AtomicBool, AtomicU64}, Arc};
+use std::sync::{
+    atomic::{AtomicBool, AtomicU64, Ordering},
+    Arc,
+};
 use sysinfo::{System, SystemExt};
 
 #[repr(i32)]

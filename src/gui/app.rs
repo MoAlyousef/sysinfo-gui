@@ -109,11 +109,7 @@ impl App {
                 w.hide();
             }
         });
-        Self {
-            a,
-            r,
-            scroll,
-        }
+        Self { a, r, scroll }
     }
     pub fn run(mut self, view: impl View + 'static) {
         self.scroll.begin();

@@ -6,7 +6,8 @@ pub mod net;
 pub mod procs;
 pub mod settings;
 
-use crate::gui::{message::Message, View};
+use crate::gui::{message::Message, styles::colors::GRAY, View};
+use fltk::app;
 use parking_lot::Mutex;
 use std::sync::{
     atomic::{AtomicBool, AtomicU64, Ordering},
@@ -38,13 +39,22 @@ pub struct MyView {
 
 impl Default for MyView {
     fn default() -> Self {
+        let mode = dark_light::detect() == dark_light::Mode::Light;
+        if mode {
+            app::foreground(50, 50, 50);
+            app::background(255, 255, 255);
+        } else {
+            app::foreground(255, 255, 255);
+            let (r, g, b) = GRAY.to_rgb();
+            app::background(r, g, b);
+        }
         let mut sys = System::new_all();
         sys.refresh_all();
         let system = Arc::new(Mutex::new(sys));
         Self {
             system,
-            sleep: Arc::new(AtomicU64::from(200)),
-            light_mode: Arc::new(AtomicBool::from(false)),
+            sleep: Arc::new(AtomicU64::from(300)),
+            light_mode: Arc::new(AtomicBool::from(mode)),
             ordering: Arc::new(Mutex::new(SortOrder::Pid)),
         }
     }
@@ -64,6 +74,9 @@ impl View for MyView {
     }
     fn sleep_duration(&self) -> u64 {
         self.sleep.load(Ordering::Relaxed)
+    }
+    fn light_mode(&self) -> bool {
+        self.light_mode.load(Ordering::Relaxed)
     }
 }
 

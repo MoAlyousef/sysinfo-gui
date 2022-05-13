@@ -73,7 +73,7 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
     grid.insert_ext(&mut *slider, 9, 14, 4, 1);
 }
 
-pub fn settings(view: &MyView) -> group::Pack {
+pub fn settings(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut grp = group::Pack::default_fill().center_of_parent();
     grp.set_spacing(0);
     let mut grid = Grid::default_fill();
@@ -81,5 +81,5 @@ pub fn settings(view: &MyView) -> group::Pack {
     // grid.debug(true);
     grp.end();
     fill_grid(&mut grid, view);
-    grp
+    None
 }

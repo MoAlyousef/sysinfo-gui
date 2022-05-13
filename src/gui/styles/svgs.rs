@@ -31,7 +31,7 @@ pub const NET: &str = r#"<svg xmlns="http://www.w3.org/2000/svg" width="16" heig
   <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
 </svg>"#;
 
-pub const DESC: &str = r#"<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 301.219 301.219" style="enable-background:new 0 0 301.219 301.219;" xml:space="preserve">
+pub const DESC: &str = r#"<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 301.219 301.219" style="enable-background:new 0 0 301.219 301.219;" xml:space="preserve" fill='blueviolet'>
 <g>
 	<path d="M149.365,262.736H10c-5.523,0-10,4.477-10,10v10c0,5.523,4.477,10,10,10h139.365c5.522,0,10-4.477,10-10v-10   C159.365,267.213,154.888,262.736,149.365,262.736z"/>
 	<path d="M10,229.736h120.586c5.522,0,10-4.477,10-10v-10c0-5.523-4.478-10-10-10H10c-5.523,0-10,4.477-10,10v10   C0,225.259,4.477,229.736,10,229.736z"/>
@@ -41,7 +41,7 @@ pub const DESC: &str = r#"<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="h
 	<path d="M298.29,216.877l-7.07-7.071c-1.875-1.875-4.419-2.929-7.071-2.929c-2.652,0-5.195,1.054-7.071,2.929l-34.394,34.393   V18.736c0-5.523-4.477-10-10-10h-10c-5.522,0-10,4.477-10,10v225.462l-34.394-34.393c-1.876-1.876-4.419-2.929-7.071-2.929   c-2.652,0-5.196,1.054-7.071,2.929l-7.07,7.071c-3.905,3.905-3.905,10.237,0,14.142l63.535,63.536   c1.876,1.875,4.419,2.929,7.071,2.929c2.652,0,5.195-1.054,7.071-2.929l63.535-63.536   C302.195,227.113,302.195,220.782,298.29,216.877z"/>
 </g></svg>"#;
 
-pub const ASC: &str = r#"<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 301.219 301.219" style="enable-background:new 0 0 301.219 301.219;" xml:space="preserve">
+pub const ASC: &str = r#"<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 301.219 301.219" style="enable-background:new 0 0 301.219 301.219;" xml:space="preserve" fill='blueviolet'>
 <g>
 	<path d="M159.365,23.736v-10c0-5.523-4.477-10-10-10H10c-5.523,0-10,4.477-10,10v10c0,5.523,4.477,10,10,10h139.365   C154.888,33.736,159.365,29.259,159.365,23.736z"/>
 	<path d="M130.586,66.736H10c-5.523,0-10,4.477-10,10v10c0,5.523,4.477,10,10,10h120.586c5.523,0,10-4.477,10-10v-10   C140.586,71.213,136.109,66.736,130.586,66.736z"/>

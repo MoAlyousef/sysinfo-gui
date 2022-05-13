@@ -8,11 +8,10 @@ pub struct App {
     a: app::App,
     r: app::Receiver<Message>,
     scroll: group::Scroll,
-    view: Box<dyn View>,
 }
 
 impl App {
-    pub fn new(view: impl View + 'static) -> Self {
+    pub fn new() -> Self {
         std::panic::set_hook(Box::new(|info| {
             if let Some(s) = info.payload().downcast_ref::<&str>() {
                 // we shamefully use those to end spawned threads
@@ -102,9 +101,6 @@ impl App {
                 s.parent().unwrap().redraw();
             }
         });
-
-        view.view(Message::General);
-
         scroll.end();
         win.end();
         win.show();
@@ -113,24 +109,32 @@ impl App {
                 w.hide();
             }
         });
-        Self {
-            a,
-            r,
-            scroll,
-            view: Box::new(view),
-        }
+        Self { a, r, scroll }
     }
-    pub fn run(mut self) {
+    pub fn run(mut self, view: impl View + 'static) {
+        self.scroll.begin();
+        let cb = view.view(Message::General);
+        Self::dispatch(cb, view.sleep_duration());
+        self.scroll.end();
         while self.a.wait() {
             if let Some(msg) = self.r.recv() {
                 self.scroll.clear();
                 self.scroll.begin();
-
-                self.view.view(msg);
-
+                let cb = view.view(msg);
+                Self::dispatch(cb, view.sleep_duration());
                 self.scroll.end();
                 app::redraw();
             }
+        }
+    }
+    fn dispatch(cb: Option<Box<dyn FnMut() + Send>>, sleep: u64) {
+        if let Some(mut cb) = cb {
+            std::thread::spawn({
+                move || loop {
+                    cb();
+                    std::thread::sleep(std::time::Duration::from_millis(sleep));
+                }
+            });
         }
     }
 }

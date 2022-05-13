@@ -7,7 +7,7 @@ use fltk::{prelude::*, *};
 use sysinfo::DiskExt;
 use sysinfo::SystemExt;
 
-pub fn disks(view: &MyView) -> group::Pack {
+pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut sys = view.system.lock();
     sys.refresh_disks();
     frame::Frame::new(60, 60, 0, 0, None);
@@ -49,5 +49,5 @@ pub fn disks(view: &MyView) -> group::Pack {
         hpack.end();
     }
     grp.end();
-    grp
+    None
 }

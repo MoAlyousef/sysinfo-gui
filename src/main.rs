@@ -5,6 +5,5 @@ mod gui;
 mod view;
 
 fn main() {
-    let a = gui::app::App::new(view::MyView::default());
-    a.run();
+    gui::app::App::new().run(view::MyView::default());
 }

@@ -39,7 +39,11 @@ pub struct MyView {
 
 impl Default for MyView {
     fn default() -> Self {
+        #[cfg(feature = "dark-light")]
         let mode = dark_light::detect() == dark_light::Mode::Light;
+        #[cfg(not(feature = "dark-light"))]
+        let mode = false;
+
         if mode {
             app::foreground(50, 50, 50);
             app::background(255, 255, 255);

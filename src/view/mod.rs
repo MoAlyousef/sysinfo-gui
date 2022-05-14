@@ -39,11 +39,11 @@ pub struct MyView {
 
 impl Default for MyView {
     fn default() -> Self {
-        let mode = if cfg!(any(target_os = "windows", target_os = "macos")) {
-            dark_light::detect() == dark_light::Mode::Light
-        } else {
-            false
-        };
+        #[cfg(feature = "dark-light")]
+        let mode = dark_light::detect() == dark_light::Mode::Light;
+        #[cfg(not(feature = "dark-light"))]
+        let mode = false;
+
         if mode {
             app::foreground(50, 50, 50);
             app::background(255, 255, 255);

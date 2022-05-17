@@ -207,11 +207,11 @@ impl HalfDial {
             let parent = w.parent().unwrap();
             let parent_col = parent.color();
             draw::set_draw_color(Color::color_average(parent_col, Color::Foreground, 0.9));
-            draw::draw_pie(w.x(), w.y(), w.w(), w.h(), 0., 180.);
+            draw::draw_pie(w.x(), w.y(), w.w(), w.h(), -45., 225.);
             draw::set_draw_color(w.selection_color());
             let val = value_c.load(Ordering::Relaxed);
             let val = if val > 100 { 100 } else { val };
-            draw::draw_pie(w.x(), w.y(), w.w(), w.h(), (100 - val) as f64 * 1.8, 180.);
+            draw::draw_pie(w.x(), w.y(), w.w(), w.h(), (100 - val) as f64 * 2.7 - 45., 225.);
             draw::set_draw_color(parent_col);
             draw::draw_pie(
                 w.x() - 50 + w.w() / 2,

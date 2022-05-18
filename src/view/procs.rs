@@ -222,7 +222,12 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
                 if let Some(text) = b.text(val) {
                     let sys = sys.lock();
                     let v: Vec<&str> = text.split_ascii_whitespace().collect();
-                    let pid = sysinfo::Pid::from_str(v[1]).unwrap();
+                    let pid = if light_mode {
+                        v[0]
+                    } else {
+                        v[1]
+                    };
+                    let pid = sysinfo::Pid::from_str(pid).unwrap();
                     if let Some(p) = sys.process(pid) {
                         p.kill_with(sysinfo::Signal::Kill).unwrap();
                     }

@@ -902,7 +902,7 @@ dependencies = [
 
 [[package]]
 name = "sysinfo-gui"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "dark-light",
  "fltk",

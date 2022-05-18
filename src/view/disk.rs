@@ -24,15 +24,28 @@ pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             .with_size(300, 130)
             .with_label(disk.name().to_str().unwrap());
         t.begin();
+        let vpack = group::Pack::default().with_size(600, 100).center_of_parent();
+        let mut f = frame::Frame::default()
+        .with_size(80, 35)
+        .with_label(&format!(
+            "{}",
+            disk.mount_point().to_str().unwrap(),
+        ));
+        f.set_label_size(14);
         frame::Frame::default()
-            .with_size(80, 60)
+            .with_size(80, 35)
             .with_label(&format!(
                 "{:?}: {} - Space: {:.02} GiB",
                 disk.type_(),
                 String::from_utf8(disk.file_system().to_vec()).unwrap(),
                 disk.total_space() as f64 / 2_f64.powf(30.)
-            ))
-            .center_of_parent();
+            ));
+        frame::Frame::default()
+        .with_size(80, 35)
+        .with_label(&format!(
+            "Removable: {}", if disk.is_removable() {"Yes"} else {"No"}
+        ));
+        vpack.end();
         t.end();
         let grp = group::Group::default().with_size(130, 130);
         let mut dial = Dial::default()

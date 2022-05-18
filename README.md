@@ -11,19 +11,19 @@ The font is Roboto Medium.
 ## Screenshots
 
 - Dashboard
-![image](https://user-images.githubusercontent.com/37966791/166832794-6d56d40a-f07d-446f-833b-e60fba3c0c6f.png)
+![image](https://user-images.githubusercontent.com/37966791/169169613-af34be21-5b7d-4176-9e45-dfe763482996.png)
 
 - Processes
-![image](https://user-images.githubusercontent.com/37966791/167034654-acf8c86f-b9cf-403f-a0ed-c18138660a18.png)
+![image](https://user-images.githubusercontent.com/37966791/169169714-24a5f233-e391-44c9-9c39-ebd42a5ab429.png)
 
 - Cpu
-![image](https://user-images.githubusercontent.com/37966791/167034442-e261f5b6-d268-4e85-bab0-96eb3ad37040.png)
+![image](https://user-images.githubusercontent.com/37966791/169169787-668c23e5-7133-4e32-bc39-9c687a903150.png)
 
 - Memory
-![image](https://user-images.githubusercontent.com/37966791/166832991-65bd3782-b5ed-40f7-800c-b0d3f3a5e611.png)
+![image](https://user-images.githubusercontent.com/37966791/169169841-bd6af58f-785b-4429-9b86-c1c5e160f9ab.png)
 
 - Disk info
-![image](https://user-images.githubusercontent.com/37966791/166833062-154428d8-7ecf-4b3f-9875-7397f84c7b32.png)
+![image](https://user-images.githubusercontent.com/37966791/169169890-8fcb9d00-6f55-45d4-926c-781fb8066e4c.png)
 
 - Networking
 ![image](https://user-images.githubusercontent.com/37966791/166833123-484adeac-0b23-4b0a-bfb0-767c1b4856cd.png)
@@ -36,7 +36,7 @@ The font is Roboto Medium.
 - Realtime monitoring.
 - End processes by sending a kill signal in the processes view.
 - Both dark and light modes.
-![image](https://user-images.githubusercontent.com/37966791/166833290-5161965a-f730-4f76-9845-0e0d38db6f96.png)
+![image](https://user-images.githubusercontent.com/37966791/169170165-f0417ec7-a1dd-4282-a9b1-7bffdc3fc3bc.png)
 
 ## Getting the application:
 

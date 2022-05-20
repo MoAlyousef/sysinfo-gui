@@ -1,5 +1,7 @@
 # Sysinfo-gui
 
+![alt_test](https://github.com/MoAlyousef/sysinfo-gui/raw/main/assets/icon.png)
+
 A lightweight cross-platform system-monitoring [fltk](https://github.com/fltk-rs/fltk-rs) gui application based on [sysinfo](https://github.com/GuillaumeGomez/sysinfo).
 
 The UI design is inspired by [stacer](https://github.com/oguzhaninan/Stacer).

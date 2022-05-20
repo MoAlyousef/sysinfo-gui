@@ -1,0 +1,25 @@
+name: bundle
+
+on:
+  push:
+    branches: [ release ]
+  pull_request:
+    branches: [ release ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo install cargo-bundle && cargo bundle --release --features=fltk/fltk-bundled
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: sysinfo-gui-bundle
+        path: target/release/bundle/osx/sysinfo-gui.app

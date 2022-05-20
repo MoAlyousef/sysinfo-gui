@@ -902,13 +902,14 @@ dependencies = [
 
 [[package]]
 name = "sysinfo-gui"
-version = "0.1.10"
+version = "0.1.11"
 dependencies = [
  "dark-light",
  "fltk",
  "fltk-grid",
  "parking_lot 0.12.0",
  "sysinfo",
+ "winres",
 ]
 
 [[package]]
@@ -1129,6 +1130,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d107f8c6e916235c4c01cabb3e8acf7bea8ef6a63ca2e7fa0527c049badfc48c"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "winres"
+version = "0.1.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b68db261ef59e9e52806f688020631e987592bd83619edccda9c47d42cde4f6c"
+dependencies = [
+ "toml",
 ]
 
 [[package]]

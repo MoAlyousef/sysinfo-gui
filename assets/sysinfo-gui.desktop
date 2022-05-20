@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=sysinfo-gui
+Comment=A cross-platform system-monitoring gui application based on sysinfo and fltk
+Exec=sysinfo-gui
+Icon=icon
+Terminal=false
+Categories=System;

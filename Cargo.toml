@@ -1,6 +1,6 @@
 [package]
 name = "sysinfo-gui"
-version = "0.1.10"
+version = "0.1.11"
 edition = "2021"
 repository = "https://github.com/MoAlyousef/sysinfo-gui"
 keywords = ["cross-platform", "monitoring", "gui"]
@@ -9,6 +9,11 @@ categories = ["visualization"]
 description = "A cross-platform system-monitoring gui application based on sysinfo and fltk"
 documentation = "https://docs.rs/sysinfo-gui"
 readme = "README.md"
+build = "build.rs"
+
+[package.metadata.bundle]
+identifier = "io.github.moalyousef"
+icon = ["assets/icon.png"]
 
 [dependencies]
 sysinfo = { version = "0.23.10", default-features = false }
@@ -16,6 +21,9 @@ fltk = "1.3"
 fltk-grid = "0.1"
 parking_lot = "0.12"
 dark-light = { version = "0.2.2", optional = true }
+
+[target.'cfg(target_os = "windows")'.build-dependencies]
+winres = "0.1"
 
 [profile.release]
 opt-level = 3

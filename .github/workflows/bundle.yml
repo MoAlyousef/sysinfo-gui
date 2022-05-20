@@ -2,9 +2,9 @@ name: bundle
 
 on:
   push:
-    branches: [ main ]
+    branches: [ release ]
   pull_request:
-    branches: [ main ]
+    branches: [ release ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -18,3 +18,8 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build
       run: cargo install cargo-bundle && cargo bundle --release
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: sysinfo-gui-bundle
+        path: target/release/bundle/osx/sysinfo-gui.app

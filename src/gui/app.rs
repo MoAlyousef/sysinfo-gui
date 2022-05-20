@@ -39,7 +39,7 @@ impl App {
         app::set_font_size(18);
         let temp = std::env::temp_dir().join("Roboto-Medium.ttf");
         if !temp.exists() {
-            let bytes = include_bytes!("../../Roboto-Medium.ttf");
+            let bytes = include_bytes!("../../assets/Roboto-Medium.ttf");
             std::fs::write(&temp, bytes).ok();
         }
         if let Ok(f) = Font::load_font(temp) {

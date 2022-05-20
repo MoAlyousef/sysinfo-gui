@@ -31,7 +31,7 @@ The font is Roboto Medium.
 ![image](https://user-images.githubusercontent.com/37966791/166833123-484adeac-0b23-4b0a-bfb0-767c1b4856cd.png)
 
 - Settings
-![image](https://user-images.githubusercontent.com/37966791/166833165-6e206910-7314-4d23-9734-c1b20774f6ca.png)
+![image](https://user-images.githubusercontent.com/37966791/169573815-b78930fc-d5f6-4f20-946d-de813c5ea47c.png)
 
 ## Features
 - Supports window transparency.

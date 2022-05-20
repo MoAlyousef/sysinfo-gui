@@ -10,16 +10,33 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
-    runs-on: macos-latest
-
+  macos:
+    runs-on: macos-10.15
     steps:
     - uses: actions/checkout@v3
     - name: Build
-      run: cargo install cargo-bundle && cargo bundle --release --features=fltk/fltk-bundled
+      run: |
+      cargo install cargo-bundle
+      cargo bundle --release --features=fltk/fltk-bundled
+      zip -r sysinfo-gui.app.zip target/release/bundle/osx/sysinfo-gui.app
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2
       with:
         name: sysinfo-gui-bundle
-        path: target/release/bundle/osx/sysinfo-gui.app
+        path: sysinfo-gui.app.zip
+  ubuntu:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: |
+        sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev
+        wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+        chmod +x linuxdeploy-x86_64.AppImage
+        cargo build --release --features=fltk/fltk-bundled
+        ./linuxdeploy-x86_64.AppImage --appdir AppDir -e ./target/release/sysinfo-gui -i ./assets/icon.png -d ./assets/sysinfo-gui.desktop --output appimage
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: sysinfo-gui-x86_64.AppImage
+        path: sysinfo-gui-x86_64.AppImage

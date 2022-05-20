@@ -4,6 +4,8 @@ use super::widgets::*;
 use super::{message::Message, View};
 use fltk::{enums::*, prelude::*, *};
 
+const ICON: &[u8] = include_bytes!("../../assets/icon.png");
+
 pub struct App {
     a: app::App,
     r: app::Receiver<Message>,
@@ -48,6 +50,7 @@ impl App {
             .with_size(800, 600)
             .with_label("sysinfo-gui");
         win.set_xclass("sysinfo");
+        win.set_icon(Some(image::PngImage::from_data(ICON).unwrap()));
         let mut grp = group::Group::default().with_size(60, 600);
         grp.set_frame(FrameType::FlatBox);
         grp.set_color(BLUE);

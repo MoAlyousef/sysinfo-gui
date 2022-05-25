@@ -49,6 +49,9 @@ impl Card {
         grp.end();
         Self { grp }
     }
+    pub fn default_fill() -> Card {
+        Card::default().size_of_parent().center_of_parent()
+    }
 }
 
 fltk::widget_extends!(Card, group::Group, grp);

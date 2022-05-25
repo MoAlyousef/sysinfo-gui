@@ -35,8 +35,9 @@ impl App {
         app::set_frame_type2(FrameType::UpBox, FrameType::FlatBox);
         let (r, g, b) = SEL_BLUE.to_rgb();
         app::set_selection_color(r, g, b);
-        misc::Tooltip::set_color(Color::from_rgb(0xFF, 0xFF, 0xF0));
         app::set_font_size(18);
+        misc::Tooltip::set_color(Color::from_rgb(0xFF, 0xFF, 0xF0));
+        misc::Tooltip::set_font_size(app::font_size() - 4);
         let temp = std::env::temp_dir().join("Roboto-Medium.ttf");
         if !temp.exists() {
             let bytes = include_bytes!("../../assets/Roboto-Medium.ttf");
@@ -82,6 +83,9 @@ impl App {
         SvgButton::new(WRENCH)
             .with_tooltip("Settings")
             .emit(s, Message::Settings);
+        SvgButton::new(ABOUT)
+            .with_tooltip("About")
+            .emit(s, Message::Info);
         col.end();
         grp.end();
         let mut grp = group::Group::new(60, 0, 800 - 50, 50, "\tSysinfo")
@@ -95,6 +99,7 @@ impl App {
         scroll.set_color(win.color());
         scroll.set_scrollbar_size(-1);
         let mut scrollbar = scroll.scrollbar();
+        // To work around Card resizing on macos
         scrollbar.set_callback({
             let mut old_cb = scrollbar.callback();
             move |s| {
@@ -106,6 +111,8 @@ impl App {
         });
         scroll.end();
         win.end();
+        win.resizable(&scroll);
+        win.size_range(800, 600, 0, 0);
         win.show();
         win.set_callback(|w| {
             if app::event() == Event::Close {

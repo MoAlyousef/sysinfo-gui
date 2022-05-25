@@ -59,8 +59,8 @@ If you would like to use the bundled version of fltk-rs (for supported platforms
 `cargo build --features=fltk/fltk-bundled --release`
 
 ## TODO
-- The codebase needs some refactoring.
 - Support more things in the right click popup menu in the processes view.
+- Map uid to User and display a user name in the processes view.
 - Add downloand and upload speed.
 - Use better colors for the cpus. 
 - Add more setting tweaks.

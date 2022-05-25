@@ -137,7 +137,8 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             }
         }
     });
-    ProcToggle::new("virt", view.ordering.clone()).handle({
+    let mut b = ProcToggle::new("virt", view.ordering.clone());
+    b.handle({
         let ord = view.ordering.clone();
         move |_, e| {
             if e == Event::Push {
@@ -153,6 +154,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             }
         }
     });
+    b.set_tooltip("Virtual memory in Kb");
     ProcToggle::new("cpu%", view.ordering.clone()).handle({
         let ord = view.ordering.clone();
         move |_, e| {
@@ -188,7 +190,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     hpack.end();
     let mut b = browser::HoldBrowser::default().with_size(0, 500 - 30);
     b.clear_visible_focus();
-    b.set_text_size(14);
+    b.set_text_size(app::font_size() - 2);
     b.set_color(Color::color_average(b.color(), Color::Background, 0.1));
     b.set_selection_color(SEL_BLUE);
     b.set_scrollbar_size(5);
@@ -211,6 +213,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     }
     let mut menu = menu::MenuButton::default().with_type(menu::MenuButtonType::Popup3);
     menu.set_frame(FrameType::FlatBox);
+    menu.set_text_size(app::font_size() - 2);
     menu.set_color(Color::color_average(menu.color(), Color::Background, 0.9));
     drop(sys);
     menu.add("End Task\t\t", Shortcut::None, menu::MenuFlag::Normal, {

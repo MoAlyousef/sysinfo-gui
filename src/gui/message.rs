@@ -7,4 +7,5 @@ pub enum Message {
     Procs,
     Net,
     Settings,
+    Info,
 }

@@ -5,6 +5,7 @@ pub mod mem;
 pub mod net;
 pub mod procs;
 pub mod settings;
+pub mod info;
 
 use crate::gui::{message::Message, styles::colors::GRAY, View};
 use fltk::app;
@@ -74,6 +75,7 @@ impl View for MyView {
             Message::Procs => self.procs(),
             Message::Net => self.network(),
             Message::Settings => self.settings(),
+            Message::Info => self.info(),
         }
     }
     fn sleep_duration(&self) -> u64 {
@@ -105,5 +107,8 @@ impl MyView {
     }
     pub fn procs(&self) -> Option<Box<dyn FnMut() + Send>> {
         procs::procs(self)
+    }
+    pub fn info(&self) -> Option<Box<dyn FnMut() + Send>> {
+        info::info(self)
     }
 }

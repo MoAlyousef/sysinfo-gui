@@ -82,6 +82,9 @@ impl App {
         SvgButton::new(WRENCH)
             .with_tooltip("Settings")
             .emit(s, Message::Settings);
+        SvgButton::new(ABOUT)
+            .with_tooltip("About")
+            .emit(s, Message::Info);
         col.end();
         grp.end();
         let mut grp = group::Group::new(60, 0, 800 - 50, 50, "\tSysinfo")
@@ -95,6 +98,7 @@ impl App {
         scroll.set_color(win.color());
         scroll.set_scrollbar_size(-1);
         let mut scrollbar = scroll.scrollbar();
+        // To work around Card resizing on macos
         scrollbar.set_callback({
             let mut old_cb = scrollbar.callback();
             move |s| {
@@ -106,6 +110,8 @@ impl App {
         });
         scroll.end();
         win.end();
+        win.resizable(&scroll);
+        win.size_range(800, 600, 0, 0);
         win.show();
         win.set_callback(|w| {
             if app::event() == Event::Close {

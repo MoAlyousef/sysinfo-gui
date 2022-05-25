@@ -35,8 +35,9 @@ impl App {
         app::set_frame_type2(FrameType::UpBox, FrameType::FlatBox);
         let (r, g, b) = SEL_BLUE.to_rgb();
         app::set_selection_color(r, g, b);
-        misc::Tooltip::set_color(Color::from_rgb(0xFF, 0xFF, 0xF0));
         app::set_font_size(18);
+        misc::Tooltip::set_color(Color::from_rgb(0xFF, 0xFF, 0xF0));
+        misc::Tooltip::set_font_size(app::font_size() - 4);
         let temp = std::env::temp_dir().join("Roboto-Medium.ttf");
         if !temp.exists() {
             let bytes = include_bytes!("../../assets/Roboto-Medium.ttf");

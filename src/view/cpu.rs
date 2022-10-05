@@ -4,7 +4,7 @@ use fltk::{enums::*, prelude::*, *};
 use parking_lot::Mutex;
 use std::collections::VecDeque;
 use std::sync::Arc;
-use sysinfo::ProcessorExt;
+use sysinfo::CpuExt;
 use sysinfo::System;
 use sysinfo::SystemExt;
 
@@ -69,7 +69,7 @@ mod cpu_color {
 pub fn proc(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut sys = view.system.lock();
     sys.refresh_cpu();
-    let first = sys.processors().first().unwrap();
+    let first = sys.cpus().first().unwrap();
     let vendor_id = first.vendor_id().to_string();
     let mut grp = group::Pack::default()
         .with_size(600, 400)
@@ -91,7 +91,7 @@ pub fn proc(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     }
     c.set_text_color(Color::Foreground);
     let mut charts = vec![];
-    for proc in sys.processors() {
+    for proc in sys.cpus() {
         let mut c = misc::Chart::default_fill();
         c.set_bounds(0., 100.);
         c.set_type(misc::ChartType::Line);
@@ -142,7 +142,7 @@ pub fn proc(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let cb = move || {
         if let Some(mut sys) = sys.try_lock() {
             sys.refresh_cpu();
-            for (i, proc) in sys.processors().iter().enumerate() {
+            for (i, proc) in sys.cpus().iter().enumerate() {
                 v[i].push_back(proc.cpu_usage() as f64);
                 v[i].pop_front();
             }

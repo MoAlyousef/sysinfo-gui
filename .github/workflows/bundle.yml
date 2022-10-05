@@ -15,7 +15,7 @@ jobs:
     - name: Build
       run: |
         cargo install cargo-bundle
-        cargo bundle --release --features=fltk/fltk-bundled
+        cargo bundle --release
         zip -r sysinfo-gui.app.zip target/release/bundle/osx/sysinfo-gui.app
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2

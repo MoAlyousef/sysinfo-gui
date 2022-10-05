@@ -23,6 +23,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build
       shell: bash
-      run: cargo check --features=fltk/fltk-bundled
+      run: cargo check
 
 

@@ -23,7 +23,7 @@ impl ProcToggle {
         b.set_down_frame(FrameType::FlatBox);
         b.set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
         b.clear_visible_focus();
-        b.set_label_size(app::font_size() - 3);
+        b.set_label_size(app::font_size() - 2);
         b.draw(move |b| {
             if b.value() {
                 let mut image = if (*ord.lock() as i32) < 5 {
@@ -61,7 +61,7 @@ impl Proc {
             memory: proc.memory(),
             virt: proc.virtual_memory(),
             cpu: proc.cpu_usage(),
-            exe: format!("{}", proc.exe().display()),
+            exe: proc.name().to_string(),
             // total_written_bytes: 0,
             // written_bytes: 0,
             // total_read_bytes: 0,

@@ -9,7 +9,7 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
     let mut f = frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_label("Light mode:");
-    grid.insert_ext(&mut f, 3, 2, 3, 1);
+    grid.insert(&mut f, 3..6, 2);
     let mut t = Toggle::default();
     t.set_value(view.light_mode.load(Ordering::Relaxed));
     let light_mode = view.light_mode.clone();
@@ -26,20 +26,20 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
         }
         app::redraw();
     });
-    grid.insert_ext(&mut *t, 3, 15, 2, 1);
+    grid.insert(&mut *t, 3..5, 15);
     let mut f = frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_label("Sleep duration:");
-    grid.insert_ext(&mut f, 6, 2, 3, 1);
+    grid.insert(&mut f, 6..9, 2);
     let mut slider = FancyHorSlider::default()
         .with_size(40, 10)
         .center_of_parent();
-    grid.insert_ext(&mut *slider, 6, 14, 4, 1);
+    grid.insert(&mut *slider, 6..10, 14);
     let val = view.sleep.load(Ordering::Relaxed);
     let mut f = frame::Frame::default()
         .with_size(0, 40)
         .with_label(&format!("{} ms", val));
-    grid.insert_ext(&mut f, 7, 15, 2, 1);
+    grid.insert(&mut f, 7..9, 15);
     slider.set_value((val as f64 - 100.) / 1000.);
     let sleep = view.sleep.clone();
     slider.set_callback(move |s| {
@@ -50,7 +50,7 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
     let mut f = frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_label("Window Opacity:");
-    grid.insert_ext(&mut f, 9, 2, 3, 1);
+    grid.insert(&mut f, 9..12, 2);
     let mut slider = FancyHorSlider::default()
         .with_size(40, 20)
         .center_of_parent();
@@ -63,14 +63,14 @@ fn fill_grid(grid: &mut Grid, view: &MyView) {
     let mut f = frame::Frame::default()
         .with_size(0, 40)
         .with_label(&format!("{}%", ((opacity * 100.) as i32)));
-    grid.insert_ext(&mut f, 10, 15, 2, 1);
+    grid.insert(&mut f, 10..12, 15);
     slider.set_value(opacity);
     slider.set_callback(move |s| {
         let val = s.value();
         f.set_label(&format!("{}%", ((val * 100.) as i32)));
         win.set_opacity(val);
     });
-    grid.insert_ext(&mut *slider, 9, 14, 4, 1);
+    grid.insert(&mut *slider, 9..13, 14);
 }
 
 pub fn settings(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {

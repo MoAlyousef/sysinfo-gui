@@ -97,8 +97,9 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     drop(ord);
     let mut sys = view.system.lock();
     sys.refresh_processes();
+    let win = app::first_window().unwrap();
     let grp = group::Pack::default()
-        .with_size(700, 500)
+        .with_size(win.w() - 100, win.h() - 100)
         .center_of_parent();
     let hpack = group::Pack::default()
         .with_size(0, 30)
@@ -188,7 +189,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         }
     });
     hpack.end();
-    let mut b = browser::HoldBrowser::default().with_size(0, 500 - 30);
+    let mut b = browser::HoldBrowser::default().with_size(0, grp.h() - 100);
     b.clear_visible_focus();
     b.set_text_size(app::font_size() - 2);
     b.set_color(Color::color_average(b.color(), Color::Background, 0.1));
@@ -216,7 +217,24 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     menu.set_text_size(app::font_size() - 2);
     menu.set_color(Color::color_average(menu.color(), Color::Background, 0.9));
     drop(sys);
-    menu.add("End Task\t\t", Shortcut::None, menu::MenuFlag::Normal, {
+    menu.add_choice("End Task\t\t");
+    b.set_callback({
+        let menu = menu.clone();
+        move |_| {
+            if app::event_mouse_button() == MouseButton::Right {
+                menu.popup();
+            }
+        }
+    });
+    frame::Frame::default().with_size(0, 30);
+    let mut row = group::Flex::default().with_size(0, 30).row();
+    frame::Frame::default();
+    let mut btn = button::Button::default().with_label("End task");
+    btn.set_frame(FrameType::RFlatBox);
+    btn.set_color(BLUE);
+    btn.set_selection_color(SEL_BLUE);
+    btn.clear_visible_focus();
+    btn.set_callback({
         let sys = view.system.clone();
         let b = b.clone();
         move |_| {
@@ -225,11 +243,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
                 if let Some(text) = b.text(val) {
                     let sys = sys.lock();
                     let v: Vec<&str> = text.split_ascii_whitespace().collect();
-                    let pid = if light_mode {
-                        v[0]
-                    } else {
-                        v[1]
-                    };
+                    let pid = if light_mode { v[0] } else { v[1] };
                     let pid = sysinfo::Pid::from_str(pid).unwrap();
                     if let Some(p) = sys.process(pid) {
                         p.kill_with(sysinfo::Signal::Kill).unwrap();
@@ -239,9 +253,15 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             }
         }
     });
-    b.set_callback(move |_| {
-        if app::event_mouse_button() == MouseButton::Right {
-            menu.popup();
+    frame::Frame::default();
+    row.set_size(&btn, 80);
+    row.end();
+    grp.end();
+    menu.set_callback(move |m| {
+        if let Some(v) = m.choice() {
+            if v == "End Task" {
+                btn.do_callback();
+            }
         }
     });
     let sys = Arc::new(Mutex::new(System::new_all()));
@@ -273,6 +293,5 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             app::awake();
         }
     };
-    grp.end();
     Some(Box::new(cb))
 }

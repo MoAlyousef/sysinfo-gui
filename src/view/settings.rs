@@ -45,18 +45,15 @@ pub fn settings(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             let mut row = group::Flex::default().row();
             frame::Frame::default()
                 .with_align(Align::Left | Align::Inside)
-                .with_label("Modal:");
+                .with_label("Enable logging:");
             let col = group::Flex::default().column();
             frame::Frame::default();
             let mut t = RoundToggle::default();
             t.set_value(false);
             t.set_callback({
-                let mut win = win.clone();
                 move |t| {
                     if t.value() {
-                        win.make_modal(true);
-                    } else {
-                        win.clear_modal_states();
+                        eprintln!("Logging is not yet added!");
                     }
                     app::redraw();
                 }

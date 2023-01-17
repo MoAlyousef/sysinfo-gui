@@ -1,6 +1,6 @@
 use super::MyView;
-use crate::gui::widgets::Card;
 use fltk::{enums::*, prelude::*, *};
+use fltk_extras::card::Card;
 use parking_lot::Mutex;
 use std::collections::VecDeque;
 use std::sync::Arc;

@@ -1,9 +1,8 @@
 use super::MyView;
-use crate::{
-    gui::styles::colors::*,
-    gui::widgets::{Card, HalfDial},
-};
+use crate::gui::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
+use fltk_extras::card::Card;
+use fltk_extras::dial::HalfDial;
 use parking_lot::Mutex;
 use std::sync::Arc;
 use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessExt, System, SystemExt};

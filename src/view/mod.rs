@@ -1,11 +1,11 @@
 pub mod cpu;
 pub mod disk;
 pub mod general;
+pub mod info;
 pub mod mem;
 pub mod net;
 pub mod procs;
 pub mod settings;
-pub mod info;
 
 use crate::gui::{message::Message, styles::colors::GRAY, View};
 use fltk::app;

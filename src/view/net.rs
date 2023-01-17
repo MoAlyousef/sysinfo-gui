@@ -1,6 +1,6 @@
 use super::MyView;
-use crate::gui::widgets::Card;
 use fltk::{prelude::*, *};
+use fltk_extras::card::Card;
 use parking_lot::Mutex;
 use std::sync::{atomic::Ordering, Arc};
 use sysinfo::NetworkExt;

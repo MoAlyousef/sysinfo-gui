@@ -1,7 +1,10 @@
 use crate::gui::styles::colors::*;
-use crate::gui::widgets::{FancyHorSlider, RoundToggle, Toggle};
 use crate::view::MyView;
 use fltk::{enums::*, prelude::*, *};
+use fltk_extras::{
+    button::{RoundToggle, Toggle},
+    slider::FancyHorSlider,
+};
 use std::sync::atomic::Ordering;
 
 pub fn settings(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {

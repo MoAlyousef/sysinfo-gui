@@ -1,9 +1,8 @@
 use super::MyView;
-use crate::{
-    gui::styles::colors::*,
-    gui::widgets::{Card, Dial},
-};
+use crate::gui::styles::colors::*;
 use fltk::{prelude::*, *};
+use fltk_extras::card::Card;
+use fltk_extras::dial::Dial;
 use sysinfo::DiskExt;
 use sysinfo::SystemExt;
 

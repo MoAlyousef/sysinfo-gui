@@ -9,18 +9,20 @@ use sysinfo::SystemExt;
 pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut sys = view.system.lock();
     sys.refresh_disks();
-    frame::Frame::new(60, 60, 0, 0, None);
-    let mut grp = group::Pack::default()
-        .with_size(600, 400)
-        .center_of_parent();
-    grp.set_spacing(40);
+    let mut scroll = group::Scroll::default_fill().with_type(group::ScrollType::Vertical);
+    scroll.resize_callback(crate::utils::scroll_resize_cb);
+    scroll.set_scrollbar_size(-1);
+    crate::utils::fix_scroll_cb(&mut scroll);
+    let mut vpack = group::Pack::default().with_size(300, 300).with_type(group::PackType::Vertical).center_of_parent();
+    vpack.set_spacing(50);
+    frame::Frame::default().with_size(0, 30);
     for disk in sys.disks() {
         let mut hpack = group::Pack::default()
             .with_size(600, 130)
             .with_type(group::PackType::Horizontal);
-        hpack.set_spacing(50);
+        hpack.set_spacing(5);
         let t = Card::default()
-            .with_size(300, 130)
+            .with_size(400, 130)
             .with_label(disk.name().to_str().unwrap());
         t.begin();
         let vpack = group::Pack::default()
@@ -60,6 +62,7 @@ pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         grp.end();
         hpack.end();
     }
-    grp.end();
+    vpack.end();
+    scroll.end();
     None
 }

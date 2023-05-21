@@ -3,6 +3,7 @@
 
 mod gui;
 mod view;
+mod utils;
 
 fn main() {
     gui::app::App::new().run(view::MyView::default());

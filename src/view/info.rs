@@ -9,10 +9,6 @@ Sysinfo-gui is MIT licensed.
 "#;
 
 pub fn info(_view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
-    let mut grp = group::Pack::default()
-        .with_size(600, 400)
-        .center_of_parent();
-    grp.set_spacing(40);
     let mut frame = misc::HelpView::default()
         .with_size(500, 300)
         .center_of_parent();
@@ -21,6 +17,5 @@ pub fn info(_view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     frame.set_value(INFO);
     frame.set_text_size(16);
     frame.set_text_font(Font::Helvetica);
-    grp.end();
     None
 }

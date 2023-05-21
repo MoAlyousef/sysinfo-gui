@@ -71,11 +71,9 @@ pub fn proc(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     sys.refresh_cpu();
     let first = sys.cpus().first().unwrap();
     let vendor_id = first.vendor_id().to_string();
-    let mut grp = group::Pack::default()
-        .with_size(600, 400)
-        .center_of_parent();
-    grp.set_spacing(40);
-    let t = Card::default().with_size(300, 80).with_label(first.brand());
+    let t = Card::default().with_label(first.brand());
+    let mut parent = group::Flex::from_dyn_widget(&t.parent().unwrap()).unwrap();
+    parent.set_size(&*t, 60);
     t.begin();
     let mut f = frame::Frame::default().with_size(80, 30).center_of_parent();
     t.end();
@@ -128,7 +126,6 @@ pub fn proc(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         }
     }
     g.end();
-    grp.end();
     let charts = Arc::new(Mutex::new(charts));
     let sys = Arc::new(Mutex::new(System::new_all()));
     let mut v = vec![];

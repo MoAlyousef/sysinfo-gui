@@ -11,19 +11,18 @@ use sysinfo::SystemExt;
 pub fn memory(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut sys = view.system.lock();
     sys.refresh_memory();
-    frame::Frame::new(60, 60, 0, 0, None);
     let mut dials = vec![];
-    let mut grp = group::Pack::default()
-        .with_size(600, 400)
-        .center_of_parent();
-    grp.set_spacing(40);
-    let mut hpack = group::Pack::default()
-        .with_size(600, 130)
-        .with_type(group::PackType::Horizontal);
-    hpack.set_spacing(50);
-    let t = Card::default().with_size(300, 60).with_label("Memory");
+    let mut scroll = group::Scroll::default_fill().with_type(group::ScrollType::Vertical);
+    scroll.resize_callback(crate::utils::scroll_resize_cb);
+    scroll.set_scrollbar_size(-1);
+    crate::utils::fix_scroll_cb(&mut scroll);
+    let mut vpack = group::Pack::default().with_size(300, 300).with_type(group::PackType::Vertical).center_of_parent();
+    vpack.set_spacing(50);
+    frame::Frame::default().with_size(0, 30);
+    let mut row = group::Flex::default().with_size(0, 150).row();
+    let t = Card::default().with_label("Memory").with_size(300, 130);
     t.begin();
-    let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
+    let pack = group::Pack::default().with_size(300, 130).center_of_parent();
     frame::Frame::default()
         .with_size(0, 60)
         .with_label(&format!(
@@ -38,25 +37,18 @@ pub fn memory(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         ));
     pack.end();
     t.end();
-    let mut g = group::Group::default().with_size(130, 130);
     let mut dial = Dial::default()
-        .with_size(100, 100)
-        .with_label("Memory Usage %")
-        .center_of_parent();
+        .with_label("Memory Usage %");
+    row.set_size(&*dial, 150);
     dial.modifiable(false);
     dial.set_selection_color(MEM_YELLOW);
     dial.set_value((sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32);
     dials.push(dial);
-    g.make_resizable(false);
-    g.end();
-    hpack.end();
-    let mut hpack = group::Pack::default()
-        .with_size(600, 130)
-        .with_type(group::PackType::Horizontal);
-    hpack.set_spacing(50);
-    let t = Card::default().with_size(300, 60).with_label("Swap");
+    row.end();
+    let mut row = group::Flex::default().with_size(0, 150).row();
+    let t = Card::default().with_label("Swap").with_size(300, 130);
     t.begin();
-    let pack = group::Pack::default().with_size(300, 130).center_x(&*t);
+    let pack = group::Pack::default().with_size(300, 130);
     frame::Frame::default()
         .with_size(0, 60)
         .with_label(&format!(
@@ -71,19 +63,16 @@ pub fn memory(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         ));
     pack.end();
     t.end();
-    let mut g = group::Group::default().with_size(130, 130);
     let mut dial = Dial::default()
-        .with_size(100, 100)
-        .with_label("Swap Usage %")
-        .center_of_parent();
+        .with_label("Swap Usage %");
+    row.set_size(&*dial, 150);
     dial.modifiable(false);
     dial.set_selection_color(MEM_YELLOW);
     dial.set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);
     dials.push(dial);
-    g.make_resizable(false);
-    g.end();
-    hpack.end();
-    grp.end();
+    row.end();
+    vpack.end();
+    scroll.end();
     let dials = Arc::new(Mutex::new(dials));
     let sys = Arc::new(Mutex::new(System::new_all()));
     let cb = move || {

@@ -97,13 +97,9 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     drop(ord);
     let mut sys = view.system.lock();
     sys.refresh_processes();
-    let win = app::first_window().unwrap();
-    let grp = group::Pack::default()
-        .with_size(win.w() - 100, win.h() - 100)
-        .center_of_parent();
-    let hpack = group::Pack::default()
-        .with_size(0, 30)
-        .with_type(group::PackType::Horizontal);
+    let hpack = group::Pack::default().with_type(group::PackType::Horizontal);
+    let mut parent = group::Flex::from_dyn_widget(&hpack.parent().unwrap()).unwrap();
+    parent.set_size(&hpack, 30);
     let mut b = ProcToggle::new("pid", view.ordering.clone());
     b.set_value(true);
     b.handle({
@@ -189,7 +185,8 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         }
     });
     hpack.end();
-    let mut b = browser::HoldBrowser::default().with_size(0, grp.h() - 100);
+    let mut grp = group::Group::default();
+    let mut b = browser::HoldBrowser::default();
     b.clear_visible_focus();
     b.set_text_size(app::font_size() - 2);
     b.set_color(Color::color_average(b.color(), Color::Background, 0.1));
@@ -226,8 +223,9 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             }
         }
     });
-    frame::Frame::default().with_size(0, 30);
-    let mut row = group::Flex::default().with_size(0, 30).row();
+    grp.end();
+    let mut row = group::Flex::default().row();
+    parent.set_size(&row, 30);
     frame::Frame::default();
     let mut btn = button::Button::default().with_label("End task");
     btn.set_frame(FrameType::RFlatBox);
@@ -256,12 +254,18 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     frame::Frame::default();
     row.set_size(&btn, 80);
     row.end();
-    grp.end();
     menu.set_callback(move |m| {
         if let Some(v) = m.choice() {
             if v == "End Task" {
                 btn.do_callback();
             }
+        }
+    });
+    grp.resize_callback({
+        let mut b = b.clone();
+        move |_, x, y, w, h| {
+            b.resize(x, y, w, h);
+            menu.resize(x, y, w, h);
         }
     });
     let sys = Arc::new(Mutex::new(System::new_all()));

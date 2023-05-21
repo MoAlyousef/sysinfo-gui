@@ -1,4 +1,5 @@
 use super::MyView;
+use crate::utils;
 use fltk::{prelude::*, *};
 use fltk_extras::card::Card;
 use parking_lot::Mutex;
@@ -13,10 +14,13 @@ pub fn network(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     sys.refresh_networks();
     let mut frames = vec![];
     let mut scroll = group::Scroll::default_fill().with_type(group::ScrollType::Vertical);
-    scroll.resize_callback(crate::utils::scroll_resize_cb);
+    scroll.resize_callback(utils::scroll_resize_cb);
     scroll.set_scrollbar_size(-1);
-    crate::utils::fix_scroll_cb(&mut scroll);
-    let mut vpack = group::Pack::default().with_size(300, 300).with_type(group::PackType::Vertical).center_of_parent();
+    utils::fix_scroll_cb(&mut scroll);
+    let mut vpack = group::Pack::default()
+        .with_size(300, 300)
+        .with_type(group::PackType::Vertical)
+        .center_of_parent();
     vpack.set_spacing(50);
     frame::Frame::default().with_size(0, 30);
     for comp in sys.networks().iter() {

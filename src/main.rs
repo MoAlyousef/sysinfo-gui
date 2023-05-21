@@ -2,8 +2,8 @@
 #![doc = include_str!("../README.md")]
 
 mod gui;
-mod view;
 mod utils;
+mod view;
 
 fn main() {
     gui::app::App::new().run(view::MyView::default());

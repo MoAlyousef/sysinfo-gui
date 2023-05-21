@@ -1,5 +1,6 @@
 use super::MyView;
 use crate::gui::styles::colors::*;
+use crate::utils;
 use fltk::{prelude::*, *};
 use fltk_extras::card::Card;
 use fltk_extras::dial::Dial;
@@ -10,15 +11,17 @@ pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut sys = view.system.lock();
     sys.refresh_disks();
     let mut scroll = group::Scroll::default_fill().with_type(group::ScrollType::Vertical);
-    scroll.resize_callback(crate::utils::scroll_resize_cb);
+    scroll.resize_callback(utils::scroll_resize_cb);
     scroll.set_scrollbar_size(-1);
-    crate::utils::fix_scroll_cb(&mut scroll);
-    let mut vpack = group::Pack::default().with_size(300, 300).with_type(group::PackType::Vertical).center_of_parent();
+    utils::fix_scroll_cb(&mut scroll);
+    let mut vpack = group::Pack::default()
+        .with_size(300, 300)
+        .with_type(group::PackType::Vertical)
+        .center_of_parent();
     vpack.set_spacing(50);
     frame::Frame::default().with_size(0, 30);
     for disk in sys.disks() {
-        let mut row = group::Flex::default().row()
-            .with_size(0, 130);
+        let mut row = group::Flex::default().row().with_size(0, 130);
         row.set_margin(10);
         let t = Card::default()
             .with_size(300, 130)
@@ -47,8 +50,7 @@ pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             ));
         vpack.end();
         t.end();
-        let mut dial = Dial::default()
-            .with_label("Used space %");
+        let mut dial = Dial::default().with_label("Used space %");
         row.set_size(&*dial, 120);
         dial.modifiable(false);
         dial.set_value(

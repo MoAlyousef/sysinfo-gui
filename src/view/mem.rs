@@ -16,13 +16,18 @@ pub fn memory(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     scroll.resize_callback(crate::utils::scroll_resize_cb);
     scroll.set_scrollbar_size(-1);
     crate::utils::fix_scroll_cb(&mut scroll);
-    let mut vpack = group::Pack::default().with_size(300, 300).with_type(group::PackType::Vertical).center_of_parent();
+    let mut vpack = group::Pack::default()
+        .with_size(300, 300)
+        .with_type(group::PackType::Vertical)
+        .center_of_parent();
     vpack.set_spacing(50);
     frame::Frame::default().with_size(0, 30);
     let mut row = group::Flex::default().with_size(0, 150).row();
     let t = Card::default().with_label("Memory").with_size(300, 130);
     t.begin();
-    let pack = group::Pack::default().with_size(300, 130).center_of_parent();
+    let pack = group::Pack::default()
+        .with_size(300, 130)
+        .center_of_parent();
     frame::Frame::default()
         .with_size(0, 60)
         .with_label(&format!(
@@ -37,8 +42,7 @@ pub fn memory(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         ));
     pack.end();
     t.end();
-    let mut dial = Dial::default()
-        .with_label("Memory Usage %");
+    let mut dial = Dial::default().with_label("Memory Usage %");
     row.set_size(&*dial, 150);
     dial.modifiable(false);
     dial.set_selection_color(MEM_YELLOW);
@@ -63,8 +67,7 @@ pub fn memory(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         ));
     pack.end();
     t.end();
-    let mut dial = Dial::default()
-        .with_label("Swap Usage %");
+    let mut dial = Dial::default().with_label("Swap Usage %");
     row.set_size(&*dial, 150);
     dial.modifiable(false);
     dial.set_selection_color(MEM_YELLOW);

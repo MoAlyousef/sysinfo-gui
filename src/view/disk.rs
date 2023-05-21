@@ -17,16 +17,15 @@ pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     vpack.set_spacing(50);
     frame::Frame::default().with_size(0, 30);
     for disk in sys.disks() {
-        let mut hpack = group::Pack::default()
-            .with_size(600, 130)
-            .with_type(group::PackType::Horizontal);
-        hpack.set_spacing(5);
+        let mut row = group::Flex::default().row()
+            .with_size(0, 130);
+        row.set_margin(10);
         let t = Card::default()
-            .with_size(400, 130)
+            .with_size(300, 130)
             .with_label(disk.name().to_str().unwrap());
         t.begin();
         let vpack = group::Pack::default()
-            .with_size(600, 100)
+            .with_size(130, 130)
             .center_of_parent();
         let mut f = frame::Frame::default()
             .with_size(80, 35)
@@ -48,19 +47,16 @@ pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             ));
         vpack.end();
         t.end();
-        let grp = group::Group::default().with_size(130, 130);
         let mut dial = Dial::default()
-            .with_size(100, 100)
-            .with_label("Used space %")
-            .center_of_parent();
+            .with_label("Used space %");
+        row.set_size(&*dial, 120);
         dial.modifiable(false);
         dial.set_value(
             ((disk.total_space() - disk.available_space()) as f64 * 100.
                 / disk.total_space() as f64) as i32,
         );
         dial.set_selection_color(DISK_PURPLE);
-        grp.end();
-        hpack.end();
+        row.end();
     }
     vpack.end();
     scroll.end();

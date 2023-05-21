@@ -40,7 +40,6 @@ pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     dials.push(dial);
     row.end();
     let mut row = group::Flex::default().row();
-    // pack0.set_spacing(10);
     let t = Card::default()
         .with_size(450, 250)
         .with_label("System info");

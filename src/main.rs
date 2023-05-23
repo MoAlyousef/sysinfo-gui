@@ -2,6 +2,7 @@
 #![doc = include_str!("../README.md")]
 
 mod gui;
+mod utils;
 mod view;
 
 fn main() {

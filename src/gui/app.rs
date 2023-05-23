@@ -9,7 +9,7 @@ const ICON: &[u8] = include_bytes!("../../assets/icon.png");
 pub struct App {
     a: app::App,
     r: app::Receiver<Message>,
-    scroll: group::Scroll,
+    main_view: group::Flex,
 }
 
 impl App {
@@ -52,14 +52,24 @@ impl App {
             .with_label("sysinfo-gui");
         win.set_xclass("sysinfo");
         win.set_icon(Some(image::PngImage::from_data(ICON).unwrap()));
-        let mut grp = group::Group::default().with_size(60, 600);
+        let mut main_col = group::Column::default_fill();
+        main_col.set_pad(0);
+        let mut grp = group::Group::default()
+            .with_label("\tSysinfo")
+            .with_align(Align::Left | Align::Inside);
+        main_col.set_size(&grp, 50);
+        grp.set_label_color(Color::White);
+        grp.set_label_size(app::font_size() + 5);
         grp.set_frame(FrameType::FlatBox);
         grp.set_color(BLUE);
-        let mut col = group::Pack::default()
-            .with_size(40, 600)
-            .center_of_parent()
-            .with_type(group::PackType::Vertical);
-        col.set_spacing(10);
+        grp.end();
+        let mut main_row = group::Row::default_fill();
+        main_row.set_pad(0);
+        let mut col = group::Column::default();
+        main_row.set_size(&*col, 60);
+        col.set_frame(FrameType::FlatBox);
+        col.set_color(BLUE);
+        col.set_pad(10);
         SvgButton::new("<svg></svg>");
         SvgButton::new(GENERAL)
             .with_tooltip("Home")
@@ -87,31 +97,13 @@ impl App {
             .with_tooltip("About")
             .emit(s, Message::Info);
         col.end();
-        grp.end();
-        let mut grp = group::Group::new(60, 0, 800 - 50, 50, "\tSysinfo")
-            .with_align(Align::Left | Align::Inside);
-        grp.set_label_color(Color::White);
-        grp.set_label_size(app::font_size() + 5);
-        grp.set_frame(FrameType::FlatBox);
-        grp.set_color(BLUE);
-        grp.end();
-        let mut scroll = group::Scroll::new(60, 50, 800 - 50, 600 - 50, None);
-        scroll.set_color(win.color());
-        scroll.set_scrollbar_size(-1);
-        let mut scrollbar = scroll.scrollbar();
-        // To work around Card resizing on macos
-        scrollbar.set_callback({
-            let mut old_cb = scrollbar.callback();
-            move |s| {
-                if let Some(cb) = old_cb.as_mut() {
-                    (*cb)();
-                }
-                s.parent().unwrap().redraw();
-            }
-        });
-        scroll.end();
+        let mut main_view = group::Flex::default().column();
+        main_view.set_margin(50);
+        main_view.end();
+        main_row.end();
+        main_col.end();
         win.end();
-        win.resizable(&scroll);
+        win.resizable(&main_view);
         win.size_range(800, 600, 0, 0);
         win.show();
         win.set_callback(|w| {
@@ -119,20 +111,20 @@ impl App {
                 w.hide();
             }
         });
-        Self { a, r, scroll }
+        Self { a, r, main_view }
     }
     pub fn run(mut self, view: impl View + 'static) {
-        self.scroll.begin();
+        self.main_view.begin();
         let cb = view.view(Message::General);
         Self::dispatch(cb, view.sleep_duration());
-        self.scroll.end();
+        self.main_view.end();
         while self.a.wait() {
             if let Some(msg) = self.r.recv() {
-                self.scroll.clear();
-                self.scroll.begin();
+                self.main_view.clear();
+                self.main_view.begin();
                 let cb = view.view(msg);
                 Self::dispatch(cb, view.sleep_duration());
-                self.scroll.end();
+                self.main_view.end();
                 app::redraw();
             }
         }

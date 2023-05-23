@@ -13,32 +13,32 @@ The font is Roboto Medium.
 ## Screenshots
 
 - Dashboard
-![image](https://user-images.githubusercontent.com/37966791/169169613-af34be21-5b7d-4176-9e45-dfe763482996.png)
+![image](https://user-images.githubusercontent.com/37966791/209539808-dba1412c-a38f-4fdd-b143-9d991d1e4e49.png)
 
 - Processes
-![image](https://user-images.githubusercontent.com/37966791/169169714-24a5f233-e391-44c9-9c39-ebd42a5ab429.png)
+![image](https://user-images.githubusercontent.com/37966791/209539668-3dcc559b-d9ad-47f3-9055-c2216e29fac5.png)
 
 - Cpu
-![image](https://user-images.githubusercontent.com/37966791/169169787-668c23e5-7133-4e32-bc39-9c687a903150.png)
+![image](https://user-images.githubusercontent.com/37966791/209539860-8d28adf5-13de-4a0b-8600-fbeed6be95bc.png)
 
 - Memory
-![image](https://user-images.githubusercontent.com/37966791/169169841-bd6af58f-785b-4429-9b86-c1c5e160f9ab.png)
+![image](https://user-images.githubusercontent.com/37966791/209539910-845c082b-6e0b-4467-b00e-167fe15fa010.png)
 
 - Disk info
-![image](https://user-images.githubusercontent.com/37966791/169169890-8fcb9d00-6f55-45d4-926c-781fb8066e4c.png)
+![image](https://user-images.githubusercontent.com/37966791/209539970-521037b9-6fd1-495f-a92f-c42daeb56d70.png)
 
 - Networking
-![image](https://user-images.githubusercontent.com/37966791/166833123-484adeac-0b23-4b0a-bfb0-767c1b4856cd.png)
+![image](https://user-images.githubusercontent.com/37966791/209540014-1421639c-6430-490a-9c75-74c40228717f.png)
 
 - Settings
-![image](https://user-images.githubusercontent.com/37966791/169573815-b78930fc-d5f6-4f20-946d-de813c5ea47c.png)
+![image](https://user-images.githubusercontent.com/37966791/209540135-5a390e60-849c-4b93-b05a-a411924642e2.png)
 
 ## Features
 - Supports window transparency.
 - Realtime monitoring.
 - End processes by sending a kill signal in the processes view.
 - Both dark and light modes.
-![image](https://user-images.githubusercontent.com/37966791/169170165-f0417ec7-a1dd-4282-a9b1-7bffdc3fc3bc.png)
+![image](https://user-images.githubusercontent.com/37966791/209540190-4fd60269-34ad-4775-85f2-3b64be5763f1.png)
 
 ## Getting the application:
 

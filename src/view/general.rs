@@ -1,9 +1,8 @@
 use super::MyView;
-use crate::{
-    gui::styles::colors::*,
-    gui::widgets::{Card, HalfDial},
-};
+use crate::gui::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
+use fltk_extras::card::Card;
+use fltk_extras::dial::HalfDial;
 use parking_lot::Mutex;
 use std::sync::Arc;
 use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessExt, System, SystemExt};
@@ -24,15 +23,7 @@ pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         cpu_usage += process.cpu_usage();
     }
     let mut dials = vec![];
-    frame::Frame::new(60, 60, 0, 0, None);
-    let mut grp = group::Pack::default()
-        .with_size(700, 450)
-        .center_of_parent();
-    grp.set_spacing(30);
-    let mut pack0 = group::Pack::default()
-        .with_size(450, 200)
-        .with_type(group::PackType::Horizontal);
-    pack0.set_spacing(40);
+    let row = group::Flex::default().row();
     let mut dial = HalfDial::default().with_size(200, 200).with_label("CPU %");
     dial.set_value(cpu_usage as i32);
     dial.set_selection_color(CPU_GREEN);
@@ -47,11 +38,8 @@ pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     dial.set_selection_color(DISK_PURPLE);
     dial.set_value(used_space);
     dials.push(dial);
-    pack0.end();
-    let mut pack0 = group::Pack::default()
-        .with_size(450, 250)
-        .with_type(group::PackType::Horizontal);
-    pack0.set_spacing(10);
+    row.end();
+    let mut row = group::Flex::default().row();
     let t = Card::default()
         .with_size(450, 250)
         .with_label("System info");
@@ -96,8 +84,9 @@ pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             &sys.host_name().unwrap_or_else(|| "<unknown>".to_owned())
         ));
     t.end();
-    let mut vpack = group::Pack::default().with_size(230, 100);
-    vpack.set_spacing(45);
+    let mut vpack = group::Flex::default().column();
+    vpack.set_pad(30);
+    row.set_size(&vpack, 160);
     let t = Card::default().with_size(200, 100).with_label("Download");
     t.begin();
     let mut download = frame::Frame::default()
@@ -118,8 +107,7 @@ pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     vpack.end();
     pack.end();
     t.end();
-    pack0.end();
-    grp.end();
+    row.end();
     drop(sys);
     let dials = Arc::new(Mutex::new(dials));
     let sys = Arc::new(Mutex::new(System::new_all()));

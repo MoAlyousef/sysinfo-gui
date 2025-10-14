@@ -15,20 +15,20 @@ pub struct App {
 
 impl App {
     pub fn new() -> Self {
-        // std::panic::set_hook(Box::new(|info| {
-        //     if let Some(s) = info.payload().downcast_ref::<&str>() {
-        //         // we shamefully use those to end spawned threads
-        //         if !s.contains("self.was_deleted") {
-        //             fltk::dialog::message_default(s);
-        //         }
-        //     } else if let Some(s) = info.payload().downcast_ref::<String>() {
-        //         if !s.contains("self.was_deleted") {
-        //             fltk::dialog::message_default(s);
-        //         }
-        //     } else {
-        //         fltk::dialog::message_default(&format!("{:?}", info));
-        //     }
-        // }));
+        std::panic::set_hook(Box::new(|info| {
+            if let Some(s) = info.payload().downcast_ref::<&str>() {
+                // we shamefully use those to end spawned threads
+                if !s.contains("self.was_deleted") {
+                    fltk::dialog::message_default(s);
+                }
+            } else if let Some(s) = info.payload().downcast_ref::<String>() {
+                if !s.contains("self.was_deleted") {
+                    fltk::dialog::message_default(s);
+                }
+            } else {
+                fltk::dialog::message_default(&format!("{:?}", info));
+            }
+        }));
         let a = app::App::default();
         let (r, g, b) = GRAY.to_rgb();
         app::background(r, g, b);

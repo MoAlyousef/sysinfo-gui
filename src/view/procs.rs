@@ -6,7 +6,7 @@ use parking_lot::Mutex;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
-use sysinfo::{ProcessesToUpdate, System, Pid, Signal};
+use sysinfo::{ProcessesToUpdate, System, Pid, Signal, Users};
 
 struct ProcToggle {
     b: button::RadioButton,
@@ -46,6 +46,7 @@ struct Proc {
     pub virt: u64,
     pub cpu: f32,
     pub exe: String,
+    pub user: String,
     // pub total_written_bytes: u64,
     // pub written_bytes: u64,
     // pub total_read_bytes: u64,
@@ -53,13 +54,19 @@ struct Proc {
 }
 
 impl Proc {
-    pub fn new(pid: &sysinfo::Pid, proc: &sysinfo::Process) -> Self {
+    pub fn new(pid: &sysinfo::Pid, proc: &sysinfo::Process, users: &Users) -> Self {
+        let user = proc
+            .user_id()
+            .and_then(|uid| users.get_user_by_id(uid))
+            .map(|u| u.name().to_string())
+            .unwrap_or_else(|| "<unknown>".to_string());
         Self {
             pid: *pid,
             memory: proc.memory(),
             virt: proc.virtual_memory(),
             cpu: proc.cpu_usage(),
             exe: proc.name().to_string_lossy().into_owned(),
+            user,
             // total_written_bytes: 0,
             // written_bytes: 0,
             // total_read_bytes: 0,
@@ -69,21 +76,23 @@ impl Proc {
     pub fn fmt(&self, light: bool) -> String {
         if !light {
             format!(
-                "@C255 {}\t@C255 {:.01}\t@C255 {:.01}\t@C255 {:.01}\t@C255{}",
+                "@C255 {}\t@C255 {:.01}\t@C255 {:.01}\t@C255 {:.01}\t@C255{}\t@C255{}",
                 self.pid,
                 self.memory as f64 / 2_f64.powf(20.),
                 self.virt as f64 / 2_f64.powf(20.),
                 self.cpu,
-                self.exe
+                self.user,
+                self.exe,
             )
         } else {
             format!(
-                " {}\t {:.01}\t {:.01}\t {:.01}\t{}",
+                " {}\t {:.01}\t {:.01}\t {:.01}\t{}\t{}",
                 self.pid,
                 self.memory as f64 / 2_f64.powf(20.),
                 self.virt as f64 / 2_f64.powf(20.),
                 self.cpu,
-                self.exe
+                self.user,
+                self.exe,
             )
         }
     }
@@ -166,7 +175,23 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             }
         }
     });
-    ProcToggle::new("exe", view.ordering.clone()).handle({
+    ProcToggle::new("user", view.ordering.clone()).handle({
+        let ord = view.ordering.clone();
+        move |_, e| {
+            if e == Event::Push {
+                let mut ord = ord.lock();
+                if *ord == SortOrder::User {
+                    *ord = SortOrder::RevUser;
+                } else {
+                    *ord = SortOrder::User;
+                }
+                true
+            } else {
+                false
+            }
+        }
+    });
+    ProcToggle::new("\t\texe", view.ordering.clone()).handle({
         let ord = view.ordering.clone();
         move |_, e| {
             if e == Event::Push {
@@ -195,12 +220,13 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     b.hscrollbar()
         .set_selection_color(Color::color_average(b.color(), Color::Foreground, 0.9));
     b.set_frame(FrameType::GtkDownBox);
-    let widths = &[70, 70, 70, 70, 70];
+    let widths = &[70, 70, 70, 70, 120, 70];
     b.set_column_widths(widths);
     b.set_column_char('\t');
+    let users = Users::new_with_refreshed_list();
     let mut ps = vec![];
     for (pid, process) in sys.processes() {
-        ps.push(Proc::new(pid, process));
+        ps.push(Proc::new(pid, process, &users));
     }
     ps.sort_by(|p1, p2| p1.pid.cmp(&p2.pid));
     let light_mode = view.light_mode.load(Ordering::Relaxed);
@@ -267,6 +293,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         }
     });
     let sys = Arc::new(Mutex::new(System::new_all()));
+    let users = Arc::new(users);
     let light_mode = view.light_mode.clone();
     let ord = view.ordering.clone();
     let cb = move || {
@@ -274,7 +301,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             sys.refresh_processes(ProcessesToUpdate::All, true);
             let mut ps = vec![];
             for (pid, process) in sys.processes() {
-                ps.push(Proc::new(pid, process));
+                ps.push(Proc::new(pid, process, &users));
             }
             ps.sort_by(|p1, p2| match *ord.lock() {
                 SortOrder::Pid => p1.pid.cmp(&p2.pid),
@@ -282,11 +309,13 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
                 SortOrder::Virt => p1.virt.cmp(&p2.virt),
                 SortOrder::Cpu => p1.cpu.partial_cmp(&p2.cpu).unwrap(),
                 SortOrder::Exe => p1.exe.cmp(&p2.exe),
+                SortOrder::User => p1.user.cmp(&p2.user),
                 SortOrder::RevPid => p2.pid.cmp(&p1.pid),
                 SortOrder::RevMem => p2.memory.cmp(&p1.memory),
                 SortOrder::RevVirt => p2.virt.cmp(&p1.virt),
                 SortOrder::RevCpu => p2.cpu.partial_cmp(&p1.cpu).unwrap(),
                 SortOrder::RevExe => p2.exe.cmp(&p1.exe),
+                SortOrder::RevUser => p2.user.cmp(&p1.user),
             });
             let light_mode = light_mode.load(Ordering::Relaxed);
             for (i, p) in ps.iter().enumerate() {

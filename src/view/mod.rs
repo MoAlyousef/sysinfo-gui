@@ -24,11 +24,13 @@ enum SortOrder {
     Virt,
     Cpu,
     Exe,
+    User,
     RevPid,
     RevMem,
     RevVirt,
     RevCpu,
     RevExe,
+    RevUser,
 }
 
 pub struct MyView {

@@ -6,7 +6,6 @@ use fltk_extras::dial::Dial;
 use parking_lot::Mutex;
 use std::sync::Arc;
 use sysinfo::System;
-// sysinfo 0.37 exposes methods without extension traits
 
 pub fn memory(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut sys = view.system.lock();

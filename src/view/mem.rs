@@ -6,7 +6,7 @@ use fltk_extras::dial::Dial;
 use parking_lot::Mutex;
 use std::sync::Arc;
 use sysinfo::System;
-use sysinfo::SystemExt;
+// sysinfo 0.37 exposes methods without extension traits
 
 pub fn memory(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut sys = view.system.lock();
@@ -43,7 +43,7 @@ pub fn memory(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     pack.end();
     t.end();
     let mut dial = Dial::default().with_label("Memory Usage %");
-    row.set_size(&*dial, 150);
+    row.fixed(&*dial, 150);
     dial.modifiable(false);
     dial.set_selection_color(MEM_YELLOW);
     dial.set_value((sys.used_memory() as f64 / sys.total_memory() as f64 * 100.) as i32);
@@ -68,7 +68,7 @@ pub fn memory(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     pack.end();
     t.end();
     let mut dial = Dial::default().with_label("Swap Usage %");
-    row.set_size(&*dial, 150);
+    row.fixed(&*dial, 150);
     dial.modifiable(false);
     dial.set_selection_color(MEM_YELLOW);
     dial.set_value((sys.used_swap() as f64 / sys.total_swap() as f64 * 100.) as i32);

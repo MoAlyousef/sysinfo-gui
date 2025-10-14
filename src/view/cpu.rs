@@ -4,9 +4,7 @@ use fltk_extras::card::Card;
 use parking_lot::Mutex;
 use std::collections::VecDeque;
 use std::sync::Arc;
-use sysinfo::CpuExt;
 use sysinfo::System;
-use sysinfo::SystemExt;
 
 mod cpu_color {
     #![allow(non_upper_case_globals)]
@@ -68,12 +66,12 @@ mod cpu_color {
 
 pub fn proc(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut sys = view.system.lock();
-    sys.refresh_cpu();
+    sys.refresh_cpu_usage();
     let first = sys.cpus().first().unwrap();
     let vendor_id = first.vendor_id().to_string();
     let t = Card::default().with_label(first.brand());
     let mut parent = group::Flex::from_dyn_widget(&t.parent().unwrap()).unwrap();
-    parent.set_size(&*t, 60);
+    parent.fixed(&*t, 60);
     t.begin();
     let mut f = frame::Frame::default().with_size(80, 30).center_of_parent();
     t.end();
@@ -138,7 +136,7 @@ pub fn proc(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     }
     let cb = move || {
         if let Some(mut sys) = sys.try_lock() {
-            sys.refresh_cpu();
+            sys.refresh_cpu_usage();
             for (i, proc) in sys.cpus().iter().enumerate() {
                 v[i].push_back(proc.cpu_usage() as f64);
                 v[i].pop_front();

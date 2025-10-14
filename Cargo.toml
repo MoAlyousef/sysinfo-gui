@@ -16,7 +16,7 @@ identifier = "io.github.moalyousef"
 icon = ["assets/icon.png"]
 
 [dependencies]
-sysinfo = { version = "0.28", default-features = false }
+sysinfo = { version = "0.37" }
 fltk = "1.5.17"
 fltk-extras = "0.1"
 parking_lot = "0.12"

@@ -4,12 +4,11 @@ use crate::utils;
 use fltk::{prelude::*, *};
 use fltk_extras::card::Card;
 use fltk_extras::dial::Dial;
-use sysinfo::DiskExt;
-use sysinfo::SystemExt;
+use sysinfo::Disks;
 
 pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
-    let mut sys = view.system.lock();
-    sys.refresh_disks();
+    // sysinfo 0.37 manages disks via the `Disks` type
+    let disks = Disks::new_with_refreshed_list();
     let mut scroll = group::Scroll::default_fill().with_type(group::ScrollType::Vertical);
     scroll.resize_callback(utils::scroll_resize_cb);
     scroll.set_scrollbar_size(-1);
@@ -20,7 +19,7 @@ pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         .center_of_parent();
     vpack.set_spacing(50);
     frame::Frame::default().with_size(0, 30);
-    for disk in sys.disks() {
+    for disk in disks.list() {
         let mut row = group::Flex::default().row().with_size(0, 130);
         row.set_margin(10);
         let t = Card::default()
@@ -38,8 +37,8 @@ pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             .with_size(80, 35)
             .with_label(&format!(
                 "{:?}: {} - Space: {:.02} GiB",
-                disk.type_(),
-                String::from_utf8(disk.file_system().to_vec()).unwrap(),
+                disk.kind(),
+                disk.file_system().to_string_lossy(),
                 disk.total_space() as f64 / 2_f64.powf(30.)
             ));
         frame::Frame::default()
@@ -51,7 +50,7 @@ pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         vpack.end();
         t.end();
         let mut dial = Dial::default().with_label("Used space %");
-        row.set_size(&*dial, 120);
+        row.fixed(&*dial, 120);
         dial.modifiable(false);
         dial.set_value(
             ((disk.total_space() - disk.available_space()) as f64 * 100.

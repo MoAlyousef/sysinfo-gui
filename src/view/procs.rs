@@ -6,9 +6,7 @@ use parking_lot::Mutex;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
-use sysinfo::ProcessExt;
-use sysinfo::System;
-use sysinfo::SystemExt;
+use sysinfo::{ProcessesToUpdate, System, Pid, Signal};
 
 struct ProcToggle {
     b: button::RadioButton,
@@ -61,7 +59,7 @@ impl Proc {
             memory: proc.memory(),
             virt: proc.virtual_memory(),
             cpu: proc.cpu_usage(),
-            exe: proc.name().to_string(),
+            exe: proc.name().to_string_lossy().into_owned(),
             // total_written_bytes: 0,
             // written_bytes: 0,
             // total_read_bytes: 0,
@@ -96,10 +94,10 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     *ord = SortOrder::Pid;
     drop(ord);
     let mut sys = view.system.lock();
-    sys.refresh_processes();
+    sys.refresh_processes(ProcessesToUpdate::All, true);
     let hpack = group::Pack::default().with_type(group::PackType::Horizontal);
     let mut parent = group::Flex::from_dyn_widget(&hpack.parent().unwrap()).unwrap();
-    parent.set_size(&hpack, 30);
+    parent.fixed(&hpack, 30);
     let mut b = ProcToggle::new("pid", view.ordering.clone());
     b.set_value(true);
     b.handle({
@@ -225,7 +223,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     });
     grp.end();
     let mut row = group::Flex::default().row();
-    parent.set_size(&row, 30);
+    parent.fixed(&row, 30);
     frame::Frame::default();
     let mut btn = button::Button::default().with_label("End task");
     btn.set_frame(FrameType::RFlatBox);
@@ -242,9 +240,9 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
                     let sys = sys.lock();
                     let v: Vec<&str> = text.split_ascii_whitespace().collect();
                     let pid = if light_mode { v[0] } else { v[1] };
-                    let pid = sysinfo::Pid::from_str(pid).unwrap();
+                    let pid = Pid::from_str(pid).unwrap();
                     if let Some(p) = sys.process(pid) {
-                        p.kill_with(sysinfo::Signal::Kill).unwrap();
+                        let _ = p.kill_with(Signal::Kill);
                     }
                     drop(sys);
                 }
@@ -252,7 +250,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         }
     });
     frame::Frame::default();
-    row.set_size(&btn, 80);
+    row.fixed(&btn, 80);
     row.end();
     menu.set_callback(move |m| {
         if let Some(v) = m.choice() {
@@ -273,7 +271,7 @@ pub fn procs(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let ord = view.ordering.clone();
     let cb = move || {
         if let Some(mut sys) = sys.try_lock() {
-            sys.refresh_processes();
+            sys.refresh_processes(ProcessesToUpdate::All, true);
             let mut ps = vec![];
             for (pid, process) in sys.processes() {
                 ps.push(Proc::new(pid, process));

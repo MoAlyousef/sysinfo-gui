@@ -38,7 +38,7 @@ pub fn settings(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         });
         frame::Frame::default();
         col.end();
-        row.set_size(&col, 80);
+        row.fixed(&col, 80);
         row.end();
         let mut row = group::Flex::default().row();
         frame::Frame::default()
@@ -58,7 +58,7 @@ pub fn settings(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         });
         frame::Frame::default();
         col.end();
-        row.set_size(&col, 80);
+        row.fixed(&col, 80);
         row.end();
         let mut row = group::Flex::default().row();
         frame::Frame::default()
@@ -80,7 +80,7 @@ pub fn settings(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         });
         frame::Frame::default();
         col.end();
-        row.set_size(&col, 80);
+        row.fixed(&col, 80);
         row.end();
         let mut row = group::Flex::default().row();
         frame::Frame::default()
@@ -101,7 +101,7 @@ pub fn settings(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         });
         frame::Frame::default();
         col.end();
-        row.set_size(&col, 80);
+        row.fixed(&col, 80);
     }
     row.end();
     None

@@ -14,7 +14,7 @@ use std::sync::{
     atomic::{AtomicBool, AtomicU64, Ordering},
     Arc,
 };
-use sysinfo::{System, SystemExt};
+use sysinfo::System;
 
 #[repr(i32)]
 #[derive(Debug, Clone, Copy, PartialEq)]

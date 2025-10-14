@@ -58,7 +58,7 @@ impl App {
         let mut grp = group::Group::default()
             .with_label("\tSysinfo")
             .with_align(Align::Left | Align::Inside);
-        main_col.set_size(&grp, 50);
+        main_col.fixed(&grp, 50);
         grp.set_label_color(Color::White);
         grp.set_label_size(app::font_size() + 5);
         grp.set_frame(FrameType::FlatBox);
@@ -67,7 +67,7 @@ impl App {
         let mut main_row = group::Row::default_fill();
         main_row.set_pad(0);
         let mut col = group::Column::default();
-        main_row.set_size(&*col, 60);
+        main_row.fixed(&*col, 60);
         col.set_frame(FrameType::FlatBox);
         col.set_color(BLUE);
         col.set_pad(10);

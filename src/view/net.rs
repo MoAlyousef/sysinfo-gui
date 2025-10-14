@@ -3,7 +3,7 @@ use crate::utils;
 use fltk::{prelude::*, *};
 use fltk_extras::card::Card;
 use parking_lot::Mutex;
-use std::sync::{atomic::Ordering, Arc};
+use std::sync::Arc;
 use sysinfo::NetworkExt;
 use sysinfo::NetworksExt;
 use sysinfo::System;
@@ -52,7 +52,6 @@ pub fn network(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     scroll.end();
     let frames = Arc::new(Mutex::new(frames));
     let sys = Arc::new(Mutex::new(System::new_all()));
-    let sleep = view.sleep.clone();
     let cb = move || {
         if let Some(mut sys) = sys.try_lock() {
             sys.refresh_networks();
@@ -72,9 +71,6 @@ pub fn network(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             }
             app::awake();
         }
-        std::thread::sleep(std::time::Duration::from_millis(
-            sleep.load(Ordering::Relaxed),
-        ));
     };
     Some(Box::new(cb))
 }

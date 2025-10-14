@@ -10,24 +10,25 @@ pub struct App {
     a: app::App,
     r: app::Receiver<Message>,
     main_view: group::Flex,
+    timer: Option<app::TimeoutHandle>,
 }
 
 impl App {
     pub fn new() -> Self {
-        std::panic::set_hook(Box::new(|info| {
-            if let Some(s) = info.payload().downcast_ref::<&str>() {
-                // we shamefully use those to end spawned threads
-                if !s.contains("self.was_deleted") {
-                    fltk::dialog::message_default(s);
-                }
-            } else if let Some(s) = info.payload().downcast_ref::<String>() {
-                if !s.contains("self.was_deleted") {
-                    fltk::dialog::message_default(s);
-                }
-            } else {
-                fltk::dialog::message_default(&format!("{:?}", info));
-            }
-        }));
+        // std::panic::set_hook(Box::new(|info| {
+        //     if let Some(s) = info.payload().downcast_ref::<&str>() {
+        //         // we shamefully use those to end spawned threads
+        //         if !s.contains("self.was_deleted") {
+        //             fltk::dialog::message_default(s);
+        //         }
+        //     } else if let Some(s) = info.payload().downcast_ref::<String>() {
+        //         if !s.contains("self.was_deleted") {
+        //             fltk::dialog::message_default(s);
+        //         }
+        //     } else {
+        //         fltk::dialog::message_default(&format!("{:?}", info));
+        //     }
+        // }));
         let a = app::App::default();
         let (r, g, b) = GRAY.to_rgb();
         app::background(r, g, b);
@@ -111,32 +112,40 @@ impl App {
                 w.hide();
             }
         });
-        Self { a, r, main_view }
+        Self { a, r, main_view, timer: None }
     }
     pub fn run(mut self, view: impl View + 'static) {
         self.main_view.begin();
         let cb = view.view(Message::General);
-        Self::dispatch(cb, view.sleep_duration());
+        self.dispatch(cb, view.sleep_duration());
         self.main_view.end();
         while self.a.wait() {
             if let Some(msg) = self.r.recv() {
+                // Stop previous timer before clearing widgets
+                if let Some(h) = self.timer.take() {
+                    app::remove_timeout3(h);
+                }
                 self.main_view.clear();
                 self.main_view.begin();
                 let cb = view.view(msg);
-                Self::dispatch(cb, view.sleep_duration());
+                self.dispatch(cb, view.sleep_duration());
                 self.main_view.end();
                 app::redraw();
             }
         }
     }
-    fn dispatch(cb: Option<Box<dyn FnMut() + Send>>, sleep: u64) {
+    fn dispatch(&mut self, cb: Option<Box<dyn FnMut() + Send>>, sleep: u64) {
+        // Cancel any existing timer
+        if let Some(h) = self.timer.take() {
+            app::remove_timeout3(h);
+        }
         if let Some(mut cb) = cb {
-            std::thread::spawn({
-                move || loop {
-                    cb();
-                    std::thread::sleep(std::time::Duration::from_millis(sleep));
-                }
+            let interval = (sleep as f64) / 1000.0;
+            let handle = app::add_timeout3(0.0, move |h| {
+                cb();
+                app::repeat_timeout3(interval, h);
             });
+            self.timer = Some(handle);
         }
     }
 }

@@ -17,7 +17,7 @@ icon = ["assets/icon.png"]
 
 [dependencies]
 sysinfo = { version = "0.28", default-features = false }
-fltk = "1.3.16"
+fltk = "1.5.17"
 fltk-extras = "0.1"
 parking_lot = "0.12"
 dark-light = { version = "0.2.2", optional = true }

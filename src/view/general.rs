@@ -117,7 +117,7 @@ pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             let mem = (sys.used_memory() as f64 / sys.total_memory() as f64) * 100.;
             let mut total_space = 0;
             let mut avail_space = 0;
-            let mut ds = Disks::new_with_refreshed_list();
+            let ds = Disks::new_with_refreshed_list();
             for disk in ds.list() {
                 total_space += disk.total_space();
                 avail_space += disk.available_space();

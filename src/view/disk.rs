@@ -6,7 +6,7 @@ use fltk_extras::card::Card;
 use fltk_extras::dial::Dial;
 use sysinfo::Disks;
 
-pub fn disks(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
+pub fn disks(_view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     // sysinfo 0.37 manages disks via the `Disks` type
     let disks = Disks::new_with_refreshed_list();
     let mut scroll = group::Scroll::default_fill().with_type(group::ScrollType::Vertical);

@@ -112,7 +112,12 @@ impl App {
                 w.hide();
             }
         });
-        Self { a, r, main_view, timer: None }
+        Self {
+            a,
+            r,
+            main_view,
+            timer: None,
+        }
     }
     pub fn run(mut self, view: impl View + 'static) {
         self.main_view.begin();

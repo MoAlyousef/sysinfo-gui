@@ -20,7 +20,7 @@ sysinfo = { version = "0.37" }
 fltk = "1.5.17"
 fltk-extras = "0.1"
 parking_lot = "0.12"
-dark-light = { version = "0.2.2", optional = true }
+dark-light = { version = "2", optional = true }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
 winres = "0.1"

@@ -6,7 +6,7 @@ use parking_lot::Mutex;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
-use sysinfo::{ProcessesToUpdate, System, Pid, Signal, Users};
+use sysinfo::{Pid, ProcessesToUpdate, Signal, System, Users};
 
 struct ProcToggle {
     b: button::RadioButton,

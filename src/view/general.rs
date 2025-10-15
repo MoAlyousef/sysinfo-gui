@@ -5,7 +5,7 @@ use fltk_extras::card::Card;
 use fltk_extras::dial::HalfDial;
 use parking_lot::Mutex;
 use std::sync::Arc;
-use sysinfo::{DiskExt, NetworkExt, NetworksExt, ProcessExt, System, SystemExt};
+use sysinfo::{Disks, Networks, System};
 
 pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mut sys = view.system.lock();
@@ -13,7 +13,8 @@ pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     let mem = (sys.used_memory() as f64 / sys.total_memory() as f64) * 100.;
     let mut total_space = 0;
     let mut avail_space = 0;
-    for disk in sys.disks() {
+    let disks = Disks::new_with_refreshed_list();
+    for disk in disks.list() {
         total_space += disk.total_space();
         avail_space += disk.available_space();
     }
@@ -51,42 +52,40 @@ pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
         .with_size(80, 60)
         .with_label(&format!(
             "System name: {}",
-            &sys.name().unwrap_or_else(|| "<unknown>".to_owned())
+            System::name().unwrap_or_else(|| "<unknown>".to_owned())
         ));
     frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_size(80, 60)
         .with_label(&format!(
             "Kernel version: {}",
-            &sys.kernel_version()
-                .unwrap_or_else(|| "<unknown>".to_owned()),
+            System::kernel_version().unwrap_or_else(|| "<unknown>".to_owned()),
         ));
     frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_size(80, 60)
         .with_label(&format!(
             "OS version: {}",
-            &sys.os_version().unwrap_or_else(|| "<unknown>".to_owned())
+            System::os_version().unwrap_or_else(|| "<unknown>".to_owned())
         ));
     frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_size(80, 60)
         .with_label(&format!(
             "Long OS version: {}",
-            &sys.long_os_version()
-                .unwrap_or_else(|| "<unknown>".to_owned())
+            System::long_os_version().unwrap_or_else(|| "<unknown>".to_owned())
         ));
     frame::Frame::default()
         .with_align(Align::Left | Align::Inside)
         .with_size(80, 60)
         .with_label(&format!(
             "Host name: {}",
-            &sys.host_name().unwrap_or_else(|| "<unknown>".to_owned())
+            System::host_name().unwrap_or_else(|| "<unknown>".to_owned())
         ));
     t.end();
     let mut vpack = group::Flex::default().column();
     vpack.set_pad(30);
-    row.set_size(&vpack, 160);
+    row.fixed(&vpack, 160);
     let t = Card::default().with_size(200, 100).with_label("Download");
     t.begin();
     let mut download = frame::Frame::default()
@@ -111,13 +110,15 @@ pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
     drop(sys);
     let dials = Arc::new(Mutex::new(dials));
     let sys = Arc::new(Mutex::new(System::new_all()));
+    let networks = Arc::new(Mutex::new(Networks::new_with_refreshed_list()));
     let cb = move || {
         if let Some(mut sys) = sys.try_lock() {
             sys.refresh_all();
             let mem = (sys.used_memory() as f64 / sys.total_memory() as f64) * 100.;
             let mut total_space = 0;
             let mut avail_space = 0;
-            for disk in sys.disks() {
+            let ds = Disks::new_with_refreshed_list();
+            for disk in ds.list() {
                 total_space += disk.total_space();
                 avail_space += disk.available_space();
             }
@@ -129,9 +130,12 @@ pub fn general(view: &MyView) -> Option<Box<dyn FnMut() + Send>> {
             }
             let mut total_recv = 0;
             let mut total_transm = 0;
-            for comp in sys.networks().iter() {
-                total_recv += comp.1.total_received();
-                total_transm += comp.1.total_transmitted();
+            if let Some(mut nets) = networks.try_lock() {
+                nets.refresh(true);
+                for (_name, data) in nets.iter() {
+                    total_recv += data.total_received();
+                    total_transm += data.total_transmitted();
+                }
             }
             dials.lock()[0].set_value(cpu_usage as i32);
             dials.lock()[1].set_value(mem as i32);

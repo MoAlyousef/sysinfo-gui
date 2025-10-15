@@ -14,7 +14,7 @@ jobs:
       shell: bash
       run: cargo build --release --features=fltk/fltk-bundled
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: sysinfo-gui-windows
         path: target/release/sysinfo-gui.exe

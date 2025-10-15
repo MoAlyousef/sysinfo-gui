@@ -20,7 +20,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y libpango1.0-dev libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev
          fi
       shell: bash
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
     - name: Build
       shell: bash
       run: cargo check
